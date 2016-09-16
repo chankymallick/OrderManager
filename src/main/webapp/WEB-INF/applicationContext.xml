@@ -9,17 +9,12 @@
         <property name="url" value="jdbc:sqlserver://192.168.1.102:1433;databaseName=OrderManager"/>
         <property name="username" value="sa"/>
         <property name="password" value="520759"/>   
-    </bean>  
-    <!--
-        
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    </bean> 
+    <bean id="JdbcDataSource" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="ds"/>
     </bean>
-    
-    <bean id="StudentDAO" class="com.feedtalk.springmaven.StudentDAO">
-        <property  name="jdbcTemplate" ref="jdbcTemplate"/>
+    <bean id="UserDao" class="com.ordermanager.users.dao.UserDAO">
+        <property  name="JdbcTemplate" ref="JdbcDataSource"/>
     </bean>
-    <bean id="SupportDAO" class="com.feedtalk.springmaven.SimpleJDBCTemplateDao">
-        <property  name="dataSource" ref="ds"/>
-    </bean>-->   
+   
 </beans>
