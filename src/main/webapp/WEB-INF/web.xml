@@ -12,13 +12,13 @@
     <servlet-mapping>
         <servlet-name>SpringConfiguration</servlet-name>     
         <url-pattern>/</url-pattern>      
-    </servlet-mapping>     
-    <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
-    </welcome-file-list>               
-    <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
-    </session-config> 
+    </servlet-mapping>   
+<welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+</welcome-file-list>               
+<session-config>
+    <session-timeout>
+        30
+    </session-timeout>
+</session-config> 
 </web-app>

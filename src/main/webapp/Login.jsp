@@ -1,17 +1,30 @@
-<%-- 
-    Document   : index.jsp
-    Created on : Sep 13, 2016, 10:13:54 PM
-    Author     : Maliick
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Order Manager V 1.0 </title>    
+    <link href="<c:url value='/resources/TemplateFiles/loginpagefiles/style.css' />" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div id="headerTab">       
+        
+    </div>  
+    <form action="index.html" class="login">
+        <h1>Login</h1>
+        <div class="dropdown dropdown-dark">
+             <select name="two" class="dropdown-select">
+               <option value="">Select User</option>
+               <option value="1">Chanky</option>
+               <option value="2">skumarpal</option>
+               <option value="3">uttam</option>
+             </select>
+           </div>
+        <input type="password" name="password" class="login-input" placeholder="Password">
+        <input type="submit" value="Login" class="login-submit">
+        <p class="login-help"><a href="index.html">Forgot password?</a></p>
+    </form>    
+</body>
 </html>
