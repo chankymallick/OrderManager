@@ -12,7 +12,7 @@
     <div id="headerTab">       
         
     </div>  
-    <form action="test" class="login">
+    <form action="Login" class="login">
         <h1>Login</h1>
         <div class="dropdown dropdown-dark">
              <select name="two" class="dropdown-select">

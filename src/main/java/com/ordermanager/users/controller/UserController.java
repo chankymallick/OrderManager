@@ -16,21 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Controller
 public class UserController {
-    @Autowired
-     ServletContext servletContext;
+
     private static final String AppCtx = "C:\\Users\\Maliick\\Documents\\NetBeansProjects\\OrderManager\\src\\main\\webapp\\WEB-INF\\applicationContext.xml";
-    @RequestMapping("/test")
+    
     public ModelAndView getUserName(Model model){ 
     ApplicationContext ctx = new FileSystemXmlApplicationContext(AppCtx);    
-        try {
-           File rootDir = new File( servletContext.getRealPath("/WEB-INF/Language/") );
-            System.out.println(rootDir.getAbsolutePath());
-        } catch (Exception e) {
-        }
-   
-
-      String name = ctx.getMessage("cname",null,null,null);
-        System.out.println(name);
+     
+    
     return new ModelAndView("Home");
     }
     
