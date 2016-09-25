@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package com.ordermanager.order.dao;
-import com.ordermanager.order.pojo.Order;
+import com.ordermanager.order.model.Order;
 import java.util.ArrayList;
 import java.util.List;
 /**
