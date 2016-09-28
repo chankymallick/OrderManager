@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ComponentXMLGenarator {
     @RequestMapping("/LoadMenuItems")
-    public ModelAndView loadMenuItems(@RequestParam("menutype") String MenuType){    
-    return new ModelAndView("LoadMenuItems","menuListType",MenuType);
+    public ModelAndView loadMenuItems(@RequestParam("menutype") String Type){    
+    return new ModelAndView("LoadXMLComponent","Type",Type);
+    }
+    @RequestMapping("/LoadDataViewGrid")
+    public ModelAndView dataViewGrid(@RequestParam("gridname") String Type){    
+    return new ModelAndView("LoadXMLComponent","Type",Type);
     }
     
 }

@@ -1,3 +1,5 @@
+/// <reference path="..//Utility/Utility.ts"/>
+declare var progressOffCustom:any;
 declare var dhtmlXLayoutObject;
 module com.ordermanager.home{
 export class OrderManagerHome{
@@ -5,6 +7,7 @@ export class OrderManagerHome{
     public HomeToolbar:any;
     public MenuAccordionObj:any;
     public MenuGrid:any;
+    public FormEntryManagerObject:any;
     constructor(){
 
       this.initLayout();
@@ -18,7 +21,7 @@ export class OrderManagerHome{
                 [
                 {id : "a",text : "Menu",width : 250 },
                 {id : "b",text : "Dashboard"},
-                {id : "c",text : "Notifications",height:150}
+                {id : "c",text : "Notifications",height:150,collapse:true}
                 ]
               });
       this.HomeLayoutObject.progressOn();
@@ -38,7 +41,6 @@ export class OrderManagerHome{
       this.MenuAccordionObj.attachEvent("onActive", (id, state)=>{
             this.loadMenuItems(id)
       });
-      this.HomeLayoutObject.progressOff();
     }
     public skinChanger(dhtmlxObject:any,skinType:any){
          if(skinType === "white"){
@@ -56,7 +58,14 @@ export class OrderManagerHome{
       this.MenuGrid.setColAlign("left,left");
       this.MenuGrid.setColTypes("ro,ro");
       this.MenuGrid.init();
+      this.MenuGrid.attachEvent("onXLE",()=>{
+        progressOffCustom(this.HomeLayoutObject);
+      });
       this.MenuGrid.load("LoadMenuItems?menutype="+itemtype);
+      this.MenuGrid.attachEvent("onRowSelect",(id,ind) =>{
+      this.FormEntryManagerObject =  new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"),this.HomeLayoutObject.cells("c"),"loadNewOrderItemForm",0,200);
+      this.HomeLayoutObject.cells("c").showHeader();
+      });
     }
 
     }

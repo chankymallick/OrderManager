@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/xml" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<c:if test="${menuListType.equals('ordersandbills')}">
+<c:if test="${Type.equals('ordersandbills')}">
     <rows>
         <row id="1">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
@@ -37,7 +36,7 @@
         </row>
     </rows>
 </c:if>
-<c:if test="${menuListType.equals('mastertailor')}">
+<c:if test="${Type.equals('mastertailor')}">
     <rows>
         <row id="1">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
@@ -53,3 +52,49 @@
         </row>
     </rows>
 </c:if>
+<c:if test="${Type.equals('loadNewOrderItemForm')}">
+    <rows>
+        <row id="1">
+            <cell>1</cell>
+            <cell>ASTRA</cell>   
+            <cell>EXTRA</cell>
+            <cell>5</cell>
+            <cell>15</cell>   
+            <cell>0</cell>
+            <cell>YES</cell>
+            <cell>DONE</cell>
+        </row> 
+        <row id="2">
+            <cell>1</cell>
+            <cell>Half Stitch</cell>   
+            <cell>EXTRA</cell>
+            <cell>55</cell>
+            <cell>45</cell>   
+            <cell>5</cell>
+            <cell>YES</cell>
+            <cell>DONE</cell>
+        </row>     
+        <row id="3">
+            <cell>1</cell>
+            <cell>DOUBLE LESS LACHA</cell>   
+            <cell>EXTRA</cell>
+            <cell>50</cell>
+            <cell>120</cell>   
+            <cell>0</cell>
+            <cell>YES</cell>
+            <cell>DONE</cell>
+        </row> 
+        <row id="4">
+            <cell>1</cell>
+            <cell>CHURI PA</cell>   
+            <cell>EXTRA</cell>
+            <cell>0</cell>
+            <cell>10</cell>   
+            <cell>3</cell>
+            <cell>YES</cell>
+            <cell>DONE</cell>
+        </row>       
+    </rows>
+</c:if>
+
+ 

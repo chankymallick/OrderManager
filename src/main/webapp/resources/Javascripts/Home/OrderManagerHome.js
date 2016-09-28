@@ -16,7 +16,7 @@ var com;
                         cells: [
                             { id: "a", text: "Menu", width: 250 },
                             { id: "b", text: "Dashboard" },
-                            { id: "c", text: "Notifications", height: 150 }
+                            { id: "c", text: "Notifications", height: 150, collapse: true }
                         ]
                     });
                     this.HomeLayoutObject.progressOn();
@@ -36,7 +36,6 @@ var com;
                     this.MenuAccordionObj.attachEvent("onActive", function (id, state) {
                         _this.loadMenuItems(id);
                     });
-                    this.HomeLayoutObject.progressOff();
                 };
                 OrderManagerHome.prototype.skinChanger = function (dhtmlxObject, skinType) {
                     if (skinType === "white") {
@@ -44,6 +43,7 @@ var com;
                     }
                 };
                 OrderManagerHome.prototype.loadMenuItems = function (itemtype) {
+                    var _this = this;
                     if (this.MenuGrid != null || this.MenuGrid === undefined) {
                         this.MenuGrid.destructor();
                     }
@@ -54,7 +54,14 @@ var com;
                     this.MenuGrid.setColAlign("left,left");
                     this.MenuGrid.setColTypes("ro,ro");
                     this.MenuGrid.init();
+                    this.MenuGrid.attachEvent("onXLE", function () {
+                        progressOffCustom(_this.HomeLayoutObject);
+                    });
                     this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
+                    this.MenuGrid.attachEvent("onRowSelect", function (id, ind) {
+                        _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), "loadNewOrderItemForm", 0, 200);
+                        _this.HomeLayoutObject.cells("c").showHeader();
+                    });
                 };
                 return OrderManagerHome;
             }());
