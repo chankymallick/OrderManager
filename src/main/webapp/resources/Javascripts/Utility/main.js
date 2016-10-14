@@ -23,7 +23,7 @@ function SynchronousGetAjaxRequest(Url, Paramas, ProgressObject) {
             ProgressObject.progressOn();
         }
         var response = window.dhx.ajax.getSync(Url, Paramas);
-        var json = window.dhx.s2j(response.xmlDoc.responseText);
+        var json = window.dhx.s2j(response.xmlDoc.responseText);       
         if (ProgressObject != null) {
             ProgressObject.progressOff();
         }
@@ -45,4 +45,18 @@ function ItemName(data) {
     } else {
         return true;
     }
+}
+function showSuccessNotification(data){
+    dhtmlx.message({
+    text:data,
+    expire:5000,
+    type: "SuccessNotification"
+});
+}
+function showFailedNotification(data){
+    dhtmlx.message({
+    text:data,
+    expire:5000,
+    type: "error"
+});
 }

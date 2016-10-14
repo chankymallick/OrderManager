@@ -1,35 +1,37 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.ordermanager.order.dao;
+
+import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.order.model.Order;
+import com.ordermanager.utility.DAOUtility;
+import com.ordermanager.utility.ResponseJSONHandler;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
+import org.json.JSONObject;
+
 /**
  *
  * @author Maliick
  */
-public class OrderDAO {
-    public boolean addNewOrder(){
-    return false;
-    }    
-    public boolean editOrder(){
-    return false;
+public class OrderDAO extends DAOUtility {
+
+    public String addItem(JSONObject paramJson) {
+        ResponseJSONHandler responseJSON = new ResponseJSONHandler();
+        try {
+            int UIDvalue = this.getColumnAutoIncrementValue("ITEMS", "ITEM_UID");
+            paramJson.put("ITEM_UID=NUM", UIDvalue);
+            String InsertQuery = this.getSimpleSQLInsert(paramJson, "ITEMS");
+            this.getJdbcTemplate().execute(InsertQuery);
+            this.generateSQLSuccessResponse(responseJSON, "Item data Succesfully Saved");
+        } catch (Exception ex) {
+          this.generateSQLExceptionResponse(responseJSON, ex, "Failed to Save Item Data");
+        }
+        return responseJSON.getJSONResponse();
     }
-    public Order getSingleOrder(int BillNo){
-    return new Order();
-    }      
-    public List<Order> getAllOrdersByWeek(){
-    return new ArrayList<>();
+    public List<Object> getGridData(String TableName){
+        String SQL = "SELECT *FROM "+TableName;
+        return this.getJSONDataForGrid(SQL);    
     }
-    public List<Order> getAllOrdersByMonth(){
-    return new ArrayList<>();
-    }
-    /*Required Parameter from/to */
-    public List<Order> getAllOrdersByDate(){
-    return new ArrayList<>();
-    }
-       
+    
+
 }

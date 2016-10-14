@@ -24,7 +24,7 @@ var com;
                 FormEntryManager.prototype.shortCutRegister = function () {
                     var _this = this;
                     shortcut.add("F8", function () {
-                        _this.setFormStateAfterSave();
+                        _this.validateAndSaveFormData();
                     }, {
                         'type': 'keyup',
                         'disable_in_input': false,
@@ -52,11 +52,6 @@ var com;
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
                     this.OperationToolbar.loadStruct("operationToolbar", "json");
                     this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
-                    this.DataViewGridObject.setHeader("UID,ITEM NAME,ITEM TYPE,MASTER PRICE,TAILOR PRICE,FINISHER PRICE,ACTIVE,NOTE");
-                    this.DataViewGridObject.setInitWidths("20,200,100,100,100,150,100,180");
-                    this.DataViewGridObject.setColAlign("left,left,left,left,left,left,left,left");
-                    this.DataViewGridObject.setColTypes("ro,ro,ro,ro,ro,ro,ro,ro");
-                    this.DataViewGridObject.init();
                     this.DataViewGridObject.load("LoadDataViewGrid?gridname=" + this.FormName);
                     this.DataViewGridObject.attachEvent("onRowSelect", function (id, ind) {
                     });
@@ -94,7 +89,7 @@ var com;
                     this.OperationToolbar.enableItem("clear");
                     shortcut.remove("F4");
                     shortcut.add("F8", function () {
-                        _this.setFormStateAfterSave();
+                        _this.validateAndSaveFormData();
                     }, {
                         'type': 'keyup',
                         'disable_in_input': false,
@@ -102,7 +97,34 @@ var com;
                         'propagate': true
                     });
                 };
-                FormEntryManager.prototype.setSpecificFormSettings = function () {
+                FormEntryManager.prototype.validateAndSaveFormData = function () {
+                    if (this.FormObject.validate()) {
+                        this.FormObject.updateValues();
+                        var Response = SynchronousGetAjaxRequest("addItem?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", this.DataEntryLayoutCell);
+                        if (Response.RESPONSE_STATUS === "SUCCESS") {
+                            showSuccessNotification(Response.RESPONSE_MESSAGE);
+                            this.setFormStateAfterSave();
+                            this.NotificationCell.collapse();
+                        }
+                        if (Response.RESPONSE_STATUS === "FAILED") {
+                            showFailedNotification(Response.RESPONSE_MESSAGE);
+                            this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                            this.NotificationCell.expand();
+                        }
+                    }
+                    else {
+                        showFailedNotification("Data Validation Error");
+                    }
+                };
+                FormEntryManager.prototype.setSpecificFormSettingsoNLoad = function () {
+                    if (this.FormName === "loadNewOrderItemForm") {
+                    }
+                };
+                FormEntryManager.prototype.setSpecificBeforeSave = function () {
+                    if (this.FormName === "loadNewOrderItemForm") {
+                    }
+                };
+                FormEntryManager.prototype.setSpecificAfterSave = function () {
                     if (this.FormName === "loadNewOrderItemForm") {
                     }
                 };

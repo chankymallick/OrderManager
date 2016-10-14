@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-
+import com.ordermanager.utility.ConstantContainer;
 @Controller
 public class LoginController {
 
@@ -19,6 +19,13 @@ public class LoginController {
 
     @RequestMapping("/Login")
     public ModelAndView Login(Model model) {
+          try {
+            File rootDir = new File(servletContext.getRealPath("/WEB-INF/applicationContext.xml"));
+            System.out.println(rootDir.getAbsolutePath());
+            ConstantContainer.Application_Context_File_Path = rootDir.getAbsolutePath();
+        } catch (Exception e) {
+        }
+        
         try {
             File rootDir = new File(servletContext.getRealPath("/WEB-INF/Language/Bengali_Language_Pack.properties"));
             System.out.println(rootDir.getAbsolutePath());
@@ -29,7 +36,7 @@ public class LoginController {
         }
         return new ModelAndView("Home");
     }
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value ={ "/","/index.html","/Login.jsp","/Login.html","/index.jsp"}, method = RequestMethod.GET)
     public ModelAndView WelcomePageRedirection(Model model) {
         return new ModelAndView("Login");
     } 

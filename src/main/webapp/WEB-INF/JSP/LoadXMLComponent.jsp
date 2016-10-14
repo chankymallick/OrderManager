@@ -52,49 +52,34 @@
         </row>
     </rows>
 </c:if>
-<c:if test="${Type.equals('loadNewOrderItemForm')}">
+<c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
     <rows>
-        <row id="1">
-            <cell>1</cell>
-            <cell>ASTRA</cell>   
-            <cell>EXTRA</cell>
-            <cell>5</cell>
-            <cell>15</cell>   
-            <cell>0</cell>
-            <cell>YES</cell>
-            <cell>DONE</cell>
-        </row> 
-        <row id="2">
-            <cell>1</cell>
-            <cell>Half Stitch</cell>   
-            <cell>EXTRA</cell>
-            <cell>55</cell>
-            <cell>45</cell>   
-            <cell>5</cell>
-            <cell>YES</cell>
-            <cell>DONE</cell>
+        <head>      
+        <column width="30" type="ro" align="left" color="white" sort="str">UID</column>   
+        <column width="200" type="ro" align="left" color="white" sort="str">ITEM NAME</column>   
+        <column width="100" type="ro" align="left" color="white" sort="str">ITEM TYPE</column>   
+        <column width="100" type="ro" align="left" color="white" sort="int">MASTER PRICE</column>   
+        <column width="100" type="ro" align="left" color="white" sort="int">TAILOR PRICE</column>   
+        <column width="150" type="ro" align="left" color="white" sort="int">FINISHER PRICE</column>   
+        <column width="100" type="ro" align="left" color="white" sort="int">ACTIVE</column>   
+        <column width="160" type="ro" align="left" color="white" sort="str">NOTE</column>   
+        <afterInit>  
+            <call command="attachHeader">
+                <param>&#160;,#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+            </c:forEach>
         </row>     
-        <row id="3">
-            <cell>1</cell>
-            <cell>DOUBLE LESS LACHA</cell>   
-            <cell>EXTRA</cell>
-            <cell>50</cell>
-            <cell>120</cell>   
-            <cell>0</cell>
-            <cell>YES</cell>
-            <cell>DONE</cell>
-        </row> 
-        <row id="4">
-            <cell>1</cell>
-            <cell>CHURI PA</cell>   
-            <cell>EXTRA</cell>
-            <cell>0</cell>
-            <cell>10</cell>   
-            <cell>3</cell>
-            <cell>YES</cell>
-            <cell>DONE</cell>
-        </row>       
-    </rows>
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
 </c:if>
 
- 
+

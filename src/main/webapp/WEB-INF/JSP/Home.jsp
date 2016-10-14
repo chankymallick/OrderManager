@@ -16,6 +16,7 @@
                 line-height: 0px;
                 margin-top: 15px;
                 height: 17px;
+                text-transform: uppercase;
             }         
             .dhxform_obj_material div.dhxform_img.btn2state_0 {
                 background-image: url("resources/Images/toggle_off.png");
@@ -28,10 +29,14 @@
                 width: 42px;
                 height: 24px;
             }
+            .dhtmlx-SuccessNotification{
+                font-weight:bold !important;
+                color:blue !important;          
+            }
 
         </style>
-         <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>
-         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
+        <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>
+        <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
         <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 

@@ -7,6 +7,33 @@
 <%@page contentType="application/json" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:if test="${FormType.equals('loadNewOrderItemForm')}">
+    [
+    {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
+    {type: "block", width: "auto", blockOffset: 40, list: [
+    {type: "label", label: "<span style=\'color:white\'>ENTER DETAILS</span>", value: "", name: "LABEL_DETAILS", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},    
+    {type: "combo", label: "ITEM NAME", name:"ITEM_NAME=STR",inputWidth:200, filtering: true, filterCache: true,style: "font-weight:bold;background-color:#edeaea;", validate:"ItemName",maxLength:20,required:true, tooltip: "ITEM NAME MUST BE UNIQUE",options:[
+    {text: "Astra", value: "Astra"},
+    {text: "Top", value: "Top"}  
+    ]},
+    {type: "select", label: "ITEM TYPE", value: "", name: "ITEM_TYPE=STR", inputWidth: "200", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "20", tooltip: "SELECT ITEM TYPE", icon: "icon-input",options:[
+    {text: "Admin", value: "admin"},    
+    {text: "Organiser", value: "org"},
+    {text: "Power User", value: "poweruser"},
+    {text: "User", value: "user", selected:true}
+    ]},
+    {type: "newcolumn", offset: "20"},
+    {type: "label", label: "<span style=\'color:white\'>ENTER RATES</span>", value: "", name: "LABEL_RATE", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},
+    {type: "input", label: "MASTER PRICE", name: "MASTER_PRICE=NUM", inputWidth: "100", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "ValidNumeric", maxLength: "3", tooltip: "Enter rate for master", icon: "icon-select", labelWidth: "150"},
+    {type: "input", label: "TAILOR PRICE", name: "TAILOR_PRICE=NUM", inputWidth: "100", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "ValidNumeric", maxLength: "3", tooltip: "Enter rate for master", icon: "icon-input", labelWidth: "150"},
+    {type: "input", label: "FINISHER PRICE", name: "FINISHER_PRICE=NUM", inputWidth: "100", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "ValidNumeric", maxLength: "3", tooltip: "Enter rate for master", icon: "icon-input", labelWidth: "150"}
+    ]},
+    {type: "newcolumn", offset: "20"},
+    {type: "label", label: "<span style=\'color:white\'>OTHER OPTION</span>", value: "", name: "OTHERS", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
+    {type: "btn2state", name:"ACTIVE=NUM",label: "ACTIVE", checked: true, labelWidth: "100"},
+    {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "180", style: "font-weight:bold;background-color:#edeaea;",  tooltip: "Extra Note", icon: "icon-select", labelWidth: "100", rows: "3"}
+    ]
+</c:if>
+<c:if test="${FormType.equals('loadNewOrderItemForm_withValue')}">
 
     [
     {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
@@ -52,4 +79,4 @@
     {id:"sep1",type:"separator"},
     { id:"clear",type:"button",text:"CLEAR FORM DATA",  img:"resources/Images/refresh.png", imgdis: "resources/Images/refresh_dis.png",title:   "Click to clear record"}
     ]
-</c:if>
+</c:if>   
