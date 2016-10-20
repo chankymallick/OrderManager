@@ -22,8 +22,9 @@ function SynchronousGetAjaxRequest(Url, Paramas, ProgressObject) {
         if (ProgressObject != null) {
             ProgressObject.progressOn();
         }
+
         var response = window.dhx.ajax.getSync(Url, Paramas);
-        var json = window.dhx.s2j(response.xmlDoc.responseText);       
+        var json = window.dhx.s2j(response.xmlDoc.responseText);
         if (ProgressObject != null) {
             ProgressObject.progressOff();
         }
@@ -39,24 +40,50 @@ function SynchronousGetAjaxRequest(Url, Paramas, ProgressObject) {
 function progressOffCustom(ProgressObject) {
     ProgressObject.progressOff();
 }
-function ItemName(data) {
-    if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-function showSuccessNotification(data){
+function ItemNameValidation(data) {
+            if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
+                return false;
+            } else {
+                 var Response = SynchronousGetAjaxRequest("isValueUnique?VALUE=" + data.trim() + "&TABLE_NAME=ITEMS&COLUMN_NAME=ITEM_NAME", "", null);
+                if (Response.RESPONSE_STATUS === "SUCCESS") {
+                    if (Response.RESPONSE_VALUE.UNIQUE === "TRUE") {
+                        showSuccessNotification(Response.RESPONSE_MESSAGE);
+                        return true;
+                    } else {
+                        showFailedNotification(Response.RESPONSE_MESSAGE);
+                        return false;
+                    }
+
+                } else {
+                    showFailedNotification("Request Error, Check Database Connection");
+                }
+            }
+        }
+function showSuccessNotification(data) {
     dhtmlx.message({
     text:data,
     expire:5000,
-    type: "SuccessNotification"
-});
+        type: "SuccessNotification"
+    });
 }
-function showFailedNotification(data){
+function showSuccessNotificationWithICON(data) {
     dhtmlx.message({
-    text:data,
-    expire:5000,
-    type: "error"
-});
+        text: "<img height='30px' width='30px' style='margin-right:5px;vertical-align:middle;'  src='resources/Images/ok.png'/><span>"+data+"</span>",
+        expire: 5000,
+        type: "SuccessNotification"
+    });
+}
+function showFailedNotificationWithICON(data) {
+    dhtmlx.message({
+        text: "<img height='30px' width='30px' style='margin-right:5px;vertical-align:middle;'  src='resources/Images/failed.png'/><span>"+data+"</span>",
+        expire: 5000,
+        type: "error"
+    });
+}
+function showFailedNotification(data) {
+    dhtmlx.message({
+        text: data,
+        expire: 5000,
+        type: "error"
+    });
 }

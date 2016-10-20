@@ -51,6 +51,17 @@ var com;
                     });
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
                     this.OperationToolbar.loadStruct("operationToolbar", "json");
+                    this.OperationToolbar.attachEvent("onClick", function (id) {
+                        if (id === "clear") {
+                            _this.FormObject.clear();
+                        }
+                        if (id === "new") {
+                            _this.setFormStateNewRecord();
+                        }
+                        if (id === "save") {
+                            _this.validateAndSaveFormData();
+                        }
+                    });
                     this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
                     this.DataViewGridObject.load("LoadDataViewGrid?gridname=" + this.FormName);
                     this.DataViewGridObject.attachEvent("onRowSelect", function (id, ind) {
@@ -98,18 +109,22 @@ var com;
                     });
                 };
                 FormEntryManager.prototype.validateAndSaveFormData = function () {
+                    this.setSpecificBeforeSave();
                     if (this.FormObject.validate()) {
                         this.FormObject.updateValues();
-                        var Response = SynchronousGetAjaxRequest("addItem?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", this.DataEntryLayoutCell);
+                        this.DataEntryLayoutCell.progressOn();
+                        var Response = SynchronousGetAjaxRequest("addItem?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", null);
                         if (Response.RESPONSE_STATUS === "SUCCESS") {
-                            showSuccessNotification(Response.RESPONSE_MESSAGE);
+                            showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                             this.setFormStateAfterSave();
                             this.NotificationCell.collapse();
+                            this.DataEntryLayoutCell.progressOff();
                         }
                         if (Response.RESPONSE_STATUS === "FAILED") {
-                            showFailedNotification(Response.RESPONSE_MESSAGE);
+                            showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                             this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                             this.NotificationCell.expand();
+                            this.DataEntryLayoutCell.progressOff();
                         }
                     }
                     else {

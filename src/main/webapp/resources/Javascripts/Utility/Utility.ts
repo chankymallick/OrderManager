@@ -3,6 +3,8 @@ declare var shortcut:any;
 declare var showSuccessNotification:any;
 declare var showFailedNotification:any;
 declare var SynchronousGetAjaxRequest:any;
+declare var showSuccessNotificationWithICON:any;
+declare var showFailedNotificationWithICON:any;
 module com.ordermanager.utilty{
   export class MainUtility{
 
@@ -40,6 +42,7 @@ module com.ordermanager.utilty{
       	'propagate':true
       });
     }
+
     public constructInnerLayoutforDataEntry(){
     this.ModifiedLayoutObject = this.DataEntryLayoutCell.attachLayout({
     pattern: "2E",
@@ -58,23 +61,24 @@ module com.ordermanager.utilty{
       });
       this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
       this.OperationToolbar.loadStruct("operationToolbar","json");
+      this.OperationToolbar.attachEvent("onClick", (id)=>{
+        if(id === "clear"){
+        this.FormObject.clear();
+        }
+        if(id === "new"){
+        this.setFormStateNewRecord();
+        }
+        if(id === "save"){
+        this.validateAndSaveFormData();
+        }
+      });
       // this.FormObject.attachEvent("onKeyUp",(inp, ev, name, value)=>{
-      //     if(ev.key === "F8"){
-      //
-      //     }
-      //     if(ev.key === "F4"){
-      //       this.setFormStateNewRecord();
-      //     }
       // });
       this.DataViewGridObject=this.ModifiedLayoutObject.cells("b").attachGrid();
-      // this.DataViewGridObject.setHeader("UID,ITEM NAME,ITEM TYPE,MASTER PRICE,TAILOR PRICE,FINISHER PRICE,ACTIVE,NOTE");
-      // this.DataViewGridObject.setInitWidths("20,200,100,100,100,150,100,180");
-      // this.DataViewGridObject.setColAlign("left,left,left,left,left,left,left,left");
-      // this.DataViewGridObject.setColTypes("ro,ro,ro,ro,ro,ro,ro,ro");
-      // this.DataViewGridObject.init();
       this.DataViewGridObject.load("LoadDataViewGrid?gridname="+this.FormName);
       this.DataViewGridObject.attachEvent("onRowSelect",(id,ind) =>{
       });
+
 
     }
     public FormInitialization(){
@@ -117,19 +121,22 @@ module com.ordermanager.utilty{
           });
     }
     public validateAndSaveFormData(){
+         this.setSpecificBeforeSave();
          if(this.FormObject.validate()){
              this.FormObject.updateValues();
-             var Response = SynchronousGetAjaxRequest("addItem?ParamData="+JSON.stringify(this.FormObject.getValues()),"",this.DataEntryLayoutCell);
+             this.DataEntryLayoutCell.progressOn();
+             var Response = SynchronousGetAjaxRequest("addItem?ParamData="+JSON.stringify(this.FormObject.getValues()),"",null);
              if(Response.RESPONSE_STATUS === "SUCCESS"){
-             showSuccessNotification(Response.RESPONSE_MESSAGE);
+             showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
              this.setFormStateAfterSave();
              this.NotificationCell.collapse();
+             this.DataEntryLayoutCell.progressOff();
              }
              if(Response.RESPONSE_STATUS === "FAILED"){
-             showFailedNotification(Response.RESPONSE_MESSAGE);
+             showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
              this.NotificationCell.attachHTMLString("<b style='color:red'>"+Response.RESPONSE_VALUE.EXCEPTION_MESSAGE+"</b>");
              this.NotificationCell.expand();
-
+             this.DataEntryLayoutCell.progressOff();
              }
          }
          else
@@ -144,6 +151,7 @@ module com.ordermanager.utilty{
     }
       public setSpecificBeforeSave(){
         if(this.FormName === "loadNewOrderItemForm"){
+
         }
     }
     public setSpecificAfterSave(){

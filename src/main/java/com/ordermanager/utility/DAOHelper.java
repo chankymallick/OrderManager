@@ -5,20 +5,24 @@
  */
 package com.ordermanager.utility;
 
+import com.sun.java_cup.internal.runtime.virtual_parse_stack;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.dao.DataAccessException;
+
 /**
  *
  * @author Maliick
  */
-public class DAOUtility {
+public class DAOHelper {
 
     private JdbcTemplate jdbcTemplate;
 
@@ -41,6 +45,27 @@ public class DAOUtility {
         } catch (Exception e) {
             return null;
         }
+
+    }
+
+    public String isValueExistInTable(String Value, String TableName, String ColumnName) {
+        ResponseJSONHandler rspJSON = new ResponseJSONHandler();
+        try {
+
+            String SQL = new StringBuilder("SELECT COUNT(").append(ColumnName).append(") FROM ").append(TableName).append(" WHERE ").append(ColumnName).append("=?").toString();
+            int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value}, Integer.class);
+            if (dataCount > 0) {
+                this.generateSQLSuccessResponse(rspJSON, Value + " : Value already Exist");
+                rspJSON.addResponseValue("UNIQUE", "FALSE");
+            } else {
+                this.generateSQLSuccessResponse(rspJSON, Value + " : Value is Unique");
+                rspJSON.addResponseValue("UNIQUE", "TRUE");
+            }
+
+        } catch (DataAccessException e) {
+            this.generateSQLExceptionResponse(rspJSON, e, "Operation Failed , Check Logs");
+        }
+        return rspJSON.getJSONResponse();
 
     }
 
@@ -87,10 +112,10 @@ public class DAOUtility {
         return InsertQuery.toString();
     }
 
-    public List<Object> getJSONDataForGrid(String SQLQuery) {          
-        List <Object> allRows = new ArrayList();
-        List <String> columnNames = new ArrayList();
-        List <Object> returnValues = new ArrayList();
+    public List<Object> getJSONDataForGrid(String SQLQuery) {
+        List<Object> allRows = new ArrayList();
+        List<String> columnNames = new ArrayList();
+        List<Object> returnValues = new ArrayList();
         int totalCoumn = 0;
         try {
             Connection con = this.jdbcTemplate.getDataSource().getConnection();
@@ -107,7 +132,7 @@ public class DAOUtility {
                     jsonRow.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
                 }
                 allRows.add(jsonRow);
-            }          
+            }
             returnValues.add(allRows);
             returnValues.add(columnNames);
             rst.close();

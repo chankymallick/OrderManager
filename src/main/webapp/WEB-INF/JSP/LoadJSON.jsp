@@ -11,15 +11,10 @@
     {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
     {type: "block", width: "auto", blockOffset: 40, list: [
     {type: "label", label: "<span style=\'color:white\'>ENTER DETAILS</span>", value: "", name: "LABEL_DETAILS", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},    
-    {type: "combo", label: "ITEM NAME", name:"ITEM_NAME=STR",inputWidth:200, filtering: true, filterCache: true,style: "font-weight:bold;background-color:#edeaea;", validate:"ItemName",maxLength:20,required:true, tooltip: "ITEM NAME MUST BE UNIQUE",options:[
-    {text: "Astra", value: "Astra"},
-    {text: "Top", value: "Top"}  
-    ]},
+    {type: "input", label: "ITEM NAME", name:"ITEM_NAME=STR",inputWidth:200,style: "font-weight:bold;background-color:#edeaea;", validate:"ItemName",maxLength:20,required:true,validate: "ItemNameValidation", tooltip: "ITEM NAME MUST BE UNIQUE"},
     {type: "select", label: "ITEM TYPE", value: "", name: "ITEM_TYPE=STR", inputWidth: "200", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "20", tooltip: "SELECT ITEM TYPE", icon: "icon-input",options:[
-    {text: "Admin", value: "admin"},    
-    {text: "Organiser", value: "org"},
-    {text: "Power User", value: "poweruser"},
-    {text: "User", value: "user", selected:true}
+    {text: "MAIN", value: "MAIN"},    
+    {text: "EXTRA", value: "EXTRA"}   
     ]},
     {type: "newcolumn", offset: "20"},
     {type: "label", label: "<span style=\'color:white\'>ENTER RATES</span>", value: "", name: "LABEL_RATE", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},
