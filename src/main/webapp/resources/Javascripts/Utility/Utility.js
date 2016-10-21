@@ -12,6 +12,7 @@ var com;
             utilty.MainUtility = MainUtility;
             var FormEntryManager = (function () {
                 function FormEntryManager(layoutCell, notificationCell, formname, dataentryCellHeight, dataviewcellheight) {
+                    this.isDefaultOn = false;
                     this.DataEntryLayoutCellHeight = dataentryCellHeight;
                     this.DataViewLayoutCellHeight = dataviewcellheight;
                     this.DataEntryLayoutCell = layoutCell;
@@ -42,13 +43,10 @@ var com;
                         ]
                     });
                     this.ModifiedLayoutObject.progressOn();
+                    this.ModifiedLayoutObject.cells("b").progressOn();
                     this.DataTabber = this.ModifiedLayoutObject.cells("a").attachTabbar();
                     this.DataTabber.addTab("data", "Data Entry", null, null, true, false);
                     this.DataTabber.addTab("default", "Set Default Data", null, null, false, false);
-                    this.FormInitialization();
-                    this.FormObject.attachEvent("onXLE", function () {
-                        progressOffCustom(_this.ModifiedLayoutObject);
-                    });
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
                     this.OperationToolbar.loadStruct("operationToolbar", "json");
                     this.OperationToolbar.attachEvent("onClick", function (id) {
@@ -61,19 +59,56 @@ var com;
                         if (id === "save") {
                             _this.validateAndSaveFormData();
                         }
+                        if (id === "save_default") {
+                            _this.saveDefualtFormValue("FORM_DEFAULT_VALUE", _this.FormName);
+                        }
+                    });
+                    this.OperationToolbar.attachEvent("onStateChange", function (id, state) {
+                        if (id === "default") {
+                            _this.isDefaultOn = state;
+                            _this.FormInitialization();
+                        }
+                    });
+                    this.FormInitialization();
+                    this.FormObject.attachEvent("onXLE", function () {
+                        progressOffCustom(_this.ModifiedLayoutObject);
                     });
                     this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
                     this.DataViewGridObject.load("LoadDataViewGrid?gridname=" + this.FormName);
+                    this.DataViewGridObject.attachEvent("onXLE", function () {
+                        progressOffCustom(_this.ModifiedLayoutObject.cells("b"));
+                    });
                     this.DataViewGridObject.attachEvent("onRowSelect", function (id, ind) {
                     });
+                };
+                FormEntryManager.prototype.saveDefualtFormValue = function (module_name, key_name) {
+                    this.DefualtDataFormObject.updateValues();
+                    this.DataEntryLayoutCell.progressOn();
+                    var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
+                    if (Response.RESPONSE_STATUS === "SUCCESS") {
+                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.NotificationCell.collapse();
+                    }
+                    if (Response.RESPONSE_STATUS === "FAILED") {
+                        showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                        this.NotificationCell.expand();
+                    }
+                    this.DataEntryLayoutCell.progressOff();
                 };
                 FormEntryManager.prototype.FormInitialization = function () {
                     if (this.FormObject != null || this.FormObject != undefined) {
                         this.FormObject.unload();
                     }
                     this.FormObject = this.DataTabber.tabs("data").attachForm();
-                    this.FormObject.load(this.FormName);
+                    this.FormObject.load(this.FormName + "?Default=" + this.isDefaultOn);
                     this.FormObject.enableLiveValidation(true);
+                    if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
+                        this.DefualtDataFormObject.unload();
+                    }
+                    this.DefualtDataFormObject = this.DataTabber.tabs("default").attachForm();
+                    this.DefualtDataFormObject.load(this.FormName + "?Default=true");
+                    this.DefualtDataFormObject.enableLiveValidation(true);
                 };
                 FormEntryManager.prototype.setFormStateAfterSave = function () {
                     var _this = this;
@@ -124,7 +159,7 @@ var com;
                             showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                             this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                             this.NotificationCell.expand();
-                            this.DataEntryLayoutCell.progressOff();
+                            progressOffCustom(this.DataEntryLayoutCell);
                         }
                     }
                     else {
@@ -132,15 +167,15 @@ var com;
                     }
                 };
                 FormEntryManager.prototype.setSpecificFormSettingsoNLoad = function () {
-                    if (this.FormName === "loadNewOrderItemForm") {
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ITEM) {
                     }
                 };
                 FormEntryManager.prototype.setSpecificBeforeSave = function () {
-                    if (this.FormName === "loadNewOrderItemForm") {
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ITEM) {
                     }
                 };
                 FormEntryManager.prototype.setSpecificAfterSave = function () {
-                    if (this.FormName === "loadNewOrderItemForm") {
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ITEM) {
                     }
                 };
                 return FormEntryManager;

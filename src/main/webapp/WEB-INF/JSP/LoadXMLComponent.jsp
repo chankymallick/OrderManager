@@ -34,6 +34,10 @@
             <cell><![CDATA[<img src="resources/Images/settings.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b>Order Settings</b>]]></cell>  
         </row>
+        <row id="AddNewItem">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b>Add New Item</b>]]></cell>  
+        </row>
     </rows>
 </c:if>
 <c:if test="${Type.equals('mastertailor')}">
@@ -55,14 +59,14 @@
 <c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
     <rows>
         <head>      
-        <column width="30" type="ro" align="left" color="white" sort="str">UID</column>   
-        <column width="200" type="ro" align="left" color="white" sort="str">ITEM NAME</column>   
-        <column width="100" type="ro" align="left" color="white" sort="str">ITEM TYPE</column>   
-        <column width="100" type="ro" align="left" color="white" sort="int">MASTER PRICE</column>   
-        <column width="100" type="ro" align="left" color="white" sort="int">TAILOR PRICE</column>   
-        <column width="150" type="ro" align="left" color="white" sort="int">FINISHER PRICE</column>   
-        <column width="100" type="ro" align="left" color="white" sort="int">ACTIVE</column>   
-        <column width="160" type="ro" align="left" color="white" sort="str">NOTE</column>   
+        <column width="30" type="ro" align="center" color="white" sort="str">UID</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">ITEM NAME</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">ITEM TYPE</column>   
+        <column width="100" type="ro" align="center" color="white" sort="int">MASTER PRICE</column>   
+        <column width="100" type="ro" align="center" color="white" sort="int">TAILOR PRICE</column>   
+        <column width="150" type="ro" align="center" color="white" sort="int">FINISHER PRICE</column>   
+        <column width="100" type="ro" align="center" color="white" sort="int">ACTIVE</column>   
+        <column width="160" type="ro" align="center" color="white" sort="str">NOTE</column>   
         <afterInit>  
             <call command="attachHeader">
                 <param>&#160;,#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      

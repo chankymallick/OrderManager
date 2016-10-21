@@ -8,8 +8,9 @@
             {
                 width:100%;
                 height:100%;
-                overflow: hidden;
-                margin: 0px auto;                
+                overflow: hidden !important;
+                margin: 0px auto;        
+               
             }
             .DHTMLX_LABEL1{
                 background-color: #1faeff;               

@@ -144,5 +144,32 @@ public class DAOHelper {
         }
         return returnValues;
     }
+    public String saveAndUpdateAppData(String Module,String Key,String Value){
+        ResponseJSONHandler rsph = new ResponseJSONHandler();
+        try {
+         int valueExist = this.jdbcTemplate.queryForObject("SELECT COUNT(*) FROM APP_DATA WHERE APP_DATA_MODULE = ? AND APP_DATA_KEY=? ", new Object[]{Module,Key},Integer.class);
+         if(valueExist>0){
+         int updatedRows = this.jdbcTemplate.update("UPDATE APP_DATA SET APP_DATA_VALUE=? WHERE APP_DATA_MODULE=? AND APP_DATA_KEY=?", new Object[]{Value,Module,Key});
+         this.generateSQLSuccessResponse(rsph,"Default data updated Succesfully");
+         }
+         else{
+        int savedRows = this.jdbcTemplate.update("INSERT INTO APP_DATA (APP_DATA_UID,APP_DATA_MODULE,APP_DATA_KEY,APP_DATA_VALUE) VALUES(?,?,?,?)", new Object[]{this.getColumnAutoIncrementValue("APP_DATA", "APP_DATA_UID"),Module,Key,Value});
+         this.generateSQLSuccessResponse(rsph, "Default data added Succesfully");
+         }         
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(rsph, e,"Exception , see logs");
+        }            
+        return rsph.getJSONResponse();
+    }
+    public String getAppData(String Module,String Key){
+        ResponseJSONHandler rsph = new ResponseJSONHandler();
+        try {
+        String Value = this.getJdbcTemplate().queryForObject("SELECT APP_DATA_VALUE FROM  APP_DATA WHERE APP_DATA_MODULE = ? AND APP_DATA_KEY=? ", new Object[]{Module,Key}, String.class);
+        return Value;
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(rsph, e,"Exception , see logs");
+            return "";
+        }   
+    }
 
 }

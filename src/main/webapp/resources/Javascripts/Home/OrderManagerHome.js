@@ -59,10 +59,13 @@ var com;
                     });
                     this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
                     this.MenuGrid.attachEvent("onRowSelect", function (id, ind) {
-                        _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), "loadNewOrderItemForm", 0, 200);
+                        if (id === "AddNewItem") {
+                            _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                        }
                         _this.HomeLayoutObject.cells("c").showHeader();
                     });
                 };
+                OrderManagerHome.FORM_NEW_ITEM = "loadNewOrderItemForm";
                 return OrderManagerHome;
             }());
             home.OrderManagerHome = OrderManagerHome;

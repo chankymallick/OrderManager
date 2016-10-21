@@ -6,6 +6,7 @@
 package com.ordermanager.utility;
 
 import com.ordermanager.order.dao.OrderDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -22,12 +23,16 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class UtilityController{
+    @Autowired
+    UtilityDAO UtilityDAO;
     @ResponseBody
     @RequestMapping("/isValueUnique")   
     public ModelAndView isValueUnique(@RequestParam("VALUE") String Value,@RequestParam("TABLE_NAME") String TableName,@RequestParam("COLUMN_NAME") String ColumnName){        
-     ApplicationContext ctx = new FileSystemXmlApplicationContext(ConstantContainer.Application_Context_File_Path);
-     UtilityDAO utilityDAO = (UtilityDAO)ctx.getBean("UtilityDAO");
-     return new ModelAndView("MakeResponse","responseValue",utilityDAO.isValueUnique(Value, TableName, ColumnName));
+    return new ModelAndView("MakeResponse","responseValue",UtilityDAO.isValueUnique(Value, TableName, ColumnName));
+    }
+    @RequestMapping("/saveUpdateDefaultFormValue")   
+    public ModelAndView saveUpdateDefaultFormValue(@RequestParam("VALUE") String VALUE,@RequestParam("KEY") String KEY,@RequestParam("MODULE") String MODULE){        
+    return new ModelAndView("MakeResponse","responseValue",UtilityDAO.saveAndUpdateAppData(MODULE, KEY,VALUE));
     }
     
 }
