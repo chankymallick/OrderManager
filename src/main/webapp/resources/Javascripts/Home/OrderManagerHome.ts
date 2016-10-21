@@ -2,6 +2,9 @@
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 module com.ordermanager.home {
+    export class CommandHandler{
+      public static CODE_FORM_NEW_ITEM = "ANI";
+    }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "loadNewOrderItemForm";
         public HomeLayoutObject: any;
@@ -10,9 +13,40 @@ module com.ordermanager.home {
         public MenuGrid: any;
         public FormEntryManagerObject: any;
         constructor() {
-
             this.initLayout();
-
+            this.commandRegister();
+            this.HomeLayoutObject.attachEvent("onCollapse", (name)=>{
+                if(name === "a"){
+                  this.commandRegister();
+                }
+            });
+            this.HomeLayoutObject.attachEvent("onExpand", (name)=>{
+                if(name === "a"){
+                  this.commandRegister();
+                }
+            });
+        }
+        public commandRegister(){
+          shortcut.add("Home", () => {
+          document.getElementById("searchCode").focus();
+          }, {
+                'type': 'keyup',
+                'disable_in_input': false,
+                'target': document,
+                'propagate': true
+            });
+          shortcut.add("Enter", () => {        
+          var command = document.getElementById("searchCode").value;
+          if(command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM){
+                  this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                  this.HomeLayoutObject.cells("c").showHeader();
+                }
+        }, {
+                'type': 'keyup',
+                'disable_in_input': false,
+                'target': document.getElementById("searchCode"),
+                'propagate': true
+            });
         }
         public initLayout() {
             this.HomeLayoutObject = new dhtmlXLayoutObject({
@@ -64,10 +98,11 @@ module com.ordermanager.home {
             });
             this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
             this.MenuGrid.attachEvent("onRowSelect", (id, ind) => {
-                if(id === "AddNewItem"){
-                this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                if (id === "AddNewItem") {
+                    this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                    this.HomeLayoutObject.cells("c").showHeader();
                 }
-                this.HomeLayoutObject.cells("c").showHeader();
+
             });
         }
 

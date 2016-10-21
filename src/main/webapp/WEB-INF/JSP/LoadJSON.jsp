@@ -46,7 +46,7 @@
     ]},
     {type: "newcolumn", offset: "20"},
     {type: "label", label: "<span style=\'color:white\'>OTHER OPTION</span>", value: "", name: "OTHERS", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
-    {type: "btn2state", value:"${ReqObject.get('FormData').get('ACTIVE=NUM')}", name:"ACTIVE=NUM",label: "ACTIVE", checked: true, labelWidth: "100"},
+    {type: "btn2state", name:"ACTIVE=NUM",label: "ACTIVE", checked: ${ReqObject.get('FormData').get('ACTIVE=NUM')==0 ? false:true}, labelWidth: "100"}, 
     {type: "input", value:"${ReqObject.get('FormData').get('NOTE=STR')}", label: "NOTE", name: "NOTE=STR", inputWidth: "180", style: "font-weight:bold;background-color:#edeaea;",  tooltip: "Extra Note", icon: "icon-select", labelWidth: "100", rows: "3"}
     ]
 </c:if>

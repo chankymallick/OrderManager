@@ -96,21 +96,7 @@ module com.ordermanager.utilty {
             this.DataViewGridObject.attachEvent("onRowSelect", (id, ind) => {
             });
         }
-        public saveDefualtFormValue(module_name: any, key_name: any) {
-            this.DefualtDataFormObject.updateValues();
-            this.DataEntryLayoutCell.progressOn();
-            var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
-            if (Response.RESPONSE_STATUS === "SUCCESS") {
-                showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
-                this.NotificationCell.collapse();
-            }
-            if (Response.RESPONSE_STATUS === "FAILED") {
-                showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
-                this.NotificationCell.expand();
-            }
-            this.DataEntryLayoutCell.progressOff();
-        }
+
 
         public FormInitialization() {
             if (this.FormObject != null || this.FormObject != undefined) {
@@ -156,6 +142,21 @@ module com.ordermanager.utilty {
                     'target': document,
                     'propagate': true
                 });
+        }
+        public saveDefualtFormValue(module_name: any, key_name: any) {
+            this.DefualtDataFormObject.updateValues();
+            this.DataEntryLayoutCell.progressOn();
+            var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
+            if (Response.RESPONSE_STATUS === "SUCCESS") {
+                showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                this.NotificationCell.collapse();
+            }
+            if (Response.RESPONSE_STATUS === "FAILED") {
+                showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
+                this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                this.NotificationCell.expand();
+            }
+            this.DataEntryLayoutCell.progressOff();
         }
         public validateAndSaveFormData() {
             this.setSpecificBeforeSave();

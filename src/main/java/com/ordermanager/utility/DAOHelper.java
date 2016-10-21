@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
  *
@@ -166,7 +167,11 @@ public class DAOHelper {
         try {
         String Value = this.getJdbcTemplate().queryForObject("SELECT APP_DATA_VALUE FROM  APP_DATA WHERE APP_DATA_MODULE = ? AND APP_DATA_KEY=? ", new Object[]{Module,Key}, String.class);
         return Value;
-        } catch (Exception e) {
+        }
+        catch(EmptyResultDataAccessException e){
+              return "";
+        }
+        catch (Exception e) {
             this.generateSQLExceptionResponse(rsph, e,"Exception , see logs");
             return "";
         }   

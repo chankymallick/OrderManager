@@ -21,7 +21,7 @@ public class ComponentJSONGenerator {
     public ModelAndView loadNewOrderItemForm(@RequestParam("Default") boolean isDefaultOn) {
         Map<String, Object> requestMap = new HashMap();
         if (isDefaultOn) {
-            JSONObject defaultData = new JSONObject(UtilityDAO.getAppData("FORM_DEFAULT_VALUE", "loadNewOrderItemForm"));
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "loadNewOrderItemForm"));
             if (defaultData.length()==0) {
                 return new ModelAndView("LoadJSON", "FormType", "loadNewOrderItemForm");
             } else {

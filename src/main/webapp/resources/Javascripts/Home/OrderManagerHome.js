@@ -4,10 +4,52 @@ var com;
     (function (ordermanager) {
         var home;
         (function (home) {
+            var CommandHandler = (function () {
+                function CommandHandler() {
+                }
+                CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
+                return CommandHandler;
+            }());
+            home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
+                    var _this = this;
                     this.initLayout();
+                    this.commandRegister();
+                    this.HomeLayoutObject.attachEvent("onCollapse", function (name) {
+                        if (name === "a") {
+                            _this.commandRegister();
+                        }
+                    });
+                    this.HomeLayoutObject.attachEvent("onExpand", function (name) {
+                        if (name === "a") {
+                            _this.commandRegister();
+                        }
+                    });
                 }
+                OrderManagerHome.prototype.commandRegister = function () {
+                    var _this = this;
+                    shortcut.add("Home", function () {
+                        document.getElementById("searchCode").focus();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("Enter", function () {
+                        var command = document.getElementById("searchCode").value;
+                        if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
+                            _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                            _this.HomeLayoutObject.cells("c").showHeader();
+                        }
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document.getElementById("searchCode"),
+                        'propagate': true
+                    });
+                };
                 OrderManagerHome.prototype.initLayout = function () {
                     var _this = this;
                     this.HomeLayoutObject = new dhtmlXLayoutObject({
@@ -61,8 +103,8 @@ var com;
                     this.MenuGrid.attachEvent("onRowSelect", function (id, ind) {
                         if (id === "AddNewItem") {
                             _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
+                            _this.HomeLayoutObject.cells("c").showHeader();
                         }
-                        _this.HomeLayoutObject.cells("c").showHeader();
                     });
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "loadNewOrderItemForm";

@@ -81,21 +81,6 @@ var com;
                     this.DataViewGridObject.attachEvent("onRowSelect", function (id, ind) {
                     });
                 };
-                FormEntryManager.prototype.saveDefualtFormValue = function (module_name, key_name) {
-                    this.DefualtDataFormObject.updateValues();
-                    this.DataEntryLayoutCell.progressOn();
-                    var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
-                    if (Response.RESPONSE_STATUS === "SUCCESS") {
-                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
-                        this.NotificationCell.collapse();
-                    }
-                    if (Response.RESPONSE_STATUS === "FAILED") {
-                        showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                        this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
-                        this.NotificationCell.expand();
-                    }
-                    this.DataEntryLayoutCell.progressOff();
-                };
                 FormEntryManager.prototype.FormInitialization = function () {
                     if (this.FormObject != null || this.FormObject != undefined) {
                         this.FormObject.unload();
@@ -142,6 +127,21 @@ var com;
                         'target': document,
                         'propagate': true
                     });
+                };
+                FormEntryManager.prototype.saveDefualtFormValue = function (module_name, key_name) {
+                    this.DefualtDataFormObject.updateValues();
+                    this.DataEntryLayoutCell.progressOn();
+                    var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
+                    if (Response.RESPONSE_STATUS === "SUCCESS") {
+                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.NotificationCell.collapse();
+                    }
+                    if (Response.RESPONSE_STATUS === "FAILED") {
+                        showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                        this.NotificationCell.expand();
+                    }
+                    this.DataEntryLayoutCell.progressOff();
                 };
                 FormEntryManager.prototype.validateAndSaveFormData = function () {
                     this.setSpecificBeforeSave();

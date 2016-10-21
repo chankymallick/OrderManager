@@ -58,15 +58,20 @@
 </c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
     <rows>
-        <head>      
-        <column width="30" type="ro" align="center" color="white" sort="str">UID</column>   
-        <column width="200" type="ro" align="center" color="white" sort="str">ITEM NAME</column>   
+        <head>            
+        <column width="50" type="ro" align="center" color="white" sort="str">UID</column>   
+        <column width="300" type="ro" align="center" color="white" sort="str">ITEM NAME</column>   
         <column width="100" type="ro" align="center" color="white" sort="str">ITEM TYPE</column>   
         <column width="100" type="ro" align="center" color="white" sort="int">MASTER PRICE</column>   
         <column width="100" type="ro" align="center" color="white" sort="int">TAILOR PRICE</column>   
         <column width="150" type="ro" align="center" color="white" sort="int">FINISHER PRICE</column>   
-        <column width="100" type="ro" align="center" color="white" sort="int">ACTIVE</column>   
-        <column width="160" type="ro" align="center" color="white" sort="str">NOTE</column>   
+        <column width="100" type="ch" align="center" color="white" sort="int">ACTIVE</column>   
+        <column width="160" type="ro" align="center" color="white" >NOTE</column>   
+          <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
         <afterInit>  
             <call command="attachHeader">
                 <param>&#160;,#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
@@ -79,7 +84,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
