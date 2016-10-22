@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Maliick
  */
+@Transactional
 public class OrderDAO extends DAOHelper {
     public String addItem(JSONObject paramJson) {
         ResponseJSONHandler responseJSON = new ResponseJSONHandler();
@@ -22,6 +24,7 @@ public class OrderDAO extends DAOHelper {
             String InsertQuery = this.getSimpleSQLInsert(paramJson, "ITEMS");
             this.getJdbcTemplate().execute(InsertQuery);
             this.generateSQLSuccessResponse(responseJSON, "Item Succesfully Saved");
+            this.auditor(ConstantContainer.AUDIT_TYPE.INSERT.toString(), ConstantContainer.APP_MODULE.ITEMS.toString(),"");
         } catch (Exception ex) {
           this.generateSQLExceptionResponse(responseJSON, ex, "Failed to Save Item Data");
         }

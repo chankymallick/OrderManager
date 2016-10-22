@@ -4,11 +4,20 @@ public class ConstantContainer {
     public enum ResponseJSONKeys{
     RESPONSE_TYPE, RESPONSE_STATUS, RESPONSE_MESSAGE,RESPONSE_VALUE
     }
+    public enum LANGUAGES{
+    ENGLISH,BENGALI
+    }
     enum ResponseJSONTypes{
     
     }
     public enum ResponseJSONStatus{
     SUCCESS,FAILED   
+    }
+    public enum APP_MODULE{
+    ITEMS
+    }
+    public enum AUDIT_TYPE{
+    INSERT,UPDATE,DELETED
     }
     public static String Property_File_Path_Language_English; 
     public static String Property_File_Path_Language_Bengali; 

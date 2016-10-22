@@ -59,14 +59,14 @@
 <c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
     <rows>
         <head>            
-        <column width="50" type="ro" align="center" color="white" sort="str">UID</column>   
-        <column width="300" type="ro" align="center" color="white" sort="str">ITEM NAME</column>   
-        <column width="100" type="ro" align="center" color="white" sort="str">ITEM TYPE</column>   
-        <column width="100" type="ro" align="center" color="white" sort="int">MASTER PRICE</column>   
-        <column width="100" type="ro" align="center" color="white" sort="int">TAILOR PRICE</column>   
-        <column width="150" type="ro" align="center" color="white" sort="int">FINISHER PRICE</column>   
-        <column width="100" type="ch" align="center" color="white" sort="int">ACTIVE</column>   
-        <column width="160" type="ro" align="center" color="white" >NOTE</column>   
+        <column width="30" type="ro" align="left" color="white" sort="str">UID</column>   
+        <column width="200" type="ro" align="left" color="white" sort="str">ITEM NAME</column>   
+        <column width="100" type="ro" align="left" color="white" sort="str">ITEM TYPE</column>   
+        <column width="100" type="ro" align="left" color="white" sort="int">MASTER PRICE</column>   
+        <column width="100" type="ro" align="left" color="white" sort="int">TAILOR PRICE</column>   
+        <column width="150" type="ro" align="left" color="white" sort="int">FINISHER PRICE</column>   
+        <column width="100" type="ch" align="left" color="white" sort="int">ACTIVE</column>   
+        <column width="160" type="ro" align="left" color="white" >NOTE</column>   
           <beforeInit> 
             <call command="setImagePath"> 
                 <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 

@@ -19,6 +19,12 @@
                 height: 17px;
                 text-transform: uppercase;
             }         
+            .DHTMLX_LABEL2{
+                background-color: #00c9f2;               
+                line-height: 0px;
+                margin-top: 15px;
+                height: 17px;               
+            }         
             .dhxform_obj_material div.dhxform_img.btn2state_0 {
                 background-image: url("resources/Images/toggle_off.png");
                 width: 42px;
