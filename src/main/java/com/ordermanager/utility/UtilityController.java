@@ -24,8 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class UtilityController{
     @Autowired
-    UtilityDAO UtilityDAO;
-    @ResponseBody
+    UtilityDAO UtilityDAO;    
     @RequestMapping("/isValueUnique")   
     public ModelAndView isValueUnique(@RequestParam("VALUE") String Value,@RequestParam("TABLE_NAME") String TableName,@RequestParam("COLUMN_NAME") String ColumnName){        
     return new ModelAndView("MakeResponse","responseValue",UtilityDAO.isValueUnique(Value, TableName, ColumnName));
@@ -33,6 +32,10 @@ public class UtilityController{
     @RequestMapping("/saveUpdateDefaultFormValue")   
     public ModelAndView saveUpdateDefaultFormValue(@RequestParam("VALUE") String VALUE,@RequestParam("KEY") String KEY,@RequestParam("MODULE") String MODULE){        
     return new ModelAndView("MakeResponse","responseValue",UtilityDAO.saveAndUpdateAppData(MODULE, KEY,VALUE));
+    }
+    @RequestMapping("/getLanguage")   
+    public ModelAndView getLanguageforClient(){        
+    return new ModelAndView("MakeResponse","responseValue",new PropertyFileReader().loadLanguagePropertiesForClient());
     }
     
 }

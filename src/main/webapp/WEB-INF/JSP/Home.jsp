@@ -49,6 +49,9 @@
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script>
+            loadLanguagePack();
+        </script>
         <title>Order Manager v 1.0</title>
     </head>
     <body>        

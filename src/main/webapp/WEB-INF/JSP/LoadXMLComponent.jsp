@@ -1,42 +1,43 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="/WEB-INF/CustomTags.tld" prefix="mytags" %>  
 <%@page contentType="text/xml" pageEncoding="UTF-8"%>
 <c:if test="${Type.equals('ordersandbills')}">
     <rows>
         <row id="1">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Add New Order</b>]]></cell>        
+            <cell><![CDATA[<b><mytags:getTranslation key="addneworder"/></b>]]></cell>        
         </row>
         <row id="2">
             <cell><![CDATA[<img src="resources/Images/advance.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Add Advance</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="addadvance"/></b>]]></cell>  
         </row>
         <row id="3">
             <cell><![CDATA[<img src="resources/Images/edit_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Edit Order Details</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="editorderdetails"/></b>]]></cell>  
         </row>
         <row id="4">
             <cell><![CDATA[<img src="resources/Images/alert.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Add Order Halt Alert </b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="addorderhalt"/></b>]]></cell>  
         </row>
         <row id="5">
             <cell><![CDATA[<img src="resources/Images/cancel_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Cancel Order</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="cancelorder"/></b>]]></cell>  
         </row>
         <row id="6">
             <cell><![CDATA[<img src="resources/Images/search2.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Search Order</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="searchorder"/></b>]]></cell>  
         </row>
         <row id="7">
             <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Add Status</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="addstatus"/></b>]]></cell>  
         </row>
         <row id="8">
             <cell><![CDATA[<img src="resources/Images/settings.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Order Settings</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="ordersettings"/></b>]]></cell>  
         </row>
         <row id="AddNewItem">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Add New Item</b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="addnewitem"/></b>]]></cell>  
         </row>
     </rows>
 </c:if>

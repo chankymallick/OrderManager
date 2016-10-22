@@ -1,6 +1,7 @@
 /// <reference path="..//Utility/Utility.ts"/>
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
+declare var Language:any;
 module com.ordermanager.home {
     export class CommandHandler{
       public static CODE_FORM_NEW_ITEM = "ANI";
@@ -35,7 +36,7 @@ module com.ordermanager.home {
                 'target': document,
                 'propagate': true
             });
-          shortcut.add("Enter", () => {        
+          shortcut.add("Enter", () => {
           var command = document.getElementById("searchCode").value;
           if(command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM){
                   this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
@@ -60,17 +61,17 @@ module com.ordermanager.home {
                 ]
             });
             this.HomeLayoutObject.progressOn();
-            this.HomeLayoutObject.cells("a").setText("Menu  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
+            this.HomeLayoutObject.cells("a").setText(Language.menu+"  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
             this.HomeLayoutObject.cells("a").showHeader();
-            this.MenuAccordionObj.addItem("ordersandbills", "Order & Bill");
-            this.MenuAccordionObj.addItem("mastertailor", "Master & Tailors");
-            this.MenuAccordionObj.addItem("labourmanager", "Labour Manager");
-            this.MenuAccordionObj.addItem("salesmanmanager", "Salesman Manager");
-            this.MenuAccordionObj.addItem("usermanager", "User Management");
-            this.MenuAccordionObj.addItem("supplierbook", "Suppliers Books");
+            this.MenuAccordionObj.addItem("ordersandbills", Language.orderandbill);
+            this.MenuAccordionObj.addItem("mastertailor", Language.masterandtailor);
+            this.MenuAccordionObj.addItem("labourmanager", Language.labourmanager);
+            this.MenuAccordionObj.addItem("salesmanmanager", Language.salesmanmanager);
+            this.MenuAccordionObj.addItem("usermanager", Language.usermanagerment);
+            this.MenuAccordionObj.addItem("supplierbook", Language.suppliersbook);
             this.MenuGrid = this.MenuAccordionObj.cells("ordersandbills").attachGrid();
             this.loadMenuItems("ordersandbills");
             this.MenuAccordionObj.attachEvent("onActive", (id, state) => {

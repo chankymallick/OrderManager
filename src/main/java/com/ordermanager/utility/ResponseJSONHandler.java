@@ -9,7 +9,7 @@ import org.json.JSONArray;
 public class ResponseJSONHandler {
 
     private JSONObject ResponseJSON;
-    private Map<String, String> ValueMap;
+    private Map<String, Object> ValueMap;
     private String Response_Type = "";
     private String Response_Status = "";
     private String Response_Message = "";
@@ -18,7 +18,7 @@ public class ResponseJSONHandler {
     public ResponseJSONHandler() {
         ResponseJSON = new JSONObject();
         Response_Value = new JSONObject();
-        ValueMap = new HashMap<String, String>();
+        ValueMap = new HashMap<String, Object>();
     }
 
     public void setResponse_Type(String Response_Type) {
@@ -42,6 +42,9 @@ public class ResponseJSONHandler {
     }
 
     public void addResponseValue(String key, String Value) {
+        ValueMap.put(key, Value);
+    }
+    public void addResponseValue(String key,JSONObject Value) {
         ValueMap.put(key, Value);
     }
 

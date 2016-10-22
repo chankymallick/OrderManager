@@ -9,12 +9,13 @@ import java.util.Map;
 import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import org.json.JSONObject;
 
 /**
  *
  * @author Maliick
  */
-public class PropertyFileReader {
+public class PropertyFileReader extends DAOHelper {
 
     public static Map<String, String> languageMap = new HashMap<String, String>();
 
@@ -24,7 +25,7 @@ public class PropertyFileReader {
 
     public static String getTranslation(String key, String Default) {
         try {
-            return languageMap.getOrDefault(key, Default);
+            return languageMap.getOrDefault(key.trim(), Default.trim());
         } catch (Exception e) {
             return Default;
         }
@@ -32,7 +33,7 @@ public class PropertyFileReader {
 
     public static String getTranslation(String key) {
         try {
-            return languageMap.get(key);
+            return languageMap.get(key.trim());
         } catch (Exception e) {
             return key;
         }
@@ -53,11 +54,23 @@ public class PropertyFileReader {
             while (keys.hasMoreElements()) {
                 String key = (String) keys.nextElement();
                 String value = LanguageProperties.getProperty(key);
-                languageMap.put(key, value);
+                languageMap.put(key.trim(), value.trim());
             }
 
             request.getSession(false).setAttribute("Language", languageMap);
         } catch (Exception e) {
+        }
+    }
+    public String loadLanguagePropertiesForClient() {        
+        ResponseJSONHandler rsp =new ResponseJSONHandler();
+        try {
+            JSONObject obj = new JSONObject(languageMap);
+            generateSQLSuccessResponse(rsp, "Language pack Recieved");
+            rsp.addResponseValue("LANGUAGE_PACK",obj);
+            return rsp.getJSONResponse();
+        } catch (Exception e) {
+            generateSQLExceptionResponse(rsp, e, "Exception Loading Language Properties");
+            return rsp.getJSONResponse();
         }
     }
 }

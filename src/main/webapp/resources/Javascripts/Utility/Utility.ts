@@ -6,6 +6,7 @@ declare var showFailedNotification: any;
 declare var SynchronousGetAjaxRequest: any;
 declare var showSuccessNotificationWithICON: any;
 declare var showFailedNotificationWithICON: any;
+declare var Language:any;
 module com.ordermanager.utilty {
     export class MainUtility {
     }

@@ -1,3 +1,4 @@
+var Language;
 function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
     try {
         if (ProgressObject != null) {
@@ -86,4 +87,8 @@ function showFailedNotification(data) {
         expire: 5000,
         type: "error"
     });
+}
+function loadLanguagePack(){
+    var Response = SynchronousGetAjaxRequest("getLanguage","",null);    
+    Language = Response.RESPONSE_VALUE.LANGUAGE_PACK;    
 }
