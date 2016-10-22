@@ -183,11 +183,11 @@ public class DAOHelper {
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
     }
-    public boolean auditor(String Type, String Module, String Note) {
+    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, String AuditHistory,String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT","AUDIT_UID");
             String currentUser = "Administrator";            
-            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,NOTE) VALUES (?,?,?,?,?,?)", new Object[]{autoUID,Type,Module,this.getCurrentTimeStamp(),currentUser,Note});
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?)", new Object[]{autoUID,Type.toString(),Module.toString(),this.getCurrentTimeStamp(),currentUser,AuditHistory,Note});
             return true;
         } catch (Exception e) {
             return false;

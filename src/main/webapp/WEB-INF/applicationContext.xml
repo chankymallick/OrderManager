@@ -19,5 +19,8 @@
     <bean id="UtilityDAO" class="com.ordermanager.utility.UtilityDAO" >
         <property  name="jdbcTemplate" ref="JdbcDataSource"/>
     </bean>  
+    <bean id="UserDAO" class="com.ordermanager.users.dao.UserDAO" >
+        <property  name="jdbcTemplate" ref="JdbcDataSource"/>
+    </bean>  
     
 </beans>

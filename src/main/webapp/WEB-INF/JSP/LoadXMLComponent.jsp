@@ -57,6 +57,14 @@
         </row>
     </rows>
 </c:if>
+<c:if test="${Type.equals('usermanager')}">
+    <rows>
+       <row id="addnewuser">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addnewuser" defaultValue="Add New User"/></b>]]></cell>        
+        </row>
+    </rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
     <rows>
         <head>            

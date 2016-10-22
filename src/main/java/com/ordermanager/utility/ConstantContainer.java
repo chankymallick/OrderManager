@@ -14,7 +14,7 @@ public class ConstantContainer {
     SUCCESS,FAILED   
     }
     public enum APP_MODULE{
-    ITEMS
+    ITEMS,USERS
     }
     public enum AUDIT_TYPE{
     INSERT,UPDATE,DELETED

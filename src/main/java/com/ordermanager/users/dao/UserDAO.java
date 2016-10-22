@@ -1,29 +1,26 @@
 package com.ordermanager.users.dao;
 
-import java.sql.ResultSet;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.ordermanager.utility.ConstantContainer;
+import com.ordermanager.utility.DAOHelper;
+import com.ordermanager.utility.ResponseJSONHandler;
+import org.json.JSONObject;
 
-public class UserDAO {
 
-    private JdbcTemplate JdbcTemplate;
-
-    public JdbcTemplate getJdbcTemplate() {
-        return JdbcTemplate;
-    }
-
-    public void setJdbcTemplate(JdbcTemplate JdbcTemplate) {
-        this.JdbcTemplate = JdbcTemplate;
-    }
+public class UserDAO extends DAOHelper {
     
-    public int StudentList(){
+    public String addUser(JSONObject userdata,String CurrentUser){
+        ResponseJSONHandler rsj = new ResponseJSONHandler();
         try {
-                String query = "INSERT INTO TEST VALUES (999)";
-                int x = JdbcTemplate.update(query);
-                return x;
+           int UID = this.getColumnAutoIncrementValue("USERS", "USER_UID");
+           userdata.put("USER_UID=NUM",UID);
+           userdata.remove("REPASSWORD=STR");
+           String SQL =  this.getSimpleSQLInsert(userdata,"USERS");           
+           int insertStatus = this.getJdbcTemplate().update(SQL);
+           this.generateSQLSuccessResponse(rsj, "New user succesfully added");           
+           this.auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.USERS, "","");
         } catch (Exception e) {
-            e.printStackTrace();
+            this.generateSQLExceptionResponse(rsj, e, "Exception occured see Logs..");
         }
-        return 0;
+        return rsj.getJSONResponse();
     }
-    
 }

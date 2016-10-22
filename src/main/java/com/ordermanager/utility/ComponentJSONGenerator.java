@@ -34,6 +34,23 @@ public class ComponentJSONGenerator {
             return new ModelAndView("LoadJSON", "FormType", "loadNewOrderItemForm");
         }
     }
+    @RequestMapping("/addNewUser")
+    public ModelAndView loadaddNewUser(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "addNewUser"));
+            if (defaultData.length()==0) {
+                return new ModelAndView("LoadJSON", "FormType", "addNewUser");
+            } else {
+                requestMap.put("FormType", "addNewUser_withValue");
+                requestMap.put("FormData",defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
+
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "addNewUser");
+        }
+    }
 
     @RequestMapping("/operationMenu")
     public ModelAndView operationMenu(Model model) {

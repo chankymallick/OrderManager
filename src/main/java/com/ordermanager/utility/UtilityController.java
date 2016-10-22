@@ -5,16 +5,12 @@
  */
 package com.ordermanager.utility;
 
-import com.ordermanager.order.dao.OrderDAO;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -34,8 +30,8 @@ public class UtilityController{
     return new ModelAndView("MakeResponse","responseValue",UtilityDAO.saveAndUpdateAppData(MODULE, KEY,VALUE));
     }
     @RequestMapping("/getLanguage")   
-    public ModelAndView getLanguageforClient(){        
-    return new ModelAndView("MakeResponse","responseValue",new PropertyFileReader().loadLanguagePropertiesForClient());
+    public ModelAndView getLanguageforClient(HttpServletRequest request){        
+    return new ModelAndView("MakeResponse","responseValue",new PropertyFileReader().loadLanguagePropertiesForClient((Map <String,String>)request.getSession(false).getAttribute("Language")));
     }
     
 }

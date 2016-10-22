@@ -9,7 +9,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.JspFragment;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
-import com.ordermanager.utility.PropertyFileReader;
+import java.util.Map;
 
 /**
  *
@@ -19,16 +19,18 @@ public class CustomTagHandler extends SimpleTagSupport {
 
     private String defaultValue;
     private String key;
+    
 
     @Override
     public void doTag() throws JspException {
+        Map <String,String> langaugeMap = (Map)getJspContext().findAttribute("Language");   
         JspWriter out = getJspContext().getOut();
-
+        PropertyFileReader pfp = new PropertyFileReader();
         try {
             if (defaultValue == null) {
-                out.write(PropertyFileReader.getTranslation(key));
+                out.write(pfp.getTranslation(key,langaugeMap));
             } else {
-                out.write(PropertyFileReader.getTranslation(key, defaultValue));
+                out.write(pfp.getTranslation(key, defaultValue,langaugeMap));
             }
             JspFragment f = getJspBody();
             if (f != null) {

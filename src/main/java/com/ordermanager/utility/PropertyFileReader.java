@@ -15,31 +15,29 @@ import org.json.JSONObject;
  *
  * @author Maliick
  */
-public class PropertyFileReader extends DAOHelper {
-
-    public static Map<String, String> languageMap = new HashMap<String, String>();
-
+public class PropertyFileReader extends DAOHelper { 
     public static String queryReader(String QueryName) {
         return "";
     }
 
-    public static String getTranslation(String key, String Default) {
+    public String getTranslation(String key, String Default,Map <String,String> langaugeMap) {      
         try {
-            return languageMap.getOrDefault(key.trim(), Default.trim());
+            return langaugeMap.getOrDefault(key.trim(), Default.trim());
         } catch (Exception e) {
             return Default;
         }
     }
 
-    public static String getTranslation(String key) {
+    public String getTranslation(String key,Map <String,String> langaugeMap) {
         try {
-            return languageMap.get(key.trim());
+            return langaugeMap.get(key.trim());
         } catch (Exception e) {
             return key;
         }
     }
 
     public void loadLanguageProperties(HttpServletRequest request, ServletContext servletContext, ConstantContainer.LANGUAGES LanguangeName) {
+        Map<String,String> languageMap = new HashMap();
         File rootDir =null;
         try {
             if (LanguangeName.equals(LanguangeName.BENGALI)) {
@@ -61,7 +59,7 @@ public class PropertyFileReader extends DAOHelper {
         } catch (Exception e) {
         }
     }
-    public String loadLanguagePropertiesForClient() {        
+    public String loadLanguagePropertiesForClient(Map <String,String>languageMap) {        
         ResponseJSONHandler rsp =new ResponseJSONHandler();
         try {
             JSONObject obj = new JSONObject(languageMap);

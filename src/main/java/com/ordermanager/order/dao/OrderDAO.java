@@ -22,9 +22,9 @@ public class OrderDAO extends DAOHelper {
             int UIDvalue = this.getColumnAutoIncrementValue("ITEMS", "ITEM_UID");
             paramJson.put("ITEM_UID=NUM", UIDvalue);
             String InsertQuery = this.getSimpleSQLInsert(paramJson, "ITEMS");
-            this.getJdbcTemplate().execute(InsertQuery);
+            this.getJdbcTemplate().update(InsertQuery);
             this.generateSQLSuccessResponse(responseJSON, "Item Succesfully Saved");
-            this.auditor(ConstantContainer.AUDIT_TYPE.INSERT.toString(), ConstantContainer.APP_MODULE.ITEMS.toString(),"");
+            this.auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ITEMS,"","");
         } catch (Exception ex) {
           this.generateSQLExceptionResponse(responseJSON, ex, "Failed to Save Item Data");
         }

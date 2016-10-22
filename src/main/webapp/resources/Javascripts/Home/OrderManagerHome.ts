@@ -8,6 +8,7 @@ module com.ordermanager.home {
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "loadNewOrderItemForm";
+        public static FORM_NEW_USER = "addNewUser";
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -39,8 +40,7 @@ module com.ordermanager.home {
           shortcut.add("Enter", () => {
           var command = document.getElementById("searchCode").value;
           if(command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM){
-                  this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
-                  this.HomeLayoutObject.cells("c").showHeader();
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
                 }
         }, {
                 'type': 'keyup',
@@ -83,6 +83,11 @@ module com.ordermanager.home {
                 dhtmlxObject.setSkin("dhx_web");
             }
         }
+        public menuActionIntializer(actionName){
+          this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, 200);
+          this.HomeLayoutObject.cells("c").showHeader();
+
+        }
         public loadMenuItems(itemtype: any) {
             if (this.MenuGrid != null || this.MenuGrid === undefined) {
                 this.MenuGrid.destructor();
@@ -100,8 +105,10 @@ module com.ordermanager.home {
             this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
             this.MenuGrid.attachEvent("onRowSelect", (id, ind) => {
                 if (id === "AddNewItem") {
-                    this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
-                    this.HomeLayoutObject.cells("c").showHeader();
+                  this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+                }
+                if (id === "addnewuser") {
+                  this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER);
                 }
 
             });

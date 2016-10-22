@@ -40,8 +40,7 @@ var com;
                     shortcut.add("Enter", function () {
                         var command = document.getElementById("searchCode").value;
                         if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
-                            _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
-                            _this.HomeLayoutObject.cells("c").showHeader();
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
                         }
                     }, {
                         'type': 'keyup',
@@ -84,6 +83,10 @@ var com;
                         dhtmlxObject.setSkin("dhx_web");
                     }
                 };
+                OrderManagerHome.prototype.menuActionIntializer = function (actionName) {
+                    this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, 200);
+                    this.HomeLayoutObject.cells("c").showHeader();
+                };
                 OrderManagerHome.prototype.loadMenuItems = function (itemtype) {
                     var _this = this;
                     if (this.MenuGrid != null || this.MenuGrid === undefined) {
@@ -102,12 +105,15 @@ var com;
                     this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
                     this.MenuGrid.attachEvent("onRowSelect", function (id, ind) {
                         if (id === "AddNewItem") {
-                            _this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"), OrderManagerHome.FORM_NEW_ITEM, 0, 200);
-                            _this.HomeLayoutObject.cells("c").showHeader();
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+                        }
+                        if (id === "addnewuser") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER);
                         }
                     });
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "loadNewOrderItemForm";
+                OrderManagerHome.FORM_NEW_USER = "addNewUser";
                 return OrderManagerHome;
             }());
             home.OrderManagerHome = OrderManagerHome;
