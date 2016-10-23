@@ -65,7 +65,7 @@
         </row>
     </rows>
 </c:if>
-<c:if test="${OBJECT_MAP.get('Type').equals('loadNewOrderItemForm')}">
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewItem')}">
     <rows>
         <head>            
         <column width="30" type="ro" align="left" color="white" sort="str">UID</column>   
@@ -84,6 +84,41 @@
         <afterInit>  
             <call command="attachHeader">
                 <param>&#160;,#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewUser')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="left" color="white" sort="str">UID</column>   
+        <column width="200" type="ro" align="left" color="white" sort="str">USER ID</column>   
+        <column width="100" type="ro" align="left" color="white" sort="str">FIRST NAME</column>   
+        <column width="100" type="ro" align="left" color="white" sort="str">LAST NAME</column>   
+        <column width="100" type="ro" align="left" color="white" sort="str">LANGUAGE</column>   
+        <column width="150" type="ro" align="left" color="white" sort="str">TYPE</column>   
+        <column width="100" type="ch" align="left" color="white" sort="int">ENABLED</column>   
+        <column width="160" type="ro" align="left" color="white" >PASSWORD</column>   
+        <column width="160" type="ro" align="left" color="white" >NOTE</column>   
+          <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>&#160;,#text_search,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#text_search,#text_search</param>                      
             </call> 
         </afterInit>     
     </head> 

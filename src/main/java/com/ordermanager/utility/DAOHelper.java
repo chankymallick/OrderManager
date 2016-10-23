@@ -5,20 +5,18 @@
  */
 package com.ordermanager.utility;
 
-import com.sun.java_cup.internal.runtime.virtual_parse_stack;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -131,11 +129,11 @@ public class DAOHelper {
                 columnNames.add(rsMetadata.getColumnLabel(i));
             }
             while (rst.next()) {
-                JSONObject jsonRow = new JSONObject();
+                Map<String,String> row = new HashMap();
                 for (int i = 1; i <= totalCoumn; i++) {
-                    jsonRow.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
+                    row.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
                 }
-                allRows.add(jsonRow);
+                allRows.add(row);
             }
             returnValues.add(allRows);
             returnValues.add(columnNames);

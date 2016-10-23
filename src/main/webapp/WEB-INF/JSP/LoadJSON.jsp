@@ -7,7 +7,7 @@
 <%@page contentType="application/json" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/CustomTags.tld" prefix="mytags" %>  
-<c:if test="${FormType.equals('addNewUser')}">    
+<c:if test="${FormType.equals('addNewUser') || ReqObject.get('FormType').equals('addNewUser_withValue')}">    
     [
     {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
     {type: "block", width: "auto", blockOffset: 40, list: [
@@ -37,37 +37,7 @@
     {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "70", rows: "3"}
     ]
 </c:if>
-<c:if test="${FormType.equals('addNewUser_withValue')}">
-    [
-    {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
-    {type: "block", width: "auto", blockOffset: 40, list: [
-    {type: "label", label: "<span style=\'color:white\'>ENTER USER DETAILS</span>", value: "", name: "LABEL_DETAILS", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},
-    {type: "input", label: "USER ID", name: "USER_ID=STR", inputWidth: 200, style: "font-weight:bold;background-color:#edeaea;", validate: "UserNameValidation", maxLength: "30", required: true, tooltip: "USER ID MUST BE UNIQUE", labelWidth: "100"},
-    {type: "input", label: "FIRST NAME", value: "", name: "USER_FIRST_NAME=STR", inputWidth: "200", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "30", tooltip: "User First Name", icon: "icon-input", labelWidth: "100"},
-    {type: "input", label: "LAST NAME", value: "", name: "USER_LAST_NAME=STR", inputWidth: "200", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "30", tooltip: "User last Name", icon: "icon-input", labelWidth: "100"},
-    {type: "newcolumn", offset: "20"},
-    {type: "label", label: "<span style=\'color:white\'>ENTER USER SETTINGS</span>", value: "", name: "LABEL_RATE", labelWidth: "200", className: "DHTMLX_LABEL1", labelHeight: "15"},
-    {type: "select", label: "USER TYPE", name: "USER_TYPE=STR", inputWidth: "160", style: "font-weight:bold;background-color:#edeaea;", required: true, tooltip: "Select user type ", icon: "icon-select", labelWidth: "110", options: [
-    {text: "ADMIN", value: "ADMIN"},
-    {text: "CASH_MANAGER", value: "CASH_MANAGER"},
-    {text: "ORDER_MANAGER", value: "ORDER_MANAGER"},
-    {text: "ENQUIRER", value: "ENQUIRER"},
-    {text: "STATUS_MANAGER", value: "STATUS_MANAGER"}
-    ]},
-    {type: "select", label: "LANGUAGE PREFERENCE", name: "LANGUAGE_PREFERENCE=STR", inputWidth: "160", style: "font-weight:bold;background-color:#edeaea;", required: true, tooltip: "Select Preferred Language ", icon: "icon-select", labelWidth: "110", options: [
-    {text: "ENGLISH", value: "ENGLISH"},
-    {text: "BENGALI", value: "BENGALI"}
-    ]},
-    {type: "password", label: "PASSWORD", name: "PASSWORD=STR", inputWidth: "160", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "30", tooltip: "Enter Password", icon: "icon-select", labelWidth: "110"},
-    {type: "password", label: "CONFIRM PASSWORD", name: "REPASSWORD=STR", inputWidth: "160", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "NotEmpty", maxLength: "30", tooltip: "Enter Password", icon: "icon-password", labelWidth: "110"}
-    ]},
-    {type: "newcolumn", offset: "20"},
-    {type: "label", label: "<span style=\'color:white\'>OTHER OPTION</span>", value: "", name: "OTHERS", labelWidth: "180", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
-    {type: "btn2state", name: "ENABLED=NUM", label: "ENABLED", checked: true, labelWidth: "70"},
-    {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "70", rows: "3"}
-    ]
-</c:if>
-<c:if test="${FormType.equals('loadNewOrderItemForm')}">
+<c:if test="${FormType.equals('addNewItem')}">
     [
     {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
     {type: "block", width: "auto", blockOffset: 40, list: [
@@ -89,7 +59,7 @@
     {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "180", style: "font-weight:bold;background-color:#edeaea;",  tooltip: "Extra Note", icon: "icon-select", labelWidth: "100", rows: "3"}
     ]
 </c:if>
-<c:if test="${ReqObject.get('FormType').equals('loadNewOrderItemForm_withValue')}">
+<c:if test="${ReqObject.get('FormType').equals('addNewItem_withValue')}">
     [
     {type: "settings", position: "label-left", labelWidth: 90, inputWidth: 130},
     {type: "block", width: "auto", blockOffset: 40, list: [

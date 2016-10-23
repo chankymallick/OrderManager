@@ -112,7 +112,7 @@ var com;
                         }
                     });
                 };
-                OrderManagerHome.FORM_NEW_ITEM = "loadNewOrderItemForm";
+                OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
                 OrderManagerHome.FORM_NEW_USER = "addNewUser";
                 return OrderManagerHome;
             }());

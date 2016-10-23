@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class OrderController {
 
-    @RequestMapping(value = "/addItem", method = RequestMethod.GET)
+    @RequestMapping(value = "/addNewItem", method = RequestMethod.GET)
     public ModelAndView addItem(@RequestParam("ParamData") JSONObject paramJson) {
         ApplicationContext ctx = new FileSystemXmlApplicationContext(ConstantContainer.Application_Context_File_Path);
         OrderDAO orderDAO = (OrderDAO)ctx.getBean("OrderDAO");

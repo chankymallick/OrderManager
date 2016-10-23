@@ -6,8 +6,7 @@ import com.ordermanager.utility.ResponseJSONHandler;
 import org.json.JSONObject;
 
 
-public class UserDAO extends DAOHelper {
-    
+public class UserDAO extends DAOHelper {    
     public String addUser(JSONObject userdata,String CurrentUser){
         ResponseJSONHandler rsj = new ResponseJSONHandler();
         try {
@@ -22,5 +21,5 @@ public class UserDAO extends DAOHelper {
             this.generateSQLExceptionResponse(rsj, e, "Exception occured see Logs..");
         }
         return rsj.getJSONResponse();
-    }
+    }  
 }

@@ -21,6 +21,7 @@ var com;
                     this.constructInnerLayoutforDataEntry();
                     this.MainUtilityObj = new com.ordermanager.utilty.MainUtility();
                     this.shortCutRegister();
+                    this.setSpecificFormSettingsoNLoad();
                 }
                 FormEntryManager.prototype.shortCutRegister = function () {
                     var _this = this;
@@ -86,13 +87,13 @@ var com;
                         this.FormObject.unload();
                     }
                     this.FormObject = this.DataTabber.tabs("data").attachForm();
-                    this.FormObject.load(this.FormName + "?Default=" + this.isDefaultOn);
+                    this.FormObject.load(this.FormName + "_Form?Default=" + this.isDefaultOn);
                     this.FormObject.enableLiveValidation(true);
                     if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
                         this.DefualtDataFormObject.unload();
                     }
                     this.DefualtDataFormObject = this.DataTabber.tabs("default").attachForm();
-                    this.DefualtDataFormObject.load(this.FormName + "?Default=true");
+                    this.DefualtDataFormObject.load(this.FormName + "_Form?Default=true");
                     this.DefualtDataFormObject.enableLiveValidation(true);
                 };
                 FormEntryManager.prototype.setFormStateAfterSave = function () {
@@ -148,7 +149,7 @@ var com;
                     if (this.FormObject.validate()) {
                         this.FormObject.updateValues();
                         this.DataEntryLayoutCell.progressOn();
-                        var Response = SynchronousGetAjaxRequest("addItem?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", null);
+                        var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", null);
                         if (Response.RESPONSE_STATUS === "SUCCESS") {
                             showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                             this.setFormStateAfterSave();
@@ -157,7 +158,7 @@ var com;
                         }
                         if (Response.RESPONSE_STATUS === "FAILED") {
                             showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                            this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                            this.NotificationCell.attachHTMLString(this.FormName + "<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                             this.NotificationCell.expand();
                             progressOffCustom(this.DataEntryLayoutCell);
                         }
@@ -167,7 +168,15 @@ var com;
                     }
                 };
                 FormEntryManager.prototype.setSpecificFormSettingsoNLoad = function () {
+                    var _this = this;
                     if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ITEM) {
+                    }
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER) {
+                        this.OperationToolbar.attachEvent("onXLE", function () {
+                            _this.OperationToolbar.disableItem("save_default");
+                            _this.OperationToolbar.disableItem("default");
+                        });
+                        this.DataTabber.tabs("default").disable();
                     }
                 };
                 FormEntryManager.prototype.setSpecificBeforeSave = function () {

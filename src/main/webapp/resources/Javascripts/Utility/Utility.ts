@@ -34,6 +34,7 @@ module com.ordermanager.utilty {
             this.constructInnerLayoutforDataEntry();
             this.MainUtilityObj = new com.ordermanager.utilty.MainUtility();
             this.shortCutRegister();
+            this.setSpecificFormSettingsoNLoad();
 
         }
         public shortCutRegister() {
@@ -104,13 +105,13 @@ module com.ordermanager.utilty {
                 this.FormObject.unload();
             }
             this.FormObject = this.DataTabber.tabs("data").attachForm();
-            this.FormObject.load(this.FormName + "?Default=" + this.isDefaultOn);
+            this.FormObject.load(this.FormName + "_Form?Default=" + this.isDefaultOn);
             this.FormObject.enableLiveValidation(true);
             if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
                 this.DefualtDataFormObject.unload();
             }
             this.DefualtDataFormObject = this.DataTabber.tabs("default").attachForm();
-            this.DefualtDataFormObject.load(this.FormName + "?Default=true");
+            this.DefualtDataFormObject.load(this.FormName +"_Form?Default=true");
             this.DefualtDataFormObject.enableLiveValidation(true);
         }
         public setFormStateAfterSave() {
@@ -164,7 +165,7 @@ module com.ordermanager.utilty {
             if (this.FormObject.validate()) {
                 this.FormObject.updateValues();
                 this.DataEntryLayoutCell.progressOn();
-                var Response = SynchronousGetAjaxRequest("addItem?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", null);
+                var Response = SynchronousGetAjaxRequest(this.FormName+"?ParamData=" + JSON.stringify(this.FormObject.getValues()), "", null);
                 if (Response.RESPONSE_STATUS === "SUCCESS") {
                     showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                     this.setFormStateAfterSave();
@@ -173,7 +174,7 @@ module com.ordermanager.utilty {
                 }
                 if (Response.RESPONSE_STATUS === "FAILED") {
                     showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                    this.NotificationCell.attachHTMLString("<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                    this.NotificationCell.attachHTMLString(this.FormName+"<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                     this.NotificationCell.expand();
                     progressOffCustom(this.DataEntryLayoutCell);
                 }
@@ -185,6 +186,13 @@ module com.ordermanager.utilty {
         public setSpecificFormSettingsoNLoad() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ITEM) {
 
+            }
+            if(this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER){
+            this.OperationToolbar.attachEvent("onXLE",()=>{
+              this.OperationToolbar.disableItem("save_default");
+              this.OperationToolbar.disableItem("default");
+            });
+            this.DataTabber.tabs("default").disable();                       
             }
         }
         public setSpecificBeforeSave() {

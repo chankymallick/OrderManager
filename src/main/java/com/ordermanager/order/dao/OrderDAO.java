@@ -30,8 +30,8 @@ public class OrderDAO extends DAOHelper {
         }
         return responseJSON.getJSONResponse();
     }
-    public List<Object> getGridData(String TableName){
-        String SQL = "SELECT *FROM "+TableName+" ORDER BY ITEM_UID DESC";
+    public List<Object> getGridData(String TableName,String Order_Column){
+        String SQL = "SELECT *FROM "+TableName+" ORDER BY "+Order_Column+" DESC";
         return this.getJSONDataForGrid(SQL);    
     }
     

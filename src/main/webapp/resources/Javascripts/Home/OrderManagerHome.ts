@@ -7,7 +7,7 @@ module com.ordermanager.home {
       public static CODE_FORM_NEW_ITEM = "ANI";
     }
     export class OrderManagerHome {
-        public static FORM_NEW_ITEM = "loadNewOrderItemForm";
+        public static FORM_NEW_ITEM = "addNewItem";
         public static FORM_NEW_USER = "addNewUser";
         public HomeLayoutObject: any;
         public HomeToolbar: any;
