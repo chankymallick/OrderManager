@@ -8,6 +8,8 @@ var com;
                 function CommandHandler() {
                 }
                 CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
+                CommandHandler.CODE_FORM_NEW_USER = "ANU";
+                CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
                 return CommandHandler;
             }());
             home.CommandHandler = CommandHandler;
@@ -30,6 +32,7 @@ var com;
                 OrderManagerHome.prototype.commandRegister = function () {
                     var _this = this;
                     shortcut.add("Home", function () {
+                        document.getElementById("searchCode").value = "";
                         document.getElementById("searchCode").focus();
                     }, {
                         'type': 'keyup',
@@ -40,7 +43,16 @@ var com;
                     shortcut.add("Enter", function () {
                         var command = document.getElementById("searchCode").value;
                         if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
-                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ORDER) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER, 170);
+                        }
+                        else {
+                            showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
                         }
                     }, {
                         'type': 'keyup',
@@ -83,8 +95,8 @@ var com;
                         dhtmlxObject.setSkin("dhx_web");
                     }
                 };
-                OrderManagerHome.prototype.menuActionIntializer = function (actionName) {
-                    this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, 200);
+                OrderManagerHome.prototype.menuActionIntializer = function (actionName, dataviewcellheight) {
+                    this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, dataviewcellheight);
                     this.HomeLayoutObject.cells("c").showHeader();
                 };
                 OrderManagerHome.prototype.loadMenuItems = function (itemtype) {
@@ -105,15 +117,19 @@ var com;
                     this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
                     this.MenuGrid.attachEvent("onRowSelect", function (id, ind) {
                         if (id === "AddNewItem") {
-                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                         }
                         if (id === "addnewuser") {
-                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER);
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);
+                        }
+                        if (id === "addneworder") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER, 170);
                         }
                     });
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
                 OrderManagerHome.FORM_NEW_USER = "addNewUser";
+                OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
                 return OrderManagerHome;
             }());
             home.OrderManagerHome = OrderManagerHome;

@@ -10,10 +10,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +131,7 @@ public class DAOHelper {
                 columnNames.add(rsMetadata.getColumnLabel(i));
             }
             while (rst.next()) {
-                Map<String,String> row = new HashMap();
+                Map<String, String> row = new HashMap();
                 for (int i = 1; i <= totalCoumn; i++) {
                     row.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
                 }
@@ -176,20 +178,65 @@ public class DAOHelper {
             return "";
         }
     }
-    public Timestamp getCurrentTimeStamp(){       
-        Calendar cal = Calendar.getInstance(); 
+
+    public Timestamp getCurrentTimeStamp() {
+        Calendar cal = Calendar.getInstance();
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
     }
-    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, String AuditHistory,String Note) {
+
+    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note) {
         try {
-            int autoUID = this.getColumnAutoIncrementValue("AUDIT","AUDIT_UID");
-            String currentUser = "Administrator";            
-            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?)", new Object[]{autoUID,Type.toString(),Module.toString(),this.getCurrentTimeStamp(),currentUser,AuditHistory,Note});
+            int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
+            String currentUser = "Administrator";
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, AuditKey, AuditHistory, Note});
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
 
+    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory) {
+        try {
+            int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
+            String currentUser = "Administrator";
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, AuditKey, AuditHistory, ""});
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module) {
+        try {
+            int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
+            String currentUser = "Administrator";
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, -1, "", ""});
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, String Note) {
+        try {
+            int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
+            String currentUser = "Administrator";
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, -1, "", Note});
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
+            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");         
+            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
+            System.out.println(fromTS1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

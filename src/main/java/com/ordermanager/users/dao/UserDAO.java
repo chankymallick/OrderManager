@@ -16,7 +16,7 @@ public class UserDAO extends DAOHelper {
            String SQL =  this.getSimpleSQLInsert(userdata,"USERS");           
            int insertStatus = this.getJdbcTemplate().update(SQL);
            this.generateSQLSuccessResponse(rsj, "New user succesfully added");           
-           this.auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.USERS, "","");
+           this.auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.USERS);
         } catch (Exception e) {
             this.generateSQLExceptionResponse(rsj, e, "Exception occured see Logs..");
         }

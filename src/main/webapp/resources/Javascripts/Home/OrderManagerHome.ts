@@ -1,14 +1,18 @@
 /// <reference path="..//Utility/Utility.ts"/>
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
-declare var Language:any;
+declare var Language: any;
+declare var showFailedNotificationWithICON:any;
 module com.ordermanager.home {
-    export class CommandHandler{
-      public static CODE_FORM_NEW_ITEM = "ANI";
+    export class CommandHandler {
+        public static CODE_FORM_NEW_ITEM = "ANI";
+        public static CODE_FORM_NEW_USER = "ANU";
+        public static CODE_FORM_NEW_ORDER = "ANO";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
         public static FORM_NEW_USER = "addNewUser";
+        public static FORM_NEW_ORDER = "addNewOrder";
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -17,37 +21,47 @@ module com.ordermanager.home {
         constructor() {
             this.initLayout();
             this.commandRegister();
-            this.HomeLayoutObject.attachEvent("onCollapse", (name)=>{
-                if(name === "a"){
-                  this.commandRegister();
+            this.HomeLayoutObject.attachEvent("onCollapse", (name) => {
+                if (name === "a") {
+                    this.commandRegister();
                 }
             });
-            this.HomeLayoutObject.attachEvent("onExpand", (name)=>{
-                if(name === "a"){
-                  this.commandRegister();
+            this.HomeLayoutObject.attachEvent("onExpand", (name) => {
+                if (name === "a") {
+                    this.commandRegister();
                 }
             });
         }
-        public commandRegister(){
-          shortcut.add("Home", () => {
-          document.getElementById("searchCode").focus();
-          }, {
-                'type': 'keyup',
-                'disable_in_input': false,
-                'target': document,
-                'propagate': true
-            });
-          shortcut.add("Enter", () => {
-          var command = document.getElementById("searchCode").value;
-          if(command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM){
-                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+        public commandRegister() {
+            shortcut.add("Home", () => {
+                document.getElementById("searchCode").value ="";
+                document.getElementById("searchCode").focus();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+            shortcut.add("Enter", () => {
+                var command = document.getElementById("searchCode").value;
+                if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM,200);
                 }
-        }, {
-                'type': 'keyup',
-                'disable_in_input': false,
-                'target': document.getElementById("searchCode"),
-                'propagate': true
-            });
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER,200);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ORDER) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER,170);
+                }
+                else {
+                  showFailedNotificationWithICON(command.trim().toUpperCase()+": Command Not Found");
+                }
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document.getElementById("searchCode"),
+                    'propagate': true
+                });
         }
         public initLayout() {
             this.HomeLayoutObject = new dhtmlXLayoutObject({
@@ -61,7 +75,7 @@ module com.ordermanager.home {
                 ]
             });
             this.HomeLayoutObject.progressOn();
-            this.HomeLayoutObject.cells("a").setText(Language.menu+"  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
+            this.HomeLayoutObject.cells("a").setText(Language.menu + "  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
@@ -83,9 +97,9 @@ module com.ordermanager.home {
                 dhtmlxObject.setSkin("dhx_web");
             }
         }
-        public menuActionIntializer(actionName){
-          this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, 200);
-          this.HomeLayoutObject.cells("c").showHeader();
+        public menuActionIntializer(actionName,dataviewcellheight) {
+            this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, dataviewcellheight);
+            this.HomeLayoutObject.cells("c").showHeader();
 
         }
         public loadMenuItems(itemtype: any) {
@@ -105,10 +119,13 @@ module com.ordermanager.home {
             this.MenuGrid.load("LoadMenuItems?menutype=" + itemtype);
             this.MenuGrid.attachEvent("onRowSelect", (id, ind) => {
                 if (id === "AddNewItem") {
-                  this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM);
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM,200);
                 }
                 if (id === "addnewuser") {
-                  this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER);
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER,200);
+                }
+                if (id === "addneworder") {
+                    this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER,170);
                 }
 
             });
