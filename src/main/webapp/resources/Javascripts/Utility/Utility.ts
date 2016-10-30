@@ -36,9 +36,9 @@ module com.ordermanager.utilty {
         public OrderManagerHomeOBJ: com.ordermanager.home.OrderManagerHome;
         public DefualtDataFormObject: any;
         public isDefaultOn = false;
-        public GlobalFormJSONValues ={};
+        public GlobalFormJSONValues = {};
         public SelectedItemNameList = [];
-        public CustomRate :any;
+        public CustomRate: any;
         constructor(layoutCell: any, notificationCell: any, formname: any, dataentryCellHeight: any, dataviewcellheight: any) {
             this.DataEntryLayoutCellHeight = dataentryCellHeight;
             this.DataViewLayoutCellHeight = dataviewcellheight;
@@ -185,7 +185,7 @@ module com.ordermanager.utilty {
             this.setSpecificBeforeSave();
             if (this.FormObject.validate()) {
                 this.FormObject.updateValues();
-                this.DataEntryLayoutCell.progressOn();
+                //this.DataEntryLayoutCell.progressOn();
                 var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                 if (Response.RESPONSE_STATUS === "SUCCESS") {
                     showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -197,7 +197,7 @@ module com.ordermanager.utilty {
                     showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                     this.NotificationCell.attachHTMLString(this.FormName + "<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                     this.NotificationCell.expand();
-                    progressOffCustom(this.DataEntryLayoutCell);
+                    //progressOffCustom(this.DataEntryLayoutCell);
                 }
             }
             else {
@@ -207,16 +207,16 @@ module com.ordermanager.utilty {
         public setSpecificFormSettingsoNLoad() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
                 this.FormObject.attachEvent("onChange", (name) => {
-                if(name === "CUSTOM_RATE=NUM"){
-                  if(this.FormObject.getItemValue("CUSTOM_RATE=NUM") === 1){
-                    this.customRateWindow();
-                    this.FormObject.disableItem("ITEM_BUTTON=BUTTON");
-                  }
-                  else{
-                      this.FormObject.enableItem("ITEM_BUTTON=BUTTON");
-                  }
+                    if (name === "CUSTOM_RATE=NUM") {
+                        if (this.FormObject.getItemValue("CUSTOM_RATE=NUM") === 1) {
+                            this.customRateWindow();
+                            this.FormObject.disableItem("ITEM_BUTTON=BUTTON");
+                        }
+                        else {
+                            this.FormObject.enableItem("ITEM_BUTTON=BUTTON");
+                        }
 
-                }
+                    }
                 });
                 this.FormObject.attachEvent("onXLE", () => {
                     this.FormObject.attachEvent("onButtonClick", (name) => {
@@ -235,12 +235,14 @@ module com.ordermanager.utilty {
         }
         public setSpecificBeforeSave() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
-              if(this.FormObject.getItemValue("CUSTOM_RATE=NUM") === 1){
-              this.GlobalFormJSONValues["ITEM_DATA"] = this.CustomRate;
-              }
-              else{
-              this.GlobalFormJSONValues["ITEM_DATA"] = this.SelectedItemNameList;
-              }
+                if (this.FormObject.getItemValue("CUSTOM_RATE=NUM") === 1) {
+                    this.GlobalFormJSONValues["ITEM_DATA"] = this.CustomRate;
+                }
+                else {
+                    this.GlobalFormJSONValues["ITEM_DATA"] = this.SelectedItemNameList;
+                }
+                this.GlobalFormJSONValues["ORDER_DATE=DATE"] = this.FormObject.getItemValue("ORDER_DATE=DATE", true);
+                this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
             }
         }
         public setSpecificAfterSave() {
@@ -294,15 +296,15 @@ module com.ordermanager.utilty {
                 { type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label" },
                 { type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
                 { type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
-                { type: "button", name: "OK=BUTTON",value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok"}
+                { type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok" }
             ];
             var ItemWindow = this.MainUtilityObj.getModelWindow("Enter Custom Rates", 290, 300);
             var RateForm = ItemWindow.attachForm(FormObj);
             RateForm.setFocusOnFirstActive();
             RateForm.keyPlus();
-            RateForm.attachEvent("onButtonClick",(name)=>{
-            this.CustomRate = RateForm.getValues();
-            ItemWindow.close();
+            RateForm.attachEvent("onButtonClick", (name) => {
+                this.CustomRate = RateForm.getValues();
+                ItemWindow.close();
             });
         }
     }

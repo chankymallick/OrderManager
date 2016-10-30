@@ -86,7 +86,7 @@ public class DAOHelper {
         return responseJSON;
     }
 
-    public String getSimpleSQLInsert(JSONObject jsonParam, String tableName) {
+    public String getSimpleSQLInsert(JSONObject jsonParam, String tableName) throws Exception {
         StringBuffer InsertQuery = new StringBuffer();
         StringBuffer ColumnNames = new StringBuffer();
         StringBuffer ColumnValues = new StringBuffer();
@@ -102,6 +102,10 @@ public class DAOHelper {
             if ("STR".equalsIgnoreCase(ParamNameValue[1])) {
                 ColumnNames.append(ParamNameValue[0]).append(",");
                 ColumnValues.append("'").append(jsonParam.get(Key)).append("'").append(",");
+            }
+            if ("DATE".equalsIgnoreCase(ParamNameValue[1])) {
+                ColumnNames.append(ParamNameValue[0]).append(",");
+                ColumnValues.append("'").append(getParsedTimeStamp((String)jsonParam.get(Key))).append("'").append(",");
             }
         }
         if (',' == ColumnNames.charAt(ColumnNames.length() - 1)) {
@@ -184,7 +188,12 @@ public class DAOHelper {
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
     }
-
+    public  Timestamp getParsedTimeStamp(String Date) throws Exception{  
+            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
+            Date lFromDate1 = datetimeFormatter1.parse(Date);         
+            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
+             return fromTS1;   
+    }
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");

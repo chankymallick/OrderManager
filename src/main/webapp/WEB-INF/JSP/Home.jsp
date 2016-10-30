@@ -178,6 +178,11 @@
                 border-radius: 5px;
                 line-height: 40px;
             }
+            .GridHover{
+                background-color: #bee2f9;
+                color:white;
+                cursor: pointer;
+            }
 
 
         </style>

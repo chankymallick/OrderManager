@@ -68,20 +68,34 @@ public class OrderDAO extends DAOHelper {
     }
 
     public String addNewOrder(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
         try {
-            boolean isCustomRateActive = (paramData.getInt("CUSTOM_RATE=NUM") == 0) ? false : true;
+            boolean isCustomRateActive = (paramData.getInt("CUSTOM_RATE=NUM") != 0);
+            int UID = getColumnAutoIncrementValue("ORDERS", "ORDER_UID");
+            int Advance = paramData.getInt("ADVANCE=NUM");
+            int MasterPrice = 0;
+            int TailorPrice = 0;
+            JSONArray ItemNameArray;
             if (isCustomRateActive) {
                 JSONObject CustomPrice = (JSONObject) paramData.get("ITEM_DATA");
-                int MasterPrice = CustomPrice.getInt("MASTER_RATE=STR");
-                int TailorPrice = CustomPrice.getInt("TAILOR_RATE=STR");
+                MasterPrice = CustomPrice.getInt("MASTER_RATE=STR");
+                TailorPrice = CustomPrice.getInt("TAILOR_RATE=STR");
             } else {
-                JSONArray ItemNameArray = (JSONArray) paramData.get("ITEM_DATA");
+                ItemNameArray = (JSONArray) paramData.get("ITEM_DATA");
             }
+            paramData.remove("CUSTOM_RATE=NUM");
+            paramData.remove("ITEM_DATA");
+            paramData.remove("VERIFY_BILL_NO=STR");
+            paramData.remove("ADVANCE=NUM");            
+            paramData.put("ORDER_UID=NUM", UID);
+           int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));   
+           auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :"+paramData.getString("BILL_NO=STR"));
+           generateSQLSuccessResponse(response,paramData.get("BILL_NO=STR")+" - added Succesfully");
         } catch (Exception e) {
-            System.out.println(e);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
         }
 
-        return "";
+        return response.getJSONResponse();
     }
 
     public List<Object> getGridData(String TableName, String Order_Column) {

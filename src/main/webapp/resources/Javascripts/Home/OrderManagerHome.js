@@ -110,6 +110,7 @@ var com;
                     this.MenuGrid.setInitWidths("50,180");
                     this.MenuGrid.setColAlign("left,left");
                     this.MenuGrid.setColTypes("ro,ro");
+                    this.MenuGrid.enableRowsHover(true, "GridHover");
                     this.MenuGrid.init();
                     this.MenuGrid.attachEvent("onXLE", function () {
                         progressOffCustom(_this.HomeLayoutObject);

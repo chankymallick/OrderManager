@@ -168,7 +168,6 @@ var com;
                     this.setSpecificBeforeSave();
                     if (this.FormObject.validate()) {
                         this.FormObject.updateValues();
-                        this.DataEntryLayoutCell.progressOn();
                         var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                         if (Response.RESPONSE_STATUS === "SUCCESS") {
                             showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -180,7 +179,6 @@ var com;
                             showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                             this.NotificationCell.attachHTMLString(this.FormName + "<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                             this.NotificationCell.expand();
-                            progressOffCustom(this.DataEntryLayoutCell);
                         }
                     }
                     else {
@@ -224,6 +222,8 @@ var com;
                         else {
                             this.GlobalFormJSONValues["ITEM_DATA"] = this.SelectedItemNameList;
                         }
+                        this.GlobalFormJSONValues["ORDER_DATE=DATE"] = this.FormObject.getItemValue("ORDER_DATE=DATE", true);
+                        this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
                     }
                 };
                 FormEntryManager.prototype.setSpecificAfterSave = function () {

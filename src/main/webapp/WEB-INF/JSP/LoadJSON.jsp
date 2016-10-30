@@ -32,6 +32,7 @@
     {text: "CHURIDER", value: "CHURIDER"},
     {text: "SALWAR", value: "SALWAR"},
     {text: "LACHA", value: "LACHA"},
+    {text: "PIECE SELL", value: "PIECE SALE"}
     ]},   
     {type: "input", label: "QUANTITY", name: "QUANTITY=NUM", inputWidth: "60", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "ValidNumeric", maxLength: "1", tooltip: "Enter Password", icon: "icon-select", labelWidth: "120", value: "1"},
     {type: "input", label: "PRICE", name: "PRICE=NUM", inputWidth: "60", style: "font-weight:bold;background-color:#edeaea;", required: true, validate: "ValidNumeric", maxLength: "4", tooltip: "Enter Password", icon: "icon-password", labelWidth: "120"},
@@ -48,6 +49,13 @@
     {type: "select", label: "MEASURED BY", name: "MEASURED_BY=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", options: [
     {text: "MONI", value: "MONI"},
     {text: "SUNITA", value: "SUNITA"}   
+    ]},
+    {type: "select", label: "STATUS", name: "STATUS=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", options: [
+    {text: "NEW ORDER", value: "NEW ORDER"},
+    {text: "PROBLEM HALT", value: "PROBLEM HALT"},
+    {text: "REQUIREMENT HALT", value: "REQUIREMENT HALT"},
+    {text: "IN PROCESS", value: "IN PROCESS"},
+    {text: "ADVANCE LOW", value: "ADVANCE LOW"}   
     ]},
     {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", rows: "3"}
     ]
@@ -73,6 +81,7 @@
     {text: "CHURIDER", value: "CHURIDER"},
     {text: "SALWAR", value: "SALWAR"},
     {text: "LACHA", value: "LACHA"},
+    {text: "PIECE SELL", value: "PIECE SALE"},
     ]},
     {type: "select", label: "PRODUCT TYPE", name: "PRODUCT_TYPE=STR", inputWidth: "170", style: "font-weight:bold;background-color:#edeaea;", required: true, tooltip: "Select Preferred Language ", icon: "icon-select", labelWidth: "120", options: [
     {text: "COTTON WORK", value: "COTTON WORK"},
@@ -88,6 +97,10 @@
     {type: "select", label: "MEASURED BY", name: "MEASURED_BY=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", options: [
     {text: "MONI", value: "MONI"},
     {text: "SUNITA", value: "SUNITA"}   
+    ]},
+    {type: "select", label: "STATUS", name: "STATUS=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", options: [
+    {text: "NEW ORDER", value: "NEW ORDER"},
+    {text: "ADVANCE LOW", value: "ADVANCE LOW"}   
     ]},
     {type: "input", label: "NOTE", name: "NOTE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", rows: "3"}
     ]

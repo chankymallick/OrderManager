@@ -112,6 +112,7 @@ module com.ordermanager.home {
             this.MenuGrid.setInitWidths("50,180");
             this.MenuGrid.setColAlign("left,left");
             this.MenuGrid.setColTypes("ro,ro");
+            this.MenuGrid.enableRowsHover(true,"GridHover");
             this.MenuGrid.init();
             this.MenuGrid.attachEvent("onXLE", () => {
                 progressOffCustom(this.HomeLayoutObject);
