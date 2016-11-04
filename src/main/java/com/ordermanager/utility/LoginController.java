@@ -1,8 +1,6 @@
 package com.ordermanager.utility;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
 import javax.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import com.ordermanager.utility.ConstantContainer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,15 +24,17 @@ public class LoginController {
     public ModelAndView Login(HttpServletRequest request, HttpServletResponse response, @RequestParam("password") String LanguageType) {
 
         try {
-            File rootDir = new File(servletContext.getRealPath("/WEB-INF/applicationContext.xml"));
+            File rootDir = new File(servletContext.getRealPath("/WEB-INF/applicationContext.xml"));          
             System.out.println(rootDir.getAbsolutePath());
             ConstantContainer.Application_Context_File_Path = rootDir.getAbsolutePath();
         } catch (Exception e) {
         }
-        if (LanguageType.equals("bng")) {
+        if (LanguageType.equals("bng")) {           
             new PropertyFileReader().loadLanguageProperties(request, servletContext, ConstantContainer.LANGUAGES.BENGALI);
+            new PropertyFileReader().loadSelectItemProperties(request, servletContext, ConstantContainer.LANGUAGES.BENGALI);
         } else {
             new PropertyFileReader().loadLanguageProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
+            new PropertyFileReader().loadSelectItemProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
         }
         return new ModelAndView("Home");
     }

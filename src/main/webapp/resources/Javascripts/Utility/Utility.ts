@@ -8,6 +8,7 @@ declare var showSuccessNotificationWithICON: any;
 declare var showFailedNotificationWithICON: any;
 declare var Language: any;
 declare var dhtmlXWindows: any;
+declare var getCurrentDate:any;
 module com.ordermanager.utilty {
     export class MainUtility {
         public getModelWindow(HeaderText: any, Height: any, Width: any) {
@@ -99,11 +100,11 @@ module com.ordermanager.utilty {
                 }
             });
             this.FormInitialization();
-            this.FormObject.attachEvent("onXLE", () => {
-                progressOffCustom(this.ModifiedLayoutObject);
-                this.FormObject.setFocusOnFirstActive();
-                this.FormObject.keyPlus();
-            });
+            // this.FormObject.attachEvent("onXLE", () => {
+            //     this.FormObject.setFocusOnFirstActive();
+            //     this.FormObject.keyPlus();
+            //     progressOffCustom(this.ModifiedLayoutObject);
+            // });
             // this.FormObject.attachEvent("onKeyUp",(inp, ev, name, value)=>{
             // });
             this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
@@ -124,15 +125,19 @@ module com.ordermanager.utilty {
             this.FormObject.load(this.FormName + "_Form?Default=" + this.isDefaultOn);
             this.FormObject.enableLiveValidation(true);
             this.FormObject.attachEvent("onXLE", () => {
+                //this.FormObject.setFocusOnFirstActive();
                 this.FormObject.setFocusOnFirstActive();
+                this.FormObject.keyPlus();
+                progressOffCustom(this.ModifiedLayoutObject);
             });
-            this.FormObject.keyPlus();
+            //this.FormObject.keyPlus();
             if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
                 this.DefualtDataFormObject.unload();
             }
             this.DefualtDataFormObject = this.DataTabber.tabs("default").attachForm();
             this.DefualtDataFormObject.load(this.FormName + "_Form?Default=true");
             this.DefualtDataFormObject.enableLiveValidation(true);
+            this.setSpecificFormSettingsoNLoad();
         }
         public setFormStateAfterSave() {
             this.FormObject.lock();
@@ -167,8 +172,13 @@ module com.ordermanager.utilty {
         }
         public saveDefualtFormValue(module_name: any, key_name: any) {
             this.DefualtDataFormObject.updateValues();
+            var DefaultForData = this.DefualtDataFormObject.getValues();
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
+                DefaultForData["ORDER_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("ORDER_DATE=DATE", true);
+                DefaultForData["DELIVERY_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("DELIVERY_DATE=DATE", true);
+            }
             this.DataEntryLayoutCell.progressOn();
-            var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
+            var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(DefaultForData) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
             if (Response.RESPONSE_STATUS === "SUCCESS") {
                 showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                 this.NotificationCell.collapse();
@@ -218,12 +228,12 @@ module com.ordermanager.utilty {
 
                     }
                 });
-                this.FormObject.attachEvent("onXLE", () => {
-                    this.FormObject.attachEvent("onButtonClick", (name) => {
-                        if (name === "ITEM_BUTTON=BUTTON")
-                            var Value = this.constructItemSelectionWindow();
-                    });
+                //this.FormObject.attachEvent("onXLE", () => {
+                this.FormObject.attachEvent("onButtonClick", (name) => {
+                    if (name === "ITEM_BUTTON=BUTTON")
+                        var Value = this.constructItemSelectionWindow();
                 });
+                //  });
             }
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER) {
                 this.OperationToolbar.attachEvent("onXLE", () => {

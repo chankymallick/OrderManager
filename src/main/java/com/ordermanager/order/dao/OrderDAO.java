@@ -11,7 +11,10 @@ import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  *
@@ -69,15 +72,19 @@ public class OrderDAO extends DAOHelper {
 
     public String addNewOrder(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
         try {
             boolean isCustomRateActive = (paramData.getInt("CUSTOM_RATE=NUM") != 0);
             int UID = getColumnAutoIncrementValue("ORDERS", "ORDER_UID");
             int Advance = paramData.getInt("ADVANCE=NUM");
+            String MainItemName =  paramData.get("ORDER_TYPE=STR").toString(); 
             int MasterPrice = 0;
             int TailorPrice = 0;
-            JSONArray ItemNameArray;
+            JSONObject CustomPrice = null;
+            JSONArray ItemNameArray = new JSONArray();
             if (isCustomRateActive) {
-                JSONObject CustomPrice = (JSONObject) paramData.get("ITEM_DATA");
+                CustomPrice = (JSONObject) paramData.get("ITEM_DATA");
                 MasterPrice = CustomPrice.getInt("MASTER_RATE=STR");
                 TailorPrice = CustomPrice.getInt("TAILOR_RATE=STR");
             } else {
@@ -86,20 +93,39 @@ public class OrderDAO extends DAOHelper {
             paramData.remove("CUSTOM_RATE=NUM");
             paramData.remove("ITEM_DATA");
             paramData.remove("VERIFY_BILL_NO=STR");
-            paramData.remove("ADVANCE=NUM");            
-            paramData.put("ORDER_UID=NUM", UID);
-           int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));   
-           auditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :"+paramData.getString("BILL_NO=STR"));
-           generateSQLSuccessResponse(response,paramData.get("BILL_NO=STR")+" - added Succesfully");
-        } catch (Exception e) {
-            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
-        }
+            paramData.remove("ADVANCE=NUM");
+            paramData.put("ORDER_UID=NUM", UID);           
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));      
+            int Order_Item_Uid_For_Main_Item = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
+            int mainItem = getJdbcTemplate().update("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", new Object[]{Order_Item_Uid_For_Main_Item,paramData.get("BILL_NO=STR"),MainItemName,""});
+            if (isCustomRateActive) {
 
+            } else if (ItemNameArray.length() > 0) {
+                List<Object[]> ItemParams = new ArrayList();
+                int Order_Item_Uid = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
+                for (int i = 0; i < ItemNameArray.length(); i++) {
+                    ItemParams.add(new Object[]{Order_Item_Uid, paramData.get("BILL_NO=STR"), ItemNameArray.get(i), ""});
+                    Order_Item_Uid++;
+                }
+                int totalInsert[] = getJdbcTemplate().batchUpdate("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", ItemParams);
+            }
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
+            generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+             this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");           
+        }
         return response.getJSONResponse();
     }
 
     public List<Object> getGridData(String TableName, String Order_Column) {
         String SQL = "SELECT *FROM " + TableName + " ORDER BY " + Order_Column + " DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForOrders() {
+        String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,DELIVERY_DATE,ORDER_STATUS,PIECE_VENDOR,PRICE,ORDER_TYPE, PRODUCT_TYPE FROM ORDERS ORDER BY ORDER_UID DESC";
         return this.getJSONDataForGrid(SQL);
     }
 

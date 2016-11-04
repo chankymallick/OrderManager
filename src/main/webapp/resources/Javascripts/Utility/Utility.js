@@ -83,11 +83,6 @@ var com;
                         }
                     });
                     this.FormInitialization();
-                    this.FormObject.attachEvent("onXLE", function () {
-                        progressOffCustom(_this.ModifiedLayoutObject);
-                        _this.FormObject.setFocusOnFirstActive();
-                        _this.FormObject.keyPlus();
-                    });
                     this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
                     this.DataViewGridObject.load("LoadDataViewGrid?gridname=" + this.FormName);
                     this.DataViewGridObject.attachEvent("onXLE", function () {
@@ -106,14 +101,16 @@ var com;
                     this.FormObject.enableLiveValidation(true);
                     this.FormObject.attachEvent("onXLE", function () {
                         _this.FormObject.setFocusOnFirstActive();
+                        _this.FormObject.keyPlus();
+                        progressOffCustom(_this.ModifiedLayoutObject);
                     });
-                    this.FormObject.keyPlus();
                     if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
                         this.DefualtDataFormObject.unload();
                     }
                     this.DefualtDataFormObject = this.DataTabber.tabs("default").attachForm();
                     this.DefualtDataFormObject.load(this.FormName + "_Form?Default=true");
                     this.DefualtDataFormObject.enableLiveValidation(true);
+                    this.setSpecificFormSettingsoNLoad();
                 };
                 FormEntryManager.prototype.setFormStateAfterSave = function () {
                     var _this = this;
@@ -150,8 +147,13 @@ var com;
                 };
                 FormEntryManager.prototype.saveDefualtFormValue = function (module_name, key_name) {
                     this.DefualtDataFormObject.updateValues();
+                    var DefaultForData = this.DefualtDataFormObject.getValues();
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
+                        DefaultForData["ORDER_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("ORDER_DATE=DATE", true);
+                        DefaultForData["DELIVERY_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("DELIVERY_DATE=DATE", true);
+                    }
                     this.DataEntryLayoutCell.progressOn();
-                    var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(this.DefualtDataFormObject.getValues()) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
+                    var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(DefaultForData) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
                     if (Response.RESPONSE_STATUS === "SUCCESS") {
                         showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                         this.NotificationCell.collapse();
@@ -199,11 +201,9 @@ var com;
                                 }
                             }
                         });
-                        this.FormObject.attachEvent("onXLE", function () {
-                            _this.FormObject.attachEvent("onButtonClick", function (name) {
-                                if (name === "ITEM_BUTTON=BUTTON")
-                                    var Value = _this.constructItemSelectionWindow();
-                            });
+                        this.FormObject.attachEvent("onButtonClick", function (name) {
+                            if (name === "ITEM_BUTTON=BUTTON")
+                                var Value = _this.constructItemSelectionWindow();
                         });
                     }
                     if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER) {

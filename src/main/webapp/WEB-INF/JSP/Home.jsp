@@ -183,7 +183,9 @@
                 color:white;
                 cursor: pointer;
             }
-
+           .hdrcell{
+            text-align:center;
+            }
 
         </style>
         <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>

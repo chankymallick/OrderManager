@@ -33,8 +33,8 @@ module com.ordermanager.home {
             });
         }
         public commandRegister() {
-            shortcut.add("Home", () => {
-                document.getElementById("searchCode").value ="";
+            shortcut.add("Home", () => {                
+                (<HTMLInputElement>document.getElementById("searchCode")).value = "";
                 document.getElementById("searchCode").focus();
             }, {
                     'type': 'keyup',
@@ -43,7 +43,7 @@ module com.ordermanager.home {
                     'propagate': true
                 });
             shortcut.add("Enter", () => {
-                var command = document.getElementById("searchCode").value;
+                var command = (<HTMLInputElement>document.getElementById("searchCode")).value
                 if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM,200);
                 }
@@ -75,7 +75,7 @@ module com.ordermanager.home {
                 ]
             });
             this.HomeLayoutObject.progressOn();
-            this.HomeLayoutObject.cells("a").setText(Language.menu + "  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
+            this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();

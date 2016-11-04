@@ -20,6 +20,7 @@
                <option value="1">Chanky</option>
                <option value="2">skumarpal</option>
                <option value="3">uttam</option>
+               <option value="3">Jackie</option>
              </select>
            </div>
         <input type="password" name="password" class="login-input" placeholder="Password">

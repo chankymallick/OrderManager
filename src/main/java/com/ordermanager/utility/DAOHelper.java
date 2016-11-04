@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  *
@@ -29,6 +30,15 @@ import org.springframework.dao.EmptyResultDataAccessException;
 public class DAOHelper {
 
     private JdbcTemplate jdbcTemplate;
+    private PlatformTransactionManager transactionManager;
+
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager txManager) {
+        this.transactionManager = txManager;
+    }
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
@@ -105,7 +115,7 @@ public class DAOHelper {
             }
             if ("DATE".equalsIgnoreCase(ParamNameValue[1])) {
                 ColumnNames.append(ParamNameValue[0]).append(",");
-                ColumnValues.append("'").append(getParsedTimeStamp((String)jsonParam.get(Key))).append("'").append(",");
+                ColumnValues.append("'").append(getParsedTimeStamp((String) jsonParam.get(Key))).append("'").append(",");
             }
         }
         if (',' == ColumnNames.charAt(ColumnNames.length() - 1)) {
@@ -137,7 +147,11 @@ public class DAOHelper {
             while (rst.next()) {
                 Map<String, String> row = new HashMap();
                 for (int i = 1; i <= totalCoumn; i++) {
-                    row.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
+                    if (rsMetadata.getColumnType(i) == 93) {
+                        row.put(rsMetadata.getColumnLabel(i), this.getStringTime(rst.getTimestamp(rsMetadata.getColumnLabel(i))));
+                    } else {
+                        row.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
+                    }
                 }
                 allRows.add(row);
             }
@@ -188,12 +202,22 @@ public class DAOHelper {
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
     }
-    public  Timestamp getParsedTimeStamp(String Date) throws Exception{  
-            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
-            Date lFromDate1 = datetimeFormatter1.parse(Date);         
-            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
-             return fromTS1;   
+
+    public Timestamp getParsedTimeStamp(String Date) throws Exception {
+        SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
+        Date lFromDate1 = datetimeFormatter1.parse(Date);
+        Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
+        return fromTS1;
     }
+
+    public String getStringTime(Timestamp Date) throws Exception {
+        long date = Date.getTime();
+        Date dateObj = new Date(date);
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+        String text = df.format(dateObj);
+        return text;
+    }
+
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
@@ -205,7 +229,7 @@ public class DAOHelper {
         }
     }
 
-    public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory) {
+    public boolean mainAuditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
             String currentUser = "Administrator";
@@ -241,9 +265,14 @@ public class DAOHelper {
     public static void main(String[] args) {
         try {
             SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
-            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");         
+            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");
             Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
-            System.out.println(fromTS1);
+            Timestamp Date = new Timestamp(lFromDate1.getTime());
+            long date = fromTS1.getTime();
+            Date dateObj = new Date(date);
+            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yy");
+            String text = df.format(dateObj);
+            System.out.println(text);
         } catch (Exception e) {
             e.printStackTrace();
         }

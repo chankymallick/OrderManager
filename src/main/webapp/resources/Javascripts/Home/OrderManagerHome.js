@@ -73,7 +73,7 @@ var com;
                         ]
                     });
                     this.HomeLayoutObject.progressOn();
-                    this.HomeLayoutObject.cells("a").setText(Language.menu + "  <span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
+                    this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
                     this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
                     this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
