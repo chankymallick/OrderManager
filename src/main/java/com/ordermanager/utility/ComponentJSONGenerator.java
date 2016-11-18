@@ -36,6 +36,23 @@ public class ComponentJSONGenerator {
             return new ModelAndView("LoadJSON", "FormType", "addNewOrder");
         }
     }
+    @RequestMapping("/quickNewOrder_Form")
+    public ModelAndView addNewQuickOrder(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "quickNewOrder"));
+            if (defaultData.length()==0) {
+                return new ModelAndView("LoadJSON", "FormType", "quickNewOrder");
+            } else {
+                requestMap.put("FormType", "quickNewOrder_withValue");
+                requestMap.put("FormData",defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
+
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "quickNewOrder");
+        }
+    }
     @RequestMapping("/addNewItem_Form")
     public ModelAndView loadNewOrderItemForm(@RequestParam("Default") boolean isDefaultOn) {
         Map<String, Object> requestMap = new HashMap();
@@ -69,6 +86,11 @@ public class ComponentJSONGenerator {
         } else {
             return new ModelAndView("LoadJSON", "FormType", "addNewUser");
         }
+    }
+    @RequestMapping("/advanceReport_Form")
+    public ModelAndView dailyAdvanceReport() {    
+            return new ModelAndView("LoadJSON", "FormType", "advanceReport_Form");
+        
     }
 
     @RequestMapping("/operationMenu")

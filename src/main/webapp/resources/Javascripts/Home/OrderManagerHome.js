@@ -10,6 +10,8 @@ var com;
                 CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
                 CommandHandler.CODE_FORM_NEW_USER = "ANU";
                 CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
+                CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
+                CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
                 return CommandHandler;
             }());
             home.CommandHandler = CommandHandler;
@@ -50,6 +52,12 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ORDER) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER, 170);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_ORDER) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
+                            _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                         }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -96,7 +104,13 @@ var com;
                     }
                 };
                 OrderManagerHome.prototype.menuActionIntializer = function (actionName, dataviewcellheight) {
+                    this.HomeLayoutObject.cells("a").expand();
                     this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, dataviewcellheight);
+                    this.HomeLayoutObject.cells("c").showHeader();
+                };
+                OrderManagerHome.prototype.menurReportsActionIntializer = function (actionName) {
+                    this.HomeLayoutObject.cells("a").collapse();
+                    this.ReportViewManagerObject = new com.ordermanager.reportingutility.TransactionReports(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName);
                     this.HomeLayoutObject.cells("c").showHeader();
                 };
                 OrderManagerHome.prototype.loadMenuItems = function (itemtype) {
@@ -126,11 +140,19 @@ var com;
                         if (id === "addneworder") {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ORDER, 170);
                         }
+                        if (id === "quickNewOrder") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                        }
+                        if (id === "advanceReport") {
+                            _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
+                        }
                     });
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
                 OrderManagerHome.FORM_NEW_USER = "addNewUser";
                 OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
+                OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
+                OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 return OrderManagerHome;
             }());
             home.OrderManagerHome = OrderManagerHome;

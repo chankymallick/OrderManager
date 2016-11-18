@@ -7,6 +7,10 @@
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addneworder"/></b>]]></cell>        
         </row>
+          <row id="quickNewOrder">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="quickNewOrder"/></b>]]></cell>        
+        </row>
         <row id="2">
             <cell><![CDATA[<img src="resources/Images/advance.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addadvance"/></b>]]></cell>  
@@ -38,6 +42,10 @@
         <row id="AddNewItem">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addnewitem"/></b>]]></cell>  
+        </row>
+        <row id="advanceReport">
+            <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="advanceReport"/></b>]]></cell>  
         </row>
     </rows>
 </c:if>
@@ -220,13 +228,43 @@
     <rows>
         <head>            
         <column width="100" type="ro" align="center" color="white" sort="str">BILL NO</column>       
-        <column width="200" type="ro" align="center" color="white" sort="dhxCalendar">ORDER_DATE</column>   
-        <column width="200" type="ro" align="center" color="white" sort="dhxCalendar">DELIVERY_DATE</column>   
-        <column width="150" type="ro" align="center" color="white" sort="str">ORDER_STATUS</column>   
-        <column width="150" type="ro" align="center" color="white" sort="str">PIECE_VENDOR</column>   
+        <column width="100" type="ro" align="center" color="white" sort="dhxCalendar">ORDER DATE</column>   
+        <column width="100" type="ro" align="center" color="white" sort="dhxCalendar">DELIVERY</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">ORDER STATUS</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">PIECE VENDOR</column>   
         <column width="100" type="ro" align="center" color="white" sort="int" >PRICE</column>   
-        <column width="120" type="ro" align="center" color="white" sort="str">ORDER_TYPE</column>   
-        <column width="150" type="ro" align="center" color="white" sort="str">PRODUCT_TYPE</column>   
+        <column width="120" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">PRODUCT TYPE</column>   
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+            </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('quickNewOrder')}">
+    <rows>
+        <head>            
+        <column width="200" type="ro" align="center" color="white" sort="str">BILL NO</column>       
+        <column width="200" type="ro" align="center" color="white" sort="str">ORDER DATE</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">PRICE</column>  
+        <column width="200" type="ro" align="center" color="white" sort="str">ADVANCE</column>    
         <beforeInit> 
             <call command="setImagePath"> 
                 <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 

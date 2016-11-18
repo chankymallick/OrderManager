@@ -193,6 +193,7 @@
         <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 
+        <script src="<c:url value='/resources/Javascripts/Utility/ReportingUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script>

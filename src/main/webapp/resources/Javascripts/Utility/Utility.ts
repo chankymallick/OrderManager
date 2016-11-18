@@ -8,7 +8,7 @@ declare var showSuccessNotificationWithICON: any;
 declare var showFailedNotificationWithICON: any;
 declare var Language: any;
 declare var dhtmlXWindows: any;
-declare var getCurrentDate:any;
+declare var getCurrentDate: any;
 module com.ordermanager.utilty {
     export class MainUtility {
         public getModelWindow(HeaderText: any, Height: any, Width: any) {
@@ -194,25 +194,41 @@ module com.ordermanager.utilty {
             this.GlobalFormJSONValues = this.FormObject.getValues();
             this.setSpecificBeforeSave();
             if (this.FormObject.validate()) {
-                this.FormObject.updateValues();
-                //this.DataEntryLayoutCell.progressOn();
-                var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
-                if (Response.RESPONSE_STATUS === "SUCCESS") {
-                    showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
-                    this.setFormStateAfterSave();
-                    this.NotificationCell.collapse();
-                    this.DataEntryLayoutCell.progressOff();
-                }
-                if (Response.RESPONSE_STATUS === "FAILED") {
-                    showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                    this.NotificationCell.attachHTMLString(this.FormName + "<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
-                    this.NotificationCell.expand();
-                    //progressOffCustom(this.DataEntryLayoutCell);
+                if (this.customValidation()) {
+                    this.FormObject.updateValues();
+                    //this.DataEntryLayoutCell.progressOn();
+                    var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
+                    if (Response.RESPONSE_STATUS === "SUCCESS") {
+                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.setFormStateAfterSave();
+                        this.NotificationCell.collapse();
+                        this.DataEntryLayoutCell.progressOff();
+                    }
+                    if (Response.RESPONSE_STATUS === "FAILED") {
+                        showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        this.NotificationCell.attachHTMLString(this.FormName + "  : <b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                        this.NotificationCell.expand();
+                        //progressOffCustom(this.DataEntryLayoutCell);
+                    }
                 }
             }
             else {
                 showFailedNotification("Data Validation Error")
             }
+        }
+        public customValidation() {
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
+                if (this.FormObject.getItemValue("DELIVERY_DATE=DATE").getTime() < this.FormObject.getItemValue("ORDER_DATE=DATE").getTime()) {
+                    showFailedNotification("Delivery date must be after or equal of order date");
+                    return false;
+                }
+                if(parseInt(this.FormObject.getItemValue("ADVANCE=NUM")) > parseInt(this.FormObject.getItemValue("PRICE=NUM"))){
+                  showFailedNotification("Advance must be less or equal than price.");
+                  return false;
+                }
+            }
+            return true;
+
         }
         public setSpecificFormSettingsoNLoad() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {

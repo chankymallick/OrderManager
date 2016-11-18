@@ -1,6 +1,9 @@
 package com.ordermanager.utility;
 public class ConstantContainer {
     
+    public enum PAYMENT_TYPE{
+    ADVANCE,RE_ADVANCE,DELIVERY_PAYMENT
+    }
     public enum ResponseJSONKeys{
     RESPONSE_TYPE, RESPONSE_STATUS, RESPONSE_MESSAGE,RESPONSE_VALUE
     }
@@ -14,11 +17,18 @@ public class ConstantContainer {
     SUCCESS,FAILED   
     }
     public enum APP_MODULE{
-    ITEMS,USERS,ORDERS
+    ITEMS,USERS,ORDERS,QUICK_ORDERS
     }
     public enum AUDIT_TYPE{
     INSERT,UPDATE,DELETED
     }
+    public enum LOCATION{
+    BAGNAN,MECHEDA
+    }
+    public enum STATISTICS_TYPE{
+    LARGE,MEDIUM,SMALL
+    }
+ 
     public static String Property_File_Path_Language_English; 
     public static String Property_File_Path_Language_Bengali; 
     public static String Query_File_Path_Microsoft_SQL_Server;

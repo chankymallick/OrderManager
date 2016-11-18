@@ -27,7 +27,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  *
  * @author Maliick
  */
-public class DAOHelper {
+public class DAOHelper extends ConstantContainer {
 
     private JdbcTemplate jdbcTemplate;
     private PlatformTransactionManager transactionManager;
@@ -117,6 +117,10 @@ public class DAOHelper {
                 ColumnNames.append(ParamNameValue[0]).append(",");
                 ColumnValues.append("'").append(getParsedTimeStamp((String) jsonParam.get(Key))).append("'").append(",");
             }
+            if ("DATE_AUTO".equalsIgnoreCase(ParamNameValue[1])) {
+                ColumnNames.append(ParamNameValue[0]).append(",");
+                ColumnValues.append("'").append(jsonParam.get(Key)).append("'").append(",");
+            }
         }
         if (',' == ColumnNames.charAt(ColumnNames.length() - 1)) {
             ColumnNames.deleteCharAt(ColumnNames.length() - 1);
@@ -201,6 +205,19 @@ public class DAOHelper {
         Calendar cal = Calendar.getInstance();
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
+    }
+
+    public String getDatePartOfTimestamp(String valueFromDB) {
+        try{
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");   
+        Date d1 = sdf1.parse(valueFromDB);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateWithoutTime = sdf.format(d1);
+        return dateWithoutTime;
+        }
+        catch(Exception e){
+        return null;
+        }
     }
 
     public Timestamp getParsedTimeStamp(String Date) throws Exception {
