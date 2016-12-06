@@ -19,11 +19,13 @@ module com.ordermanager.reportingutility {
         public StatisticsCell:any;
         public StatisticsDataViewObject:any;
         public ParameterForm:any;
+        public ReportGrid:any;
         constructor(layoutCell: any, notificationCell: any, reportName: any) {
             this.MainLayout = layoutCell;
             this.ReportName = reportName;
             this.NotificationCell = notificationCell;
             this.constructInnerLayoutForReport();
+            this.constructReportGrid();
         }
         public constructInnerLayoutForReport() {
             this.ModifiedLayoutObject = this.MainLayout.attachLayout({
@@ -53,18 +55,18 @@ module com.ordermanager.reportingutility {
         public contructStatisticsLayout(){
           this.StatisticsCell = this.ModifiedLayoutObject.cells("a");
           this.StatisticsCell.fixSize(true, true);
-          this.StatisticsCell.progressOn();
+          this.ModifiedLayoutObject.cells("a").progressOn();
           this.StatisticsCell.attachURL("getStatistics?StatisticsName="+this.ReportName+"&ReportParams="+this.getReportParameters());
-          this.StatisticsCell.progressOff();
+          progressOffCustom(this.ModifiedLayoutObject.cells("A"));
         }
         public getReportParameters(){
+            var params = this.ParameterForm.getValues();
             if(this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE){
-             var params = this.ParameterForm.getValues();
              var date = this.ParameterForm.getItemValue("ORDER_DATE=DATE", true);
              params["ORDER_DATE=DATE"]=date;
              params["LOCATION=STR"]="BAGNAN";
-             return JSON.stringify(params);
             }
+            return JSON.stringify(params);
 
         }
         public constructParameterForm(){
@@ -74,6 +76,15 @@ module com.ordermanager.reportingutility {
           this.ParameterForm = this.ModifiedLayoutObject.cells("b").attachForm();
           this.ParameterForm.load(this.ReportName+ "_Form");
           this.setSpecificOnLoad();
+        }
+        public constructReportGrid(){
+          this.ModifiedLayoutObject.cells("c").progressOn();
+          this.ReportGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
+          this.ReportGrid.load("LoadReportViewGrid?gridname=" + this.ReportName);
+          this.ReportGrid.attachEvent("onXLE", () => {
+              progressOffCustom(this.ModifiedLayoutObject.cells("c"));
+          });
+
         }
     }
 }

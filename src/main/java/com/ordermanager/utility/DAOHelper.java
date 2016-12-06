@@ -152,7 +152,7 @@ public class DAOHelper extends ConstantContainer {
                 Map<String, String> row = new HashMap();
                 for (int i = 1; i <= totalCoumn; i++) {
                     if (rsMetadata.getColumnType(i) == 93) {
-                        row.put(rsMetadata.getColumnLabel(i), this.getStringTime(rst.getTimestamp(rsMetadata.getColumnLabel(i))));
+                        row.put(rsMetadata.getColumnLabel(i), this.getCustomFormatDate(rst.getTimestamp(rsMetadata.getColumnLabel(i))));
                     } else {
                         row.put(rsMetadata.getColumnLabel(i), rst.getString(rsMetadata.getColumnLabel(i)));
                     }
@@ -227,7 +227,10 @@ public class DAOHelper extends ConstantContainer {
         return fromTS1;
     }
 
-    public String getStringTime(Timestamp Date) throws Exception {
+    public String getCustomFormatDate(Timestamp Date) throws Exception {
+        if(Date == null){
+        return "";
+        }
         long date = Date.getTime();
         Date dateObj = new Date(date);
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");

@@ -3,6 +3,41 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style type="text/css">
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-button {
+                width: 0px;
+                height: 0px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #e1e1e1;
+                border: 0px none #ffffff;
+                border-radius: 50px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #ffffff;
+            }
+            ::-webkit-scrollbar-thumb:active {
+                background: #000000;
+            }
+            ::-webkit-scrollbar-track {
+                background: #666666;
+                border: 0px none #ffffff;
+                border-radius: 23px;
+            }
+            ::-webkit-scrollbar-track:hover {
+                background: #666666;
+            }
+            ::-webkit-scrollbar-track:active {
+                background: #333333;
+            }
+            ::-webkit-scrollbar-corner {
+                background: transparent;
+            }
+        </style>
         <style>
             #Layout_Container,body,html
             {
@@ -143,7 +178,7 @@
                 font-family:Arial;
                 font-size:15px;
                 font-weight:bold;
-               height:40px;
+                height:40px;
                 width:220px;
                 text-decoration:none;
                 text-align: center;
@@ -183,8 +218,8 @@
                 color:white;
                 cursor: pointer;
             }
-           .hdrcell{
-            text-align:center;
+            .hdrcell{
+                text-align:center;
             }
 
         </style>

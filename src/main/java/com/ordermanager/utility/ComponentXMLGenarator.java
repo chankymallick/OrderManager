@@ -4,6 +4,7 @@ import com.ordermanager.order.dao.OrderDAO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,19 @@ public class ComponentXMLGenarator {
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }       
+        mvc.put("Type", Type);
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
+    }
+    @RequestMapping("/LoadReportViewGrid")
+    public ModelAndView reportViewGrid(@RequestParam("gridname") String Type,@RequestParam(name="ParamJson",required = false) JSONObject ParamJson) {
+        Map<String, Object> mvc = new HashMap<String, Object>();
+        if (Type.equals("advanceReport")) {
+           
+            List temp = OrderDAO.getGridDataForQuickOrders();
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+            
+        }         
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

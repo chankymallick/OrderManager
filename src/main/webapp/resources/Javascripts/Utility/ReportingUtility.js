@@ -10,6 +10,7 @@ var com;
                     this.ReportName = reportName;
                     this.NotificationCell = notificationCell;
                     this.constructInnerLayoutForReport();
+                    this.constructReportGrid();
                 }
                 TransactionReports.prototype.constructInnerLayoutForReport = function () {
                     this.ModifiedLayoutObject = this.MainLayout.attachLayout({
@@ -37,18 +38,18 @@ var com;
                 TransactionReports.prototype.contructStatisticsLayout = function () {
                     this.StatisticsCell = this.ModifiedLayoutObject.cells("a");
                     this.StatisticsCell.fixSize(true, true);
-                    this.StatisticsCell.progressOn();
+                    this.ModifiedLayoutObject.cells("a").progressOn();
                     this.StatisticsCell.attachURL("getStatistics?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters());
-                    this.StatisticsCell.progressOff();
+                    progressOffCustom(this.ModifiedLayoutObject.cells("A"));
                 };
                 TransactionReports.prototype.getReportParameters = function () {
+                    var params = this.ParameterForm.getValues();
                     if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
-                        var params = this.ParameterForm.getValues();
                         var date = this.ParameterForm.getItemValue("ORDER_DATE=DATE", true);
                         params["ORDER_DATE=DATE"] = date;
                         params["LOCATION=STR"] = "BAGNAN";
-                        return JSON.stringify(params);
                     }
+                    return JSON.stringify(params);
                 };
                 TransactionReports.prototype.constructParameterForm = function () {
                     if (this.ParameterForm != null || this.ParameterForm != undefined) {
@@ -57,6 +58,15 @@ var com;
                     this.ParameterForm = this.ModifiedLayoutObject.cells("b").attachForm();
                     this.ParameterForm.load(this.ReportName + "_Form");
                     this.setSpecificOnLoad();
+                };
+                TransactionReports.prototype.constructReportGrid = function () {
+                    var _this = this;
+                    this.ModifiedLayoutObject.cells("c").progressOn();
+                    this.ReportGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
+                    this.ReportGrid.load("LoadReportViewGrid?gridname=" + this.ReportName);
+                    this.ReportGrid.attachEvent("onXLE", function () {
+                        progressOffCustom(_this.ModifiedLayoutObject.cells("c"));
+                    });
                 };
                 return TransactionReports;
             }());
