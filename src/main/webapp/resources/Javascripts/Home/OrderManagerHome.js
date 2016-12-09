@@ -7,13 +7,13 @@ var com;
             var CommandHandler = (function () {
                 function CommandHandler() {
                 }
-                CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
-                CommandHandler.CODE_FORM_NEW_USER = "ANU";
-                CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
-                CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
-                CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
                 return CommandHandler;
             }());
+            CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
+            CommandHandler.CODE_FORM_NEW_USER = "ANU";
+            CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
+            CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
+            CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -148,13 +148,13 @@ var com;
                         }
                     });
                 };
-                OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
-                OrderManagerHome.FORM_NEW_USER = "addNewUser";
-                OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
-                OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
-                OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 return OrderManagerHome;
             }());
+            OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
+            OrderManagerHome.FORM_NEW_USER = "addNewUser";
+            OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
+            OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
+            OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

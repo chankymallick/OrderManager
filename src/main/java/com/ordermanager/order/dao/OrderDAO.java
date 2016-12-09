@@ -80,6 +80,7 @@ public class OrderDAO extends DAOHelper {
             int UID = getColumnAutoIncrementValue("ORDERS", "ORDER_UID");
             int Advance = paramData.getInt("ADVANCE=NUM");
             String MainItemName = paramData.get("ORDER_TYPE=STR").toString();
+            String OrderStatus = paramData.get("ORDER_STATUS=STR").toString();
             int MasterPrice = 0;
             int TailorPrice = 0;
             JSONObject CustomPrice = null;
@@ -95,12 +96,22 @@ public class OrderDAO extends DAOHelper {
             paramData.remove("ITEM_DATA");
             paramData.remove("VERIFY_BILL_NO=STR");
             paramData.remove("ADVANCE=NUM");
-            paramData.put("ORDER_UID=NUM", UID);
+            paramData.remove("ORDER_STATUS=STR");
+            paramData.put("ORDER_UID=NUM", UID);          
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
             int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
             int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance});
             int Order_Item_Uid_For_Main_Item = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
             int mainItem = getJdbcTemplate().update("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", new Object[]{Order_Item_Uid_For_Main_Item, paramData.get("BILL_NO=STR"), MainItemName, ""});
+            int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
+                    this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
+                    paramData.get("BILL_NO=STR"),
+                    getParsedTimeStamp((String) paramData.get("ORDER_DATE=DATE")),
+                    OrderStatus,
+                    "",
+                    "",
+                    "ADDED WITH NEW ORDER ENTRY"                    
+                    });
             if (isCustomRateActive) {
 
             } else if (ItemNameArray.length() > 0) {
@@ -154,7 +165,7 @@ public class OrderDAO extends DAOHelper {
     }
 
     public List<Object> getGridDataForOrders() {
-        String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,DELIVERY_DATE,ORDER_STATUS,PIECE_VENDOR,PRICE,ORDER_TYPE, PRODUCT_TYPE FROM ORDERS ORDER BY ORDER_UID DESC";
+        String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,DELIVERY_DATE,'NEW ORDER' AS ORDER_STATUS,PIECE_VENDOR,PRICE,ORDER_TYPE, PRODUCT_TYPE FROM ORDERS ORDER BY ORDER_UID DESC";
         return this.getJSONDataForGrid(SQL);
     }
 
@@ -163,16 +174,33 @@ public class OrderDAO extends DAOHelper {
         return this.getJSONDataForGrid(SQL);
     }
 
+    public List<Object> getGridDataForQuickOrdersWithDate(String ReportDate) {
+        try {
+            Timestamp od = this.getParsedTimeStamp(ReportDate);
+            String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO AND OD.ORDER_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND OD.ORDER_DATE <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1) ORDER BY PT.TRANSACTION_UID DESC";
+            return this.getJSONDataForGrid(SQL);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
     public List<String[]> getAdvanceStatistics(String orderDate, String StoreLocation) {
         ArrayList<String[]> statList = new ArrayList();
         try {
             Timestamp od = this.getParsedTimeStamp(orderDate);
             String OrderDate = this.getDatePartOfTimestamp(od.toString());
+            String Expense = "0";
             String TotalBill = this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) FROM ORDERS WHERE LOCATION = ? AND  ORDER_DATE >= ? AND ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
             String TotalOrder = this.getJdbcTemplate().queryForObject("SELECT SUM(QUANTITY) AS TOTAL_PIECE FROM ORDERS WHERE LOCATION = ? AND  ORDER_DATE >= ? AND ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
             String TotalAdvance = this.getJdbcTemplate().queryForObject("SELECT SUM(PM.AMOUNT) FROM PAYMENT_TRANSACTIONS PM INNER JOIN ORDERS ODR  ON ODR.BILL_NO = PM.ORDER_BILL_NO WHERE ODR.LOCATION =? AND PM.PAYMENT_TYPE IN('ADVANCE','RE_ADVANCE','PIECE_SALE')  AND ODR.ORDER_DATE >=? AND ODR.ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
             String TotalSale = this.getJdbcTemplate().queryForObject("SELECT SUM(ODR.PRICE) FROM PAYMENT_TRANSACTIONS PM INNER JOIN ORDERS ODR  ON ODR.BILL_NO = PM.ORDER_BILL_NO WHERE ODR.LOCATION = ? AND PM.PAYMENT_TYPE IN('ADVANCE','RE_ADVANCE','PIECE_SALE')  AND ODR.ORDER_DATE >= ? AND ODR.ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
-            String Expense = "0";
+
+            TotalBill = (TotalBill == null) ? "0" : TotalBill;
+            TotalOrder = (TotalOrder == null) ? "0" : TotalOrder;
+            TotalAdvance = (TotalAdvance == null) ? "0" : TotalAdvance;
+            TotalSale = (TotalSale == null) ? "0" : TotalSale;
+
             statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "TOTAL ADVANCE", TotalAdvance});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "NO OF PIECE", TotalOrder});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "BILL FINISHED", TotalBill});

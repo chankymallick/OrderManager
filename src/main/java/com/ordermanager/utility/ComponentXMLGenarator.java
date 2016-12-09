@@ -52,12 +52,10 @@ public class ComponentXMLGenarator {
     @RequestMapping("/LoadReportViewGrid")
     public ModelAndView reportViewGrid(@RequestParam("gridname") String Type,@RequestParam(name="ParamJson",required = false) JSONObject ParamJson) {
         Map<String, Object> mvc = new HashMap<String, Object>();
-        if (Type.equals("advanceReport")) {
-           
-            List temp = OrderDAO.getGridDataForQuickOrders();
+        if (Type.equals("advanceReport")) {           
+            List temp = OrderDAO.getGridDataForQuickOrdersWithDate(ParamJson.get("ORDER_DATE=DATE").toString());
             mvc.put("ALL_ROWS_LIST", temp.get(0));
-            mvc.put("COLUMN_NAME_LIST", temp.get(1));
-            
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));            
         }         
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
