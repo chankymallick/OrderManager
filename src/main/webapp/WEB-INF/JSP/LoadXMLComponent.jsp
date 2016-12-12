@@ -15,9 +15,9 @@
             <cell><![CDATA[<img src="resources/Images/advance.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addadvance"/></b>]]></cell>  
         </row>
-        <row id="3">
+        <row id="updateNewOrder">
             <cell><![CDATA[<img src="resources/Images/edit_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b><mytags:getTranslation key="editorderdetails"/></b>]]></cell>  
+            <cell><![CDATA[<b><mytags:getTranslation key="updateNewOrder"/></b>]]></cell>  
         </row>
         <row id="4">
             <cell><![CDATA[<img src="resources/Images/alert.png" width="30px" height="30px"/>]]></cell>

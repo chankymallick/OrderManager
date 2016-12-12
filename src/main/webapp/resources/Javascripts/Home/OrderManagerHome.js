@@ -14,6 +14,7 @@ var com;
             CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
             CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
+            CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -58,6 +59,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
+                            _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
                         }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -108,6 +112,11 @@ var com;
                     this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, dataviewcellheight);
                     this.HomeLayoutObject.cells("c").showHeader();
                 };
+                OrderManagerHome.prototype.menuUpdateActionInitializer = function (actionName, QueryFormHeight) {
+                    this.HomeLayoutObject.cells("a").expand();
+                    this.UpdateManagerObject = new com.ordermanager.UpdateUtility.UpdateUtility(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight);
+                    this.HomeLayoutObject.cells("c").showHeader();
+                };
                 OrderManagerHome.prototype.menurReportsActionIntializer = function (actionName) {
                     this.HomeLayoutObject.cells("a").collapse();
                     this.ReportViewManagerObject = new com.ordermanager.reportingutility.TransactionReports(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName);
@@ -146,6 +155,9 @@ var com;
                         if (id === "advanceReport") {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                         }
+                        if (id === "updateNewOrder") {
+                            _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
+                        }
                     });
                 };
                 return OrderManagerHome;
@@ -155,6 +167,7 @@ var com;
             OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
             OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
+            OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

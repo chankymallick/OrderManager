@@ -158,7 +158,50 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
-
+    public String updateNewOrder(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {                    
+            String BillNo = paramData.getString("BILL_NO=STR");            
+            int UpdateStatus = this.getJdbcTemplate().update("UPDATE ORDERS SET "
+                    + "DELIVERY_DATE=?,"
+                    + "CUSTOMER_NAME=?,"
+                    + "CONTACT_NO=?,"
+                    + "ORDER_TYPE=?,"
+                    + "PRODUCT_TYPE=?,"
+                    + "QUANTITY=?,"
+                    + "MEASURED_BY=?,"
+                    + "NOTE=?,"
+                    + "PIECE_VENDOR=? "
+                    + " WHERE BILL_NO =?", 
+                    new Object[]{
+                        getParsedTimeStamp(paramData.get("DELIVERY_DATE=DATE").toString()),
+                        paramData.get("CUSTOMER_NAME=STR"),
+                        paramData.get("CONTACT_NO=STR"),
+                        paramData.get("ORDER_TYPE=STR"),
+                        paramData.get("PRODUCT_TYPE=STR"),
+                        paramData.get("QUANTITY=NUM"),
+                        paramData.get("MEASURED_BY=STR"),
+                        paramData.get("NOTE=STR"),
+                        paramData.get("PIECE_VENDOR=STR"),                        
+                        BillNo                        
+                    });            
+            mainAuditor(ConstantContainer.AUDIT_TYPE.UPDATE, ConstantContainer.APP_MODULE.ORDERS,Integer.parseInt(getAnySingleData("ORDERS", "ORDER_UID", "BILL_NO", BillNo)), paramData.toString());
+            generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - Updated Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+    public String getAnySingleData(String Table,String ColumnDataToFetch,String KeyName,String KeyValue){
+       return this.getJdbcTemplate().queryForObject("SELECT "+ColumnDataToFetch+" FROM "+Table+" WHERE "+KeyName+"=?",new Object[]{KeyValue},String.class);
+    } 
+    public boolean updateOrder(JSONObject paramJson){    
+    return true;
+    }
     public List<Object> getGridData(String TableName, String Order_Column) {
         String SQL = "SELECT *FROM " + TableName + " ORDER BY " + Order_Column + " DESC";
         return this.getJSONDataForGrid(SQL);

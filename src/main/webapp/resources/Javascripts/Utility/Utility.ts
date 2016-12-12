@@ -100,13 +100,6 @@ module com.ordermanager.utilty {
                 }
             });
             this.FormInitialization();
-            // this.FormObject.attachEvent("onXLE", () => {
-            //     this.FormObject.setFocusOnFirstActive();
-            //     this.FormObject.keyPlus();
-            //     progressOffCustom(this.ModifiedLayoutObject);
-            // });
-            // this.FormObject.attachEvent("onKeyUp",(inp, ev, name, value)=>{
-            // });
             this.DataViewGridObject = this.ModifiedLayoutObject.cells("b").attachGrid();
             this.DataViewGridObject.load("LoadDataViewGrid?gridname=" + this.FormName);
             this.DataViewGridObject.attachEvent("onXLE", () => {
@@ -115,8 +108,6 @@ module com.ordermanager.utilty {
             this.DataViewGridObject.attachEvent("onRowSelect", (id, ind) => {
             });
         }
-
-
         public FormInitialization() {
             if (this.FormObject != null || this.FormObject != undefined) {
                 this.FormObject.unload();

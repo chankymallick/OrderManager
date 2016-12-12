@@ -37,7 +37,12 @@ public class OrderController {
     public ModelAndView addNewOrder(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewOrder(paramJson));
     }
-
+    
+    @RequestMapping("/updateNewOrder")
+    public ModelAndView updateOrderForm(@RequestParam("ParamData") JSONObject paramJson) {
+      return new ModelAndView("MakeResponse", "responseValue", orderDAO.updateNewOrder(paramJson));
+    }
+    
     @RequestMapping(value = "/quickNewOrder", method = RequestMethod.GET)
     public ModelAndView addNewQuickOrder(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewQuickOrder(paramJson));
