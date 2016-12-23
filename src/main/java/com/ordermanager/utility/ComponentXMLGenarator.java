@@ -46,6 +46,16 @@ public class ComponentXMLGenarator {
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }       
+        if (Type.equals("addNewStatusType")) {
+            List temp = OrderDAO.getGridDataForStatusTypes();
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }       
+        if (Type.equals("addNewLocation")) {
+            List temp = OrderDAO.getGridDataForNewLocation();
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }       
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

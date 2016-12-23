@@ -6,10 +6,13 @@ declare var Language: any;
 declare var showFailedNotificationWithICON: any;
 module com.ordermanager.home {
     export class CommandHandler {
+
         public static CODE_FORM_NEW_ITEM = "ANI";
         public static CODE_FORM_NEW_USER = "ANU";
         public static CODE_FORM_NEW_ORDER = "ANO";
+        public static CODE_ADD_NEW_STATUS_TYPE= "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
+        public static CODE_QUICK_NEW_LOCATION = "ANL";
         //----------------------------------------
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         //----------------------------------------
@@ -20,6 +23,8 @@ module com.ordermanager.home {
         public static FORM_NEW_USER = "addNewUser";
         public static FORM_NEW_ORDER = "addNewOrder";
         public static FORM_QUICK_NEW_ORDER = "quickNewOrder";
+        public static FORM_ADD_NEW_STATUS_TYPE ="addNewStatusType";
+        public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         //---------------------------------------------------
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         //---------------------------------------------------
@@ -70,6 +75,12 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_ORDER) {
                     this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_LOCATION) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION, 220);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
@@ -168,11 +179,17 @@ module com.ordermanager.home {
                 if (id === "quickNewOrder") {
                     this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
                 }
+                if (id === OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                }
                 if (id === "advanceReport") {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                 }
                 if (id === "updateNewOrder") {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER,100);
+                }
+                if (id === "addNewLocation") {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION,220);
                 }
 
             });

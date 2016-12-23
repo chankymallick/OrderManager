@@ -155,3 +155,22 @@ function getCurrentDate() {
     var today = dd + '/' + mm + '/' + today.getFullYear().toString().substring(2,4);
     return today;
 }
+function isCompositeValueUnique(TABLE_NAME,COLUMN_NAME1,COLUMN_NAME2,VALUE1,VALUE2) {    
+    if (false) {//Conditions later
+        return false;
+    } else {
+        var Response = SynchronousGetAjaxRequest("isCompositeValueUnique?TABLE_NAME="+TABLE_NAME.trim()+"&COLUMN_NAME1="+COLUMN_NAME1.trim()+"&COLUMN_NAME2="+COLUMN_NAME2.trim()+"&VALUE1="+VALUE1+"&VALUE2="+VALUE2, "", null);
+        if (Response.RESPONSE_STATUS === "SUCCESS") {
+            if (Response.RESPONSE_VALUE.UNIQUE === "TRUE") {
+                showSuccessNotification(Response.RESPONSE_MESSAGE);
+                return true;
+            } else {
+                showFailedNotification(Response.RESPONSE_MESSAGE);
+                return false;
+            }
+
+        } else {
+            showFailedNotification("Request Error, Check Database Connection");
+        }
+    }
+}

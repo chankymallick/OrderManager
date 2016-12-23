@@ -4,6 +4,7 @@ declare var shortcut: any;
 declare var showSuccessNotification: any;
 declare var showFailedNotification: any;
 declare var SynchronousGetAjaxRequest: any;
+declare var isCompositeValueUnique: any;
 declare var showSuccessNotificationWithICON: any;
 declare var showFailedNotificationWithICON: any;
 declare var Language: any;
@@ -20,6 +21,24 @@ module com.ordermanager.utilty {
             myWins.window("win1").setModal(true);
             myWins.window("win1").setText(HeaderText);
             return myWins.window("win1");
+        }
+        public static setDynamicSelectBoxOptions(TargetSelectObject: any, TableName: string, ColumnName: string, QueryColumn: string, QueryValue: string) {
+            var Params = "?TableName=" + TableName + "&ColumnName=" + ColumnName + "&QueryColumn=" + QueryColumn + "&QueryValue=" + QueryValue;
+            var Response = SynchronousGetAjaxRequest("getComboValues" + Params, "", null);
+            if (Response.RESPONSE_STATUS === "SUCCESS") {
+                var ArrLength = TargetSelectObject.length;
+                for (var i = 0; i < ArrLength; i++) {
+                    TargetSelectObject.remove(0);
+                }
+                var OptionsData = JSON.parse(Response.RESPONSE_VALUE.VALUES);
+                for (var i = 0; i < OptionsData.length; i++) {
+                    TargetSelectObject.add(new Option(OptionsData[i].text, OptionsData[i].value));
+                }
+            }
+            if (Response.RESPONSE_STATUS === "FAILED") {
+                showFailedNotification(Response.RESPONSE_MESSAGE);
+            }
+
         }
     }
     export class FormEntryManager {
@@ -49,7 +68,6 @@ module com.ordermanager.utilty {
             this.constructInnerLayoutforDataEntry();
             this.MainUtilityObj = new com.ordermanager.utilty.MainUtility();
             this.shortCutRegister();
-            this.setSpecificFormSettingsoNLoad();
 
         }
         public shortCutRegister() {
@@ -116,12 +134,11 @@ module com.ordermanager.utilty {
             this.FormObject.load(this.FormName + "_Form?Default=" + this.isDefaultOn);
             this.FormObject.enableLiveValidation(true);
             this.FormObject.attachEvent("onXLE", () => {
-                //this.FormObject.setFocusOnFirstActive();
+
                 this.FormObject.setFocusOnFirstActive();
                 this.FormObject.keyPlus();
                 progressOffCustom(this.ModifiedLayoutObject);
             });
-            //this.FormObject.keyPlus();
             if (this.DefualtDataFormObject != null || this.DefualtDataFormObject != undefined) {
                 this.DefualtDataFormObject.unload();
             }
@@ -213,9 +230,16 @@ module com.ordermanager.utilty {
                     showFailedNotification("Delivery date must be after or equal of order date");
                     return false;
                 }
-                if(parseInt(this.FormObject.getItemValue("ADVANCE=NUM")) > parseInt(this.FormObject.getItemValue("PRICE=NUM"))){
-                  showFailedNotification("Advance must be less or equal than price.");
-                  return false;
+                if (parseInt(this.FormObject.getItemValue("ADVANCE=NUM")) > parseInt(this.FormObject.getItemValue("PRICE=NUM"))) {
+                    showFailedNotification("Advance must be less or equal than price.");
+                    return false;
+                }
+            }
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
+                var Value1 = this.FormObject.getItemValue("STATUS_NAME=STR");
+                var Value2 = this.FormObject.getItemValue("STATUS_PARENT_NAME=STR");
+                if (isCompositeValueUnique("ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", Value1, Value2) == false) {
+                    return false;
                 }
             }
             return true;
@@ -248,6 +272,33 @@ module com.ordermanager.utilty {
                     this.OperationToolbar.disableItem("default");
                 });
                 this.DataTabber.tabs("default").disable();
+            }
+
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
+                this.FormObject.attachEvent("onXLE", () => {
+                    this.ModifiedLayoutObject.progressOn();
+                    com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("STATUS_PARENT_NAME=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_TYPE", "MAIN_STATUS");
+                    progressOffCustom(this.ModifiedLayoutObject);
+                });
+                this.FormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "STATUS_TYPE=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("STATUS_PARENT_NAME=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_TYPE", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
+                this.DefualtDataFormObject.attachEvent("onXLE", () => {
+                    this.ModifiedLayoutObject.progressOn();
+                    com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.DefualtDataFormObject.getOptions("STATUS_PARENT_NAME=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_TYPE", "MAIN_STATUS");
+                    progressOffCustom(this.ModifiedLayoutObject);
+                });
+                this.DefualtDataFormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "STATUS_TYPE=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.DefualtDataFormObject.getOptions("STATUS_PARENT_NAME=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_TYPE", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
             }
         }
         public setSpecificBeforeSave() {

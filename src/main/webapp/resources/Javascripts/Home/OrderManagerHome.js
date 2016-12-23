@@ -12,7 +12,9 @@ var com;
             CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
             CommandHandler.CODE_FORM_NEW_USER = "ANU";
             CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
+            CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
             CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
+            CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             home.CommandHandler = CommandHandler;
@@ -56,6 +58,12 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_ORDER) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_LOCATION) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION, 220);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
@@ -152,11 +160,17 @@ var com;
                         if (id === "quickNewOrder") {
                             _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
                         }
+                        if (id === OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                        }
                         if (id === "advanceReport") {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                         }
                         if (id === "updateNewOrder") {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
+                        }
+                        if (id === "addNewLocation") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION, 220);
                         }
                     });
                 };
@@ -166,6 +180,8 @@ var com;
             OrderManagerHome.FORM_NEW_USER = "addNewUser";
             OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
             OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
+            OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
+            OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             home.OrderManagerHome = OrderManagerHome;

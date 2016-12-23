@@ -47,6 +47,14 @@
             <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="advanceReport"/></b>]]></cell>  
         </row>
+        <row id="addNewStatusType">
+            <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addNewStatusType"/></b>]]></cell>  
+        </row>
+        <row id="addNewLocation">
+            <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addNewLocation"/></b>]]></cell>  
+        </row>
     </rows>
 </c:if>
 <c:if test="${Type.equals('mastertailor')}">
@@ -273,6 +281,70 @@
         <afterInit>  
             <call command="attachHeader">
                 <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+            </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewStatusType')}">
+    <rows>
+        <head>            
+        <column width="50" type="ro" align="center" color="white" sort="str">UID</column>       
+        <column width="150" type="ro" align="center" color="white" sort="str">STATUS TYPE</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">STATUS NAME</column>  
+        <column width="200" type="ro" align="center" color="white" sort="str">PARENT</column>    
+        <column width="80" type="ro" align="center" color="white" sort="str">ORDER</column>    
+        <column width="200" type="ro" align="center" color="white" sort="str">NOTE</column>    
+        <column width="80" type="ch" align="center" color="white" sort="int">ACTIVE</column>    
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#select_filter,#text_search,#select_filter,#text_search,#text_search,#select_filter</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+            </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewLocation')}">
+    <rows>
+        <head>            
+        <column width="150" type="ro" align="center" color="white" sort="str">UID</column>       
+        <column width="200" type="ro" align="center" color="white" sort="str">LOCATION NAME</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">PARENT STATUS</column>     
+        <column width="200" type="ro" align="center" color="white" sort="str">NOTE</column>     
+        <column width="180" type="ch" align="center" color="white" sort="int">ACTIVE</column>    
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#select_filter,#text_search,#select_filter</param>                      
             </call> 
         </afterInit>     
     </head> 

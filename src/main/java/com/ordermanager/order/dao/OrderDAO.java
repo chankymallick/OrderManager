@@ -70,7 +70,7 @@ public class OrderDAO extends DAOHelper {
         }
         return map;
     }
-
+    
     public String addNewOrder(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -103,15 +103,13 @@ public class OrderDAO extends DAOHelper {
             int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance});
             int Order_Item_Uid_For_Main_Item = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
             int mainItem = getJdbcTemplate().update("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", new Object[]{Order_Item_Uid_For_Main_Item, paramData.get("BILL_NO=STR"), MainItemName, ""});
-            int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
-                    this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
-                    paramData.get("BILL_NO=STR"),
-                    getParsedTimeStamp((String) paramData.get("ORDER_DATE=DATE")),
-                    OrderStatus,
-                    "",
-                    "",
-                    "ADDED WITH NEW ORDER ENTRY"                    
-                    });
+            int OrderStatusLocationInsert = orderMobiltyUpdate(
+                    paramData.get("BILL_NO=STR").toString(), 
+                    getParsedTimeStamp((String) paramData.get("ORDER_DATE=DATE")).toString(),   
+                    ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(), 
+                    OrderStatus,   
+                    ConstantContainer.CURRENT_LOCATIONS.SHOP_NO_3.toString(),  
+                    "ADDED WITH NEW ORDER ENTRY" );
             if (isCustomRateActive) {
 
             } else if (ItemNameArray.length() > 0) {
@@ -132,7 +130,6 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
-
     public String addNewQuickOrder(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -149,8 +146,47 @@ public class OrderDAO extends DAOHelper {
             paramData.put("ORDER_DATE=DATE_AUTO", this.getCurrentTimeStamp().toString());
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
             int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance});
+            int OrderStatusLocationInsert = orderMobiltyUpdate(paramData.get("BILL_NO=STR").toString(),paramData.get("ORDER_DATE=DATE_AUTO").toString(),                   
+                    ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(), 
+                    ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(),   
+                    ConstantContainer.CURRENT_LOCATIONS.BILL_BOOKS.toString(),  
+                    "ADDED WITH QUICK ORDER ENTRY" );
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.QUICK_ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+    public String addNewStatusType(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("ORDER_STATUS_TYPES", "STATUS_TYPE_UID");            
+            paramData.put("STATUS_TYPE_UID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDER_STATUS_TYPES"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDER_STATUS_TYPES, UID, "New Status Inserted");
+            generateSQLSuccessResponse(response, paramData.get("STATUS_NAME=STR") + " - added Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+    public String addNewLocation(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("CURRENT_LOCATIONS", "CURRENT_LOCATIONS_UID");            
+            paramData.put("CURRENT_LOCATIONS_UID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "CURRENT_LOCATIONS"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.CURRENT_LOCATIONS, UID, "New Location Inserted");
+            generateSQLSuccessResponse(response, paramData.get("LOCATION_NAME=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
@@ -214,6 +250,14 @@ public class OrderDAO extends DAOHelper {
 
     public List<Object> getGridDataForQuickOrders() {
         String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO ORDER BY PT.TRANSACTION_UID DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+    public List<Object> getGridDataForStatusTypes() {
+        String SQL = "SELECT STATUS_TYPE_UID,STATUS_TYPE,STATUS_NAME,STATUS_PARENT_NAME,STATUS_ORDER,NOTE,ACTIVE FROM ORDER_STATUS_TYPES ORDER BY STATUS_TYPE_UID DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+    public List<Object> getGridDataForNewLocation() {
+        String SQL = "SELECT CURRENT_LOCATIONS_UID,LOCATION_NAME,PARENT_STATUS,NOTE,ACTIVE FROM CURRENT_LOCATIONS  ORDER BY CURRENT_LOCATIONS_UID DESC";
         return this.getJSONDataForGrid(SQL);
     }
 

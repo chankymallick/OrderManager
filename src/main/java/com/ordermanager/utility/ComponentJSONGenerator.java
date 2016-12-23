@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
-
+//addNewStatusType
 @Controller
 public class ComponentJSONGenerator {
 
@@ -72,7 +72,41 @@ public class ComponentJSONGenerator {
             return new ModelAndView("LoadJSON", "FormType", "addNewItem");
         }
     }
+    @RequestMapping("/addNewStatusType_Form")
+    public ModelAndView loadAddNewStatusType(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "addNewStatusType"));
+            if (defaultData.length() == 0) {
+                return new ModelAndView("LoadJSON", "FormType", "addNewStatusType");
+            } else {
+                requestMap.put("FormType", "addNewStatusType_withValue");
+                requestMap.put("FormData", defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
 
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "addNewStatusType");
+        }
+    }
+    @RequestMapping("/addNewLocation_Form")
+    public ModelAndView loadaddNewLocation(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "addNewLocation"));
+            if (defaultData.length() == 0) {
+                return new ModelAndView("LoadJSON", "FormType", "addNewLocation");
+            } else {
+                requestMap.put("FormType", "addNewLocation_withValue");
+                requestMap.put("FormData", defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
+
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "addNewLocation");
+        }
+    }
+  
     @RequestMapping("/addNewUser_Form")
     public ModelAndView loadaddNewUser(@RequestParam("Default") boolean isDefaultOn) {
         Map<String, Object> requestMap = new HashMap();

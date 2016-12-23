@@ -82,6 +82,26 @@ public class DAOHelper extends ConstantContainer {
         return rspJSON.getJSONResponse();
 
     }
+    public String isCompositeValueExistInTable(String TableName,String  ColumnName1,String  ColumnName2,String Value1,String Value2) {
+        ResponseJSONHandler rspJSON = new ResponseJSONHandler();
+        try {
+
+            String SQL = new StringBuilder("SELECT COUNT(").append(ColumnName1).append(") FROM ").append(TableName).append(" WHERE ").append(ColumnName1).append("=? AND ").append(ColumnName2).append("=?").toString();
+            int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value1,Value2}, Integer.class);
+            if (dataCount > 0) {
+                this.generateSQLSuccessResponse(rspJSON, Value1 + " : Value already Exist");
+                rspJSON.addResponseValue("UNIQUE", "FALSE");
+            } else {
+                this.generateSQLSuccessResponse(rspJSON, Value1 + " : Value is Unique");
+                rspJSON.addResponseValue("UNIQUE", "TRUE");
+            }
+
+        } catch (DataAccessException e) {
+            this.generateSQLExceptionResponse(rspJSON, e, "Operation Failed , Check Logs");
+        }
+        return rspJSON.getJSONResponse();
+
+    }
 
     public ResponseJSONHandler generateSQLExceptionResponse(ResponseJSONHandler responseJSON, Exception ex, String Message) {
         responseJSON.setResponse_Status(ConstantContainer.ResponseJSONStatus.FAILED.toString());
@@ -281,7 +301,19 @@ public class DAOHelper extends ConstantContainer {
             return false;
         }
     }
-
+    public int orderMobiltyUpdate(String BillNo, String Date,String MainStatus,String SubStatus,String CurrentLocation,String Note){
+      int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
+                    this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
+                   BillNo,
+                   Date,
+                   MainStatus,
+                   SubStatus,                    
+                   CurrentLocation,                    
+                   Note                  
+                    });
+      return OrderStatusLocationInsert;
+    
+    } 
     public static void main(String[] args) {
         try {
             SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
@@ -296,5 +328,5 @@ public class DAOHelper extends ConstantContainer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }     
 }

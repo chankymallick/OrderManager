@@ -47,6 +47,14 @@ public class OrderController {
     public ModelAndView addNewQuickOrder(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewQuickOrder(paramJson));
     }
+    @RequestMapping(value = "/addNewStatusType", method = RequestMethod.GET)
+    public ModelAndView addNewStatusType(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewStatusType(paramJson));
+    }
+    @RequestMapping(value = "/addNewLocation", method = RequestMethod.GET)
+    public ModelAndView addNewLocation(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewLocation(paramJson));
+    }
 
     @RequestMapping("/getExtraItems")
     public String getItemSelectionList(Model map, @RequestParam("ITEM_TYPE") String ITEM_TYPE) {
