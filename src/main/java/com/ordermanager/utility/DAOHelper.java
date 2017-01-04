@@ -82,12 +82,13 @@ public class DAOHelper extends ConstantContainer {
         return rspJSON.getJSONResponse();
 
     }
-    public String isCompositeValueExistInTable(String TableName,String  ColumnName1,String  ColumnName2,String Value1,String Value2) {
+
+    public String isCompositeValueExistInTable(String TableName, String ColumnName1, String ColumnName2, String Value1, String Value2) {
         ResponseJSONHandler rspJSON = new ResponseJSONHandler();
         try {
 
             String SQL = new StringBuilder("SELECT COUNT(").append(ColumnName1).append(") FROM ").append(TableName).append(" WHERE ").append(ColumnName1).append("=? AND ").append(ColumnName2).append("=?").toString();
-            int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value1,Value2}, Integer.class);
+            int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value1, Value2}, Integer.class);
             if (dataCount > 0) {
                 this.generateSQLSuccessResponse(rspJSON, Value1 + " : Value already Exist");
                 rspJSON.addResponseValue("UNIQUE", "FALSE");
@@ -96,7 +97,7 @@ public class DAOHelper extends ConstantContainer {
                 rspJSON.addResponseValue("UNIQUE", "TRUE");
             }
 
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             this.generateSQLExceptionResponse(rspJSON, e, "Operation Failed , Check Logs");
         }
         return rspJSON.getJSONResponse();
@@ -228,15 +229,14 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public String getDatePartOfTimestamp(String valueFromDB) {
-        try{
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");   
-        Date d1 = sdf1.parse(valueFromDB);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateWithoutTime = sdf.format(d1);
-        return dateWithoutTime;
-        }
-        catch(Exception e){
-        return null;
+        try {
+            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
+            Date d1 = sdf1.parse(valueFromDB);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String dateWithoutTime = sdf.format(d1);
+            return dateWithoutTime;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -248,8 +248,8 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public String getCustomFormatDate(Timestamp Date) throws Exception {
-        if(Date == null){
-        return "";
+        if (Date == null) {
+            return "";
         }
         long date = Date.getTime();
         Date dateObj = new Date(date);
@@ -301,9 +301,96 @@ public class DAOHelper extends ConstantContainer {
             return false;
         }
     }
-    public int orderMobiltyUpdate(String BillNo, String Date,String MainStatus,String SubStatus,String CurrentLocation,String Note){
-      int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
-                    this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
+
+    /**
+     * Fetch any atomic or single Value Data by passing table name and column
+     * name , if it contains more than one then exception will arise
+     *
+     * @param Table
+     * @param ColumnDataToFetch
+     * @param KeyName This condition Column must be String
+     * @param KeyValue it must be a String value
+     * @return
+     */
+    public String getDistinctDataFromDatabase(String Table, String ColumnDataToFetch, String KeyName, String KeyValue) {
+        return this.getJdbcTemplate().queryForObject("SELECT " + ColumnDataToFetch + " FROM " + Table + " WHERE " + KeyName + "=?", new Object[]{KeyValue}, String.class);
+    }
+
+    /**
+     * Fetch any atomic or single Value Data by passing table name and column
+     * name , if it contains more than one then exception will arise
+     *
+     * @param Table
+     * @param ColumnDataToFetch
+     * @param KeyName This condition Column must be Integer
+     * @param KeyValue it must be a Integer value
+     * @return
+     */
+    public String getDistinctDataFromDatabase(String Table, String ColumnDataToFetch, String KeyName, int KeyValue) {
+        return this.getJdbcTemplate().queryForObject("SELECT " + ColumnDataToFetch + " FROM " + Table + " WHERE " + KeyName + "=?", new Object[]{KeyValue}, String.class);
+    }
+
+    /**
+     * Fetch any atomic or single Value Data by passing atomic query [ SELECT
+     * COUNT(BILL_NO) FROM ORDERS WHERE UID=?), with proper placeholder in a
+     * ObjectArray , if it contains more than one value then exception will
+     * arise
+     *
+     * @param SQL
+     * @param placeHolderParams Object Array (new Object[]{1,"5521"})
+     * @return Integer Type
+     */
+    public int getDistinctIntDataFromDatabase(String SQL, Object[] placeHolderParams) {
+        return this.getJdbcTemplate().queryForObject(SQL, placeHolderParams, Integer.class);
+    }
+
+    /**
+     * Fetch any atomic or single Value Data by passing atomic query [ SELECT
+     * COUNT(BILL_NO) FROM ORDERS WHERE UID=?), with proper placeholder in a
+     * ObjectArray , if it contains more than one value then exception will
+     * arise
+     *
+     * @param SQL
+     * @param placeHolderParams Object Array (new Object[]{1,"5521"})
+     * @return String Type
+     */
+    public String getDistinctStringtDataFromDatabase(String SQL, Object[] placeHolderParams) {
+        return this.getJdbcTemplate().queryForObject(SQL, placeHolderParams, String.class);
+    }
+
+    public int orderMobiltyUpdate(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note)throws Exception {
+        int isOrderMovedBefore = getDistinctIntDataFromDatabase("SELECT COUNT(BILL_NO) FROM ORDER_MOBILITY WHERE BILL_NO=?", new Object[]{BillNo});
+        if (isOrderMovedBefore > 0) {
+            double MainActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='MAIN_STATUS' AND STATUS_NAME = ?", new Object[]{MainStatus}));
+            double SubActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='SUB_STATUS' AND STATUS_NAME = ? AND STATUS_PARENT_NAME=?", new Object[]{SubStatus, MainStatus}));
+            double MainlastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?)) AND STATUS_TYPE='MAIN_STATUS'", new Object[]{BillNo, BillNo}));
+            double SubLastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?))", new Object[]{BillNo, BillNo}));
+
+            if (MainActualStatusOrder > MainlastStatusOrder) {
+                int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
+                return OrderStatusLocationInsert;
+            }
+            if (MainActualStatusOrder == MainlastStatusOrder) {
+                if (SubActualStatusOrder >= SubLastStatusOrder) {
+                    int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
+                    return OrderStatusLocationInsert;
+                } else {
+                    throw new Exception("Status already completed");
+                }
+            }
+            if (MainActualStatusOrder < MainlastStatusOrder) {
+                throw new Exception("Status already completed");
+            }
+            throw new Exception("Order Mobilty Exception in orderMobiltyUpdate Method ");           
+        } else {
+            int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
+            return OrderStatusLocationInsert;
+        }
+    }
+
+    public int addOrderMobility(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note) {
+        int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
+                   this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
                    BillNo,
                    Date,
                    MainStatus,
@@ -311,9 +398,9 @@ public class DAOHelper extends ConstantContainer {
                    CurrentLocation,                    
                    Note                  
                     });
-      return OrderStatusLocationInsert;
-    
-    } 
+        return OrderStatusLocationInsert;
+    }
+
     public static void main(String[] args) {
         try {
             SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
@@ -328,5 +415,5 @@ public class DAOHelper extends ConstantContainer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }     
+    }
 }

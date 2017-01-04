@@ -1,5 +1,6 @@
 package com.ordermanager.order.dao;
 
+import com.ordermanager.messanger.sendSMS;
 import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
 import com.ordermanager.utility.ResponseJSONHandler;
@@ -81,6 +82,8 @@ public class OrderDAO extends DAOHelper {
             int Advance = paramData.getInt("ADVANCE=NUM");
             String MainItemName = paramData.get("ORDER_TYPE=STR").toString();
             String OrderStatus = paramData.get("ORDER_STATUS=STR").toString();
+            String OrdersSubStatus = paramData.get("ORDER_SUB_STATUS=STR").toString();
+            String CurrentLocation = paramData.get("CURRENT_LOCATION=STR").toString();
             int MasterPrice = 0;
             int TailorPrice = 0;
             JSONObject CustomPrice = null;
@@ -97,6 +100,8 @@ public class OrderDAO extends DAOHelper {
             paramData.remove("VERIFY_BILL_NO=STR");
             paramData.remove("ADVANCE=NUM");
             paramData.remove("ORDER_STATUS=STR");
+            paramData.remove("CURRENT_LOCATION=STR");
+            paramData.remove("ORDER_SUB_STATUS=STR");
             paramData.put("ORDER_UID=NUM", UID);
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
             int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
@@ -106,9 +111,9 @@ public class OrderDAO extends DAOHelper {
             int OrderStatusLocationInsert = orderMobiltyUpdate(
                     paramData.get("BILL_NO=STR").toString(),
                     getParsedTimeStamp((String) paramData.get("ORDER_DATE=DATE")).toString(),
-                    ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(),
-                    OrderStatus,
-                    ConstantContainer.CURRENT_LOCATIONS.SHOP_NO_3.toString(),
+                    OrderStatus,//Need to Be reviewed for assigning next stage statuses
+                    OrdersSubStatus,//Need to Be reviewed for assigning next stage statuses
+                    CurrentLocation,
                     "ADDED WITH NEW ORDER ENTRY");
             if (isCustomRateActive) {
 
@@ -124,6 +129,7 @@ public class OrderDAO extends DAOHelper {
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
+     //       new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
@@ -204,6 +210,9 @@ public class OrderDAO extends DAOHelper {
         TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
         try {
             String BillNo = paramData.getString("BILL_NO=STR");
+            String OrderStatus = paramData.get("ORDER_STATUS=STR").toString();
+            String OrdersSubStatus = paramData.get("ORDER_SUB_STATUS=STR").toString();
+            String CurrentLocation = paramData.get("CURRENT_LOCATION=STR").toString();
             int UpdateStatus = this.getJdbcTemplate().update("UPDATE ORDERS SET "
                     + "DELIVERY_DATE=?,"
                     + "CUSTOMER_NAME=?,"
@@ -227,19 +236,24 @@ public class OrderDAO extends DAOHelper {
                         paramData.get("PIECE_VENDOR=STR"),
                         BillNo
                     });
-            mainAuditor(ConstantContainer.AUDIT_TYPE.UPDATE, ConstantContainer.APP_MODULE.ORDERS, Integer.parseInt(getAnySingleData("ORDERS", "ORDER_UID", "BILL_NO", BillNo)), paramData.toString());
+             int OrderStatusLocationInsert = orderMobiltyUpdate(
+                    paramData.get("BILL_NO=STR").toString(),
+                    paramData.get("ORDER_DATE=DATE").toString(),                    
+                    OrderStatus,
+                    OrdersSubStatus,
+                    CurrentLocation,
+                    "ADDED WITH UPDATE ORDER ENTRY");
+            mainAuditor(ConstantContainer.AUDIT_TYPE.UPDATE, ConstantContainer.APP_MODULE.ORDERS, Integer.parseInt(getDistinctDataFromDatabase("ORDERS", "ORDER_UID", "BILL_NO", BillNo)), paramData.toString());
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - Updated Succesfully");
             this.getTransactionManager().commit(txStatus);
+            //new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
         }
         return response.getJSONResponse();
     }
-
-    public String getAnySingleData(String Table, String ColumnDataToFetch, String KeyName, String KeyValue) {
-        return this.getJdbcTemplate().queryForObject("SELECT " + ColumnDataToFetch + " FROM " + Table + " WHERE " + KeyName + "=?", new Object[]{KeyValue}, String.class);
-    }
+    
 
     public boolean updateOrder(JSONObject paramJson) {
         return true;

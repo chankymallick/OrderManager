@@ -131,14 +131,14 @@
         <head>            
         <column width="30" type="ro" align="center" color="white" sort="str">UID</column>   
         <column width="150" type="ro" align="center" color="white" sort="str">ITEM NAME</column>   
-        <column width="100" type="ro" align="center" color="white" sort="str">TYPE</column>          
+        <column width="100" type="ro" align="center" color="white" sort="str">TYPE</column>    
+        <column width="90" type="ro" align="center" color="white" sort="str">PARENT</column>   
+        <column width="90" type="ro" align="center" color="white" sort="str">SUB TYPE</column> 
         <column width="70" type="ro" align="center" color="white" sort="int">MASTER</column>   
         <column width="70" type="ro" align="center" color="white" sort="int">TAILOR</column>   
         <column width="70" type="ro" align="center" color="white" sort="int">FINISHER</column>   
         <column width="100" type="ch" align="center" color="white" sort="int">ACTIVE</column>   
-        <column width="160" type="ro" align="center" color="white" >NOTE</column>   
-        <column width="90" type="ro" align="center" color="white" sort="str">SUB TYPE</column>   
-        <column width="90" type="ro" align="center" color="white" sort="str">PARENT</column>   
+        <column width="160" type="ro" align="center" color="white" >NOTE</column>        
         <beforeInit> 
             <call command="setImagePath"> 
                 <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
@@ -146,7 +146,7 @@
         </beforeInit> 
         <afterInit>  
             <call command="attachHeader">
-                <param>&#160;,#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search,#select_filter,#select_filter</param>                      
+                <param>&#160;,#text_search,#select_filter,#select_filter,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
             </call> 
         </afterInit>     
     </head> 

@@ -18,7 +18,11 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class SelectHandler extends SimpleTagSupport {
     private boolean emptyField;
-    private String listName;
+    private String listName;    
+    private String tableName;
+    private String columnName;
+    private String queryColumn;
+    private String queryValue;
     private boolean fromDB;
     @Override
     public void doTag() throws JspException {
@@ -33,6 +37,21 @@ public class SelectHandler extends SimpleTagSupport {
                     UtilityDAO utd = (UtilityDAO)ctx.getBean("UtilityDAO");
                     sb.append(utd.getComboValuesForCustomTagWithQuery("ORDER_STATUS_TYPES", "STATUS_NAME","STATUS_TYPE","MAIN_STATUS",true));
                 }
+                if (listName.equalsIgnoreCase("MAIN_ITEMS")) {
+                    ApplicationContext ctx = new FileSystemXmlApplicationContext(ConstantContainer.Application_Context_File_Path);
+                    UtilityDAO utd = (UtilityDAO)ctx.getBean("UtilityDAO");
+                    sb.append(utd.getComboValuesForCustomTagWithQuery("ITEMS", "ITEM_NAME","ITEM_TYPE","MAIN",false));
+                }              
+                if (listName.equalsIgnoreCase("ORDER_SUB_STATUS_TYPES")) {
+                    ApplicationContext ctx = new FileSystemXmlApplicationContext(ConstantContainer.Application_Context_File_Path);
+                    UtilityDAO utd = (UtilityDAO)ctx.getBean("UtilityDAO");
+                    sb.append(utd.getComboValuesForCustomTagWithQuery("ORDER_STATUS_TYPES", "STATUS_NAME","STATUS_PARENT_NAME",queryValue,false));
+                }              
+                if (listName.equalsIgnoreCase("CUSTOM_LIST")) {
+                    ApplicationContext ctx = new FileSystemXmlApplicationContext(ConstantContainer.Application_Context_File_Path);
+                    UtilityDAO utd = (UtilityDAO)ctx.getBean("UtilityDAO");
+                    sb.append(utd.getComboValuesForCustomTagWithQuery(tableName, columnName,queryColumn,queryValue,false));
+                }              
             } else {
                 List<String> ComboValue = selectMap.get(this.listName);
                 if (emptyField == true) {
@@ -73,6 +92,21 @@ public class SelectHandler extends SimpleTagSupport {
     }
      public void setFromDB(boolean fromDB) {
         this.fromDB = fromDB;
+    }
+     public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
+
+    public void setQueryColumn(String queryColumn) {
+        this.queryColumn = queryColumn;
+    }
+
+    public void setQueryValue(String queryValue) {
+        this.queryValue = queryValue;
     }
 
 }

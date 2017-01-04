@@ -186,6 +186,14 @@ module com.ordermanager.UpdateUtility {
                         var Value = this.constructItemSelectionWindow();
                 });
                 //  });
+                this.FormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "ORDER_STATUS=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
             }
 
         }

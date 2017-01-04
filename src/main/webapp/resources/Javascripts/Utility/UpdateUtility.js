@@ -166,6 +166,14 @@ var com;
                             if (name === "ITEM_BUTTON=BUTTON")
                                 var Value = _this.constructItemSelectionWindow();
                         });
+                        this.FormObject.attachEvent("onChange", function (name, value) {
+                            if (name == "ORDER_STATUS=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                        });
                     }
                 };
                 UpdateUtility.prototype.validateAndSaveFormData = function () {

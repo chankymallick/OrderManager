@@ -12,7 +12,7 @@
     </bean> -->
     <bean id="ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.43.250:1433;databaseName=OrderManager"/>
+        <property name="url" value="jdbc:sqlserver://192.168.1.103:1433;databaseName=OrderManager"/>
         <property name="username" value="sa"/>
         <property name="password" value="520759"/>   
     </bean> 

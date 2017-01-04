@@ -30,6 +30,12 @@ public class UtilityDAO extends DAOHelper {
         return this.saveUpdateDefaultFormValue(Module, Key, Value);
     }
 
+    /**
+     * It is used to get App data for HTTP request , it returns blank {} json if nothing is there , internally it is calling getAppData
+     * @param Module Name of the Module like Ex.addNewForm , updateOrder 
+     * @param Key  Name of the Key to get Value
+     * @return 
+     */
     public String getApplicationData(String Module, String Key) {
         String appdata = this.getAppData(Module, Key);
         if (appdata.equals("")) {
@@ -38,7 +44,11 @@ public class UtilityDAO extends DAOHelper {
             return appdata;
         }
     }
-
+/**
+ * It returns all Field of Order Form combined with existing Value fetched from Orders Table and Default form data from APP_DATA table
+ * @param BILL_NO 
+ * @return 
+ */
     public JSONObject getdefaultDataOrderFormWithExistingData(String BILL_NO) {
         try {
             JSONObject defaultData = new JSONObject(this.getApplicationData("FORM_DEFAULT_VALUE", "addNewOrder"));
@@ -52,17 +62,30 @@ public class UtilityDAO extends DAOHelper {
             pst1.setString(2, ConstantContainer.PAYMENT_TYPE.ADVANCE.toString());
             pst1.setString(3, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString());
             ResultSet rstPayment = pst1.executeQuery();
-
-            PreparedStatement pst2 = con.prepareStatement("SELECT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = ? AND  PROCESS_DATE = (SELECT MAX(PROCESS_DATE) FROM ORDER_MOBILITY WHERE BILL_NO = ?)");
-            pst2.setString(1, BILL_NO);
-            pst2.setString(2, BILL_NO);
-            ResultSet rstStatus = pst2.executeQuery();
+//
+//            PreparedStatement pst2 = con.prepareStatement("SELECT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = ? AND  PROCESS_DATE = (SELECT MAX(PROCESS_DATE) FROM ORDER_MOBILITY WHERE BILL_NO = ?)");
+//            pst2.setString(1, BILL_NO);
+//            pst2.setString(2, BILL_NO);
+//            ResultSet rstStatus = pst2.executeQuery();
+            
+            
+            PreparedStatement pst3 = con.prepareStatement("SELECT TOP 1 MAIN_STATUS,SUB_STATUS,CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC");
+            pst3.setString(1, BILL_NO);           
+            ResultSet rstSubStatusAndLocation = pst3.executeQuery();
+            
+            if(rstSubStatusAndLocation.next())
+            {
+            defaultData.put("ORDER_STATUS=STR", rstSubStatusAndLocation.getString("MAIN_STATUS"));
+            defaultData.put("ORDER_SUB_STATUS=STR", rstSubStatusAndLocation.getString("SUB_STATUS"));
+            defaultData.put("CURRENT_LOCATION=STR", rstSubStatusAndLocation.getString("CURRENT_LOCATION"));        
+            }
+            
             if (rstPayment.next()) {
                 defaultData.put("ADVANCE=NUM", rstPayment.getInt("TOTAL_PAID"));
             }
-            if (rstStatus.next()) {
-                defaultData.put("ORDER_STATUS=STR", rstStatus.getString("MAIN_STATUS"));
-            }
+//            if (rstStatus.next()) {
+//                defaultData.put("ORDER_STATUS=STR", rstStatus.getString("MAIN_STATUS"));
+//            }
 
             while (rstOrder.next()) {
                 if (rstOrder.getString("LOCATION") != null) {
@@ -110,12 +133,21 @@ public class UtilityDAO extends DAOHelper {
             return null;
         }
     }
-
+    /**
+     * To get all Values from table as Select Options for DHTMLX Forms , It returns ResponseHandler JSON which only parsable in JavaScript
+     * USAGE : It can be used to get Dynamic List of Select Options from Javascript in ({"text":"name","value":"chanky"}) format 
+     * @param TableName Table from where  to fetch
+     * @param ColumnName List will be fetched from this column  
+     * @param QueryColumn Condition Column name
+     * @param QueryValue Condition Column value
+     * @return ResponseHandle JSON String
+     * @throws SQLException 
+     */
     public String getComboValues(String TableName, String ColumnName, String QueryColumn, String QueryValue)throws SQLException {
          Connection con = null;
          ResponseJSONHandler rspj = new ResponseJSONHandler();
-        try {            
-            String SQL = "SELECT DISTINCT " + ColumnName + ", STATUS_ORDER FROM " + TableName + " WHERE " + QueryColumn + " = ? ORDER BY STATUS_ORDER ASC";
+        try {   
+            String SQL = "SELECT DISTINCT " + ColumnName + " FROM " + TableName + " WHERE " + QueryColumn + " = ?";
             JSONArray jsonArray = new JSONArray();
             con = this.getJDBCConnection();
             PreparedStatement pst = con.prepareStatement(SQL);
@@ -139,7 +171,7 @@ public class UtilityDAO extends DAOHelper {
             return rspj.getJSONResponse();
         }
         finally{
-        con.close();
+       con.close();
         }
       
     }
@@ -176,8 +208,7 @@ public class UtilityDAO extends DAOHelper {
         }      
     }
     public String getComboValuesForCustomTagWithQuery(String TableName, String ColumnName,String QueryColumn,String QueryValue, boolean Blank){
-         Connection con = null;
-         ResponseJSONHandler rspj = new ResponseJSONHandler();
+         Connection con = null;     
         try {            
             String SQL = "SELECT DISTINCT " + ColumnName + " FROM " + TableName+ " WHERE "+ QueryColumn+"= ?";           
             JSONArray jsonArray = new JSONArray();
@@ -203,7 +234,7 @@ public class UtilityDAO extends DAOHelper {
         }
         finally{
             try {
-                con.close();
+               con.close();
             } catch (Exception e) {
             }   
         }      
