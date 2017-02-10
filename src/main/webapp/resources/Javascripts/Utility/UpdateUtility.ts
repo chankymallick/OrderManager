@@ -103,10 +103,12 @@ module com.ordermanager.UpdateUtility {
                   progressOffCustom(this.ModifiedLayoutObject.cells("b"));
                   this.setSpecificFormSettingsoNLoad();
               });
+             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
               this.FormObject.attachEvent("onButtonClick", (name) => {
                   if (name === "ITEM_BUTTON=BUTTON")
                       var Value = this.constructItemSelectionWindow();
               });
+            }
         }
 
         public constructItemSelectionWindow() {
@@ -195,6 +197,17 @@ module com.ordermanager.UpdateUtility {
                     }
                 });
             }
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
+              this.FormObject.attachEvent("onChange", (name, value) => {
+                  if (name == "ORDER_STATUS=STR") {
+                      this.ModifiedLayoutObject.progressOn();
+                      com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                      com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                      progressOffCustom(this.ModifiedLayoutObject);
+                  }
+              });
+
+            }
 
         }
         public validateAndSaveFormData() {
@@ -237,6 +250,10 @@ module com.ordermanager.UpdateUtility {
                     this.GlobalFormJSONValues["ITEM_DATA"] = this.SelectedItemNameList;
                 }
                 this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
+            }
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
+              var TempJSON = [];
+            
             }
         }
         public customValidation() {

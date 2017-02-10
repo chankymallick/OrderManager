@@ -56,6 +56,11 @@ public class ComponentXMLGenarator {
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }       
+        if (Type.equals("addNewEmployee")) {
+            List temp = OrderDAO.getGridData("EMPLOYEES","EMPLOYEE_UID");
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }       
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

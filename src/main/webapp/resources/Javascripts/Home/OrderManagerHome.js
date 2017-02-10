@@ -15,8 +15,10 @@ var com;
             CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
             CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
             CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
+            CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
+            CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -50,6 +52,9 @@ var com;
                         if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                         }
+                        if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 200);
+                        }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);
                         }
@@ -70,6 +75,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
+                            _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
                         }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -169,8 +177,14 @@ var com;
                         if (id === "updateNewOrder") {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
                         }
+                        if (id === "addadvance") {
+                            _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
+                        }
                         if (id === "addNewLocation") {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION, 220);
+                        }
+                        if (id === "addNewEmployee") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 180);
                         }
                     });
                 };
@@ -182,8 +196,10 @@ var com;
             OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
             OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
             OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
+            OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
+            OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

@@ -129,7 +129,7 @@ public class OrderDAO extends DAOHelper {
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
-     //       new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
+            //       new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
@@ -236,9 +236,9 @@ public class OrderDAO extends DAOHelper {
                         paramData.get("PIECE_VENDOR=STR"),
                         BillNo
                     });
-             int OrderStatusLocationInsert = orderMobiltyUpdate(
+            int OrderStatusLocationInsert = orderMobiltyUpdate(
                     paramData.get("BILL_NO=STR").toString(),
-                    paramData.get("ORDER_DATE=DATE").toString(),                    
+                    paramData.get("ORDER_DATE=DATE").toString(),
                     OrderStatus,
                     OrdersSubStatus,
                     CurrentLocation,
@@ -253,10 +253,30 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
-    
 
-    public boolean updateOrder(JSONObject paramJson) {
-        return true;
+    public String addAdvance(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            String OrderBillNo = paramData.getString("BILL_NO");
+            int Advance = Integer.parseInt(paramData.getString("ADVANCE_AMOUNT=NUM"));
+            String MainStatus = paramData.getString("ORDER_STATUS=STR");
+            String SubStatus = paramData.getString("ORDER_SUB_STATUS=STR");
+            String DeliveryDate = paramData.getString("DELIVERY_DATE=DATE");
+            String Location = paramData.getString("CURRENT_LOCATION=STR");
+            int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
+            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID,ORDER_BILL_NO,PAYMENT_TYPE,AMOUNT) VALUES (?,?,?,?)", new Object[]{PaymentUID, OrderBillNo, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString(), Advance});
+            int mobilityUpdate = this.orderMobiltyUpdate(OrderBillNo, this.getCurrentTimeStamp().toString(), MainStatus, SubStatus, Location, "Re Advance");
+            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.PAYMENT_TRANSACTION, PaymentUID, "RE ADVAMCE FOR BILL NO : " + OrderBillNo + ", Advance :" + Integer.toString(Advance));
+            this.getTransactionManager().commit(txStatus);
+            generateSQLSuccessResponse(response, paramData.get("BILL_NO") + " - Advance Succesfully done");
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+
+        return response.getJSONResponse();
     }
 
     public List<Object> getGridData(String TableName, String Order_Column) {

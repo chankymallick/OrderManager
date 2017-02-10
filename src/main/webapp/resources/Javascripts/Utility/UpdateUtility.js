@@ -84,10 +84,12 @@ var com;
                         progressOffCustom(_this.ModifiedLayoutObject.cells("b"));
                         _this.setSpecificFormSettingsoNLoad();
                     });
-                    this.FormObject.attachEvent("onButtonClick", function (name) {
-                        if (name === "ITEM_BUTTON=BUTTON")
-                            var Value = _this.constructItemSelectionWindow();
-                    });
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
+                        this.FormObject.attachEvent("onButtonClick", function (name) {
+                            if (name === "ITEM_BUTTON=BUTTON")
+                                var Value = _this.constructItemSelectionWindow();
+                        });
+                    }
                 };
                 UpdateUtility.prototype.constructItemSelectionWindow = function () {
                     var _this = this;
@@ -175,6 +177,16 @@ var com;
                             }
                         });
                     }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
+                        this.FormObject.attachEvent("onChange", function (name, value) {
+                            if (name == "ORDER_STATUS=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                        });
+                    }
                 };
                 UpdateUtility.prototype.validateAndSaveFormData = function () {
                     this.GlobalFormJSONValues = this.FormObject.getValues();
@@ -216,6 +228,9 @@ var com;
                             this.GlobalFormJSONValues["ITEM_DATA"] = this.SelectedItemNameList;
                         }
                         this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
+                    }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
+                        var TempJSON = [];
                     }
                 };
                 UpdateUtility.prototype.customValidation = function () {

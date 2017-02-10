@@ -13,10 +13,12 @@ module com.ordermanager.home {
         public static CODE_ADD_NEW_STATUS_TYPE= "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
         public static CODE_QUICK_NEW_LOCATION = "ANL";
+        public static CODE_ADD_NEW_EMPLOYEE= "ANE";
         //----------------------------------------
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         //----------------------------------------
         public static CODE_UPDATE_NEW_ORDER = "UNO";
+        public static CODE_UPDATE_ADVANCE = "UAD";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -25,10 +27,12 @@ module com.ordermanager.home {
         public static FORM_QUICK_NEW_ORDER = "quickNewOrder";
         public static FORM_ADD_NEW_STATUS_TYPE ="addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
+        public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         //---------------------------------------------------
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         //---------------------------------------------------
         public static UPDATE_NEW_ORDER ="updateNewOrder";
+        public static UPDATE_ADVANCE = "addadvance";
 
 
         public HomeLayoutObject: any;
@@ -67,6 +71,9 @@ module com.ordermanager.home {
                 if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                 }
+                if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 200);
+                }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);
                 }
@@ -87,6 +94,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                   this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER,100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
+                  this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE,100);
                 }
                 else {
                     showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -188,10 +198,15 @@ module com.ordermanager.home {
                 if (id === "updateNewOrder") {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER,100);
                 }
+                if (id === "addadvance") {
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE,100);
+                }
                 if (id === "addNewLocation") {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION,220);
                 }
-
+                if (id === "addNewEmployee") {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE,180);
+                }
             });
         }
 

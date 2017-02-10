@@ -11,7 +11,7 @@
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="quickNewOrder"/></b>]]></cell>        
         </row>
-        <row id="2">
+        <row id="addadvance">
             <cell><![CDATA[<img src="resources/Images/advance.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addadvance"/></b>]]></cell>  
         </row>
@@ -78,6 +78,14 @@
         <row id="addnewuser">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addnewuser" defaultValue="Add New User"/></b>]]></cell>        
+        </row>
+    </rows>
+</c:if>
+<c:if test="${Type.equals('labourmanager')}">
+    <rows>
+        <row id="addNewEmployee">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addNewEmployee" defaultValue="Add New Employee"/></b>]]></cell>        
         </row>
     </rows>
 </c:if>
@@ -345,6 +353,42 @@
         <afterInit>  
             <call command="attachHeader">
                 <param>#text_search,#text_search,#select_filter,#text_search,#select_filter</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+            </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewEmployee')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="center" color="white" sort="int">UID</column>       
+        <column width="180" type="ro" align="center" color="white" sort="str">NAME</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">MOBILE1</column>     
+        <column width="100" type="ro" align="center" color="white" sort="str">MOBILE2</column>     
+        <column width="150" type="ro" align="center" color="white" sort="str">ADDRESS</column>    
+        <column width="100" type="ro" align="center" color="white" sort="str">ROLE</column>
+        <column width="100" type="ro" align="center" color="white" sort="str">PAY</column>
+        <column width="120" type="ro" align="center" color="white" sort="str">HOLIDAY</column>
+        <column width="60" type="ch" align="center" color="white" sort="str">ACTIVE</column>
+        <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#select_filter,#text_search</param>                      
             </call> 
         </afterInit>     
     </head> 
