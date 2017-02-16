@@ -67,7 +67,11 @@ public class OrderController {
         map.addAttribute("DataMap", dataMap);
         return "LoadXMLComponent";
     }
-
+    
+    @RequestMapping("/updateBulkMasterTailor_Query")
+    public ModelAndView getOrderDetails(Model map, @RequestParam("ParamData") JSONObject Params) {
+    return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetails(Params));    
+    }
     @RequestMapping("/getStatistics")
     public ModelAndView getStatistics(@RequestParam("StatisticsName") String Statistics_Name, @RequestParam("ReportParams") JSONObject jsonParam) {
         Map<String, Object> requestMap = new HashMap();

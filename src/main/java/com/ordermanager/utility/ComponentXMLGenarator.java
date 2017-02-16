@@ -27,51 +27,63 @@ public class ComponentXMLGenarator {
 
         Map<String, Object> mvc = new HashMap<String, Object>();
         if (Type.equals("addNewItem")) {
-            List temp = OrderDAO.getGridData("ITEMS","ITEM_UID");
+            List temp = OrderDAO.getGridData("ITEMS", "ITEM_UID");
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }
         if (Type.equals("addNewUser")) {
-            List temp = OrderDAO.getGridData("USERS","USER_UID");
+            List temp = OrderDAO.getGridData("USERS", "USER_UID");
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         if (Type.equals("addNewOrder")) {
             List temp = OrderDAO.getGridDataForOrders();
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         if (Type.equals("quickNewOrder")) {
             List temp = OrderDAO.getGridDataForQuickOrders();
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         if (Type.equals("addNewStatusType")) {
             List temp = OrderDAO.getGridDataForStatusTypes();
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         if (Type.equals("addNewLocation")) {
             List temp = OrderDAO.getGridDataForNewLocation();
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         if (Type.equals("addNewEmployee")) {
-            List temp = OrderDAO.getGridData("EMPLOYEES","EMPLOYEE_UID");
+            List temp = OrderDAO.getGridData("EMPLOYEES", "EMPLOYEE_UID");
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }       
+        }
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }
-    @RequestMapping("/LoadReportViewGrid")
-    public ModelAndView reportViewGrid(@RequestParam("gridname") String Type,@RequestParam(name="ParamJson",required = false) JSONObject ParamJson) {
+
+    @RequestMapping("/LoadAssignmentGrid")
+    public ModelAndView assignmentUpdateGrid(@RequestParam("gridname") String Type) {
+
         Map<String, Object> mvc = new HashMap<String, Object>();
-        if (Type.equals("advanceReport")) {           
+        if (Type.equals("updateBulkMasterTailor")) {
+
+        }
+        mvc.put("Type", Type);
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
+    }
+
+    @RequestMapping("/LoadReportViewGrid")
+    public ModelAndView reportViewGrid(@RequestParam("gridname") String Type, @RequestParam(name = "ParamJson", required = false) JSONObject ParamJson) {
+        Map<String, Object> mvc = new HashMap<String, Object>();
+        if (Type.equals("advanceReport")) {
             List temp = OrderDAO.getGridDataForQuickOrdersWithDate(ParamJson.get("ORDER_DATE=DATE").toString());
             mvc.put("ALL_ROWS_LIST", temp.get(0));
-            mvc.put("COLUMN_NAME_LIST", temp.get(1));            
-        }         
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

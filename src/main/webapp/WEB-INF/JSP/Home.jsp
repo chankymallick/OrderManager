@@ -231,6 +231,7 @@
         <script src="<c:url value='/resources/Javascripts/Utility/ReportingUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/UpdateUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
+        <script src="<c:url value='/resources/Javascripts/Utility/BulkUpdate.js' />" ></script> 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script>
             loadLanguagePack();

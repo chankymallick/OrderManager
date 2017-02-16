@@ -19,6 +19,7 @@ var com;
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
+            CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -79,6 +80,9 @@ var com;
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
                         }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
+                            _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
+                        }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
                         }
@@ -131,6 +135,11 @@ var com;
                 OrderManagerHome.prototype.menuUpdateActionInitializer = function (actionName, QueryFormHeight) {
                     this.HomeLayoutObject.cells("a").expand();
                     this.UpdateManagerObject = new com.ordermanager.UpdateUtility.UpdateUtility(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight);
+                    this.HomeLayoutObject.cells("c").showHeader();
+                };
+                OrderManagerHome.prototype.menuBulkUpdateActionInitializer = function (actionName, QueryFormHeight) {
+                    this.HomeLayoutObject.cells("a").expand();
+                    this.UpdateManagerObject = new com.ordermanager.bulkupdate.BulkUpdate(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight, 5);
                     this.HomeLayoutObject.cells("c").showHeader();
                 };
                 OrderManagerHome.prototype.menurReportsActionIntializer = function (actionName) {
@@ -200,6 +209,7 @@ var com;
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
+            OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

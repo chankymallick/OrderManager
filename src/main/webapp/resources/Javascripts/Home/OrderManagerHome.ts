@@ -1,5 +1,6 @@
 /// <reference path="..//Utility/Utility.ts"/>
 /// <reference path="..//Utility/UpdateUtility.ts"/>
+/// <reference path="../Utility/BulkUpdate.ts"/>
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 declare var Language: any;
@@ -19,6 +20,7 @@ module com.ordermanager.home {
         //----------------------------------------
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
+        public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -33,6 +35,7 @@ module com.ordermanager.home {
         //---------------------------------------------------
         public static UPDATE_NEW_ORDER ="updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
+        public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
 
 
         public HomeLayoutObject: any;
@@ -98,6 +101,9 @@ module com.ordermanager.home {
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                   this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE,100);
                 }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
+                  this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR,100);
+                }
                 else {
                     showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
                 }
@@ -150,6 +156,12 @@ module com.ordermanager.home {
         public menuUpdateActionInitializer(actionName,QueryFormHeight){
           this.HomeLayoutObject.cells("a").expand();
           this.UpdateManagerObject = new com.ordermanager.UpdateUtility.UpdateUtility(actionName,this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight);
+          this.HomeLayoutObject.cells("c").showHeader();
+
+        }
+        public menuBulkUpdateActionInitializer(actionName,QueryFormHeight){
+          this.HomeLayoutObject.cells("a").expand();
+          this.UpdateManagerObject = new com.ordermanager.bulkupdate.BulkUpdate(actionName,this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight,5);
           this.HomeLayoutObject.cells("c").showHeader();
 
         }

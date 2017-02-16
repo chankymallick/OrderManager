@@ -4,6 +4,7 @@ import com.ordermanager.messanger.sendSMS;
 import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
 import com.ordermanager.utility.ResponseJSONHandler;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -340,6 +341,47 @@ public class OrderDAO extends DAOHelper {
             return statList;
         }
         return statList;
+    }
+
+    public String getOrderDetails(JSONObject params) {
+        
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rst = null;
+        try {
+            String OrderBillNo = params.getString("BILL_NO=STR");
+            String SQL = "SELECT BILL_NO,ORDER_DATE,DELIVERY_DATE,(select datename(dw,DELIVERY_DATE)) AS DAY_NAME,(SELECT  DATEDIFF(day, CURRENT_TIMESTAMP  , DELIVERY_DATE)) AS REMAINING FROM ORDERS WHERE BILL_NO = ?";
+            pst = this.getJDBCConnection().prepareStatement(SQL);
+            pst.setString(1, OrderBillNo);
+            rst = pst.executeQuery();
+            if (rst.next()) {
+                StringBuilder data = new StringBuilder();
+                data.append(rst.getString("BILL_NO")).
+                        append(",").
+                        append(this.getCustomFormatDate(rst.getTimestamp("ORDER_DATE"))).
+                        append(",").
+                        append(this.getCustomFormatDate(rst.getTimestamp("DELIVERY_DATE"))).
+                        append(",").
+                        append(rst.getString("DAY_NAME")).
+                        append(",").
+                        append(rst.getString("REMAINING")).
+                        append(",").
+                        append("").
+                        append(",").
+                        append("").
+                        append(",").
+                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>");
+                response.addResponseValue("DATA", data.toString());
+                this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
+            } else {
+                this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
+            }
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
+        }
+
+        return response.getJSONResponse();
     }
 
 }
