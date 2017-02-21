@@ -438,14 +438,17 @@
     <rows>
         <head>            
         <column width="40" type="ro" align="center" color="white" >NO</column>       
-        <column width="100" type="ro" align="center" color="white" >BILL NO</column>       
-        <column width="110" type="ro" align="center" color="white" >ORDER</column>
-        <column width="110" type="ro" align="center" color="white" >DELIVERY</column>
-        <column width="80" type="ro" align="center" color="white" >DAY</column>
-        <column width="80" type="ro" align="center" color="white" >REMAINING</column>  
+        <column width="80" type="ro" align="center" color="white" >BILL NO</column>       
+        <column width="100" type="ro" align="center" color="white" >ORDER</column>
+        <column width="100" type="ro" align="center" color="white" >DELIVERY</column>
+        <column width="40" type="ro" align="center" color="white" >QTY</column>
+        <column width="90" type="ro" align="center" color="white" >DAY</column>
+        <column width="90" type="ro" align="center" color="white" >REMAINING</column>  
         <column width="100" type="ro" align="center" color="white" >STATUS</column>
         <column width="100" type="ro" align="center" color="white" >ITEMS</column>
+        <column width="80" type="ro" align="center" color="white" >STARS</column> 
         <column width="80" type="ro" align="center" color="white" >REMOVE</column> 
+        <column width="100" type="ro" align="center" color="white" >RESULT</column> 
     </head> 
 </rows>
 </c:if>

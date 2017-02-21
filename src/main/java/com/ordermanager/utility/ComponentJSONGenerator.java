@@ -204,5 +204,11 @@ public class ComponentJSONGenerator {
         map.addAttribute("FormName", FormName);
         return "LoadJSON";
     }
+    @RequestMapping("/operationToolbarBulkUpdate")
+    public String operationToolbarBulkUpdate(Model map, @RequestParam("formname") String FormName) {
+        map.addAttribute("FormType", "operationToolbarBulkUpdate");
+        map.addAttribute("FormName", FormName);
+        return "LoadJSON";
+    }
 
 }

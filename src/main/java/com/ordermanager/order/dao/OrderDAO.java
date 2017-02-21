@@ -345,23 +345,27 @@ public class OrderDAO extends DAOHelper {
 
     public String getOrderDetails(JSONObject params) {
         
-        ResponseJSONHandler response = new ResponseJSONHandler();
-        Connection con = null;
+        ResponseJSONHandler response = new ResponseJSONHandler();      
         PreparedStatement pst = null;
         ResultSet rst = null;
         try {
             String OrderBillNo = params.getString("BILL_NO=STR");
-            String SQL = "SELECT BILL_NO,ORDER_DATE,DELIVERY_DATE,(select datename(dw,DELIVERY_DATE)) AS DAY_NAME,(SELECT  DATEDIFF(day, CURRENT_TIMESTAMP  , DELIVERY_DATE)) AS REMAINING FROM ORDERS WHERE BILL_NO = ?";
+            String SQL = "SELECT BILL_NO,ORDER_DATE,DELIVERY_DATE,QUANTITY,(select datename(dw,DELIVERY_DATE)) AS DAY_NAME,(SELECT  DATEDIFF(day, CURRENT_TIMESTAMP  , DELIVERY_DATE)) AS REMAINING FROM ORDERS WHERE BILL_NO = ?";
             pst = this.getJDBCConnection().prepareStatement(SQL);
             pst.setString(1, OrderBillNo);
             rst = pst.executeQuery();
             if (rst.next()) {
+                PreparedStatement pst2 = this.getJDBCConnection().prepareStatement("SELECT DISTINCT ITEM_NAME FROM ORDER_ITEMS WHERE BILL_NO=?");
+                pst2.setString(1, OrderBillNo);
+                ResultSet rst2 = pst2.executeQuery();
                 StringBuilder data = new StringBuilder();
                 data.append(rst.getString("BILL_NO")).
                         append(",").
                         append(this.getCustomFormatDate(rst.getTimestamp("ORDER_DATE"))).
                         append(",").
                         append(this.getCustomFormatDate(rst.getTimestamp("DELIVERY_DATE"))).
+                        append(",").
+                        append(rst.getString("QUANTITY")).
                         append(",").
                         append(rst.getString("DAY_NAME")).
                         append(",").
@@ -370,18 +374,111 @@ public class OrderDAO extends DAOHelper {
                         append("").
                         append(",").
                         append("").
+                        append(",");
+                        while(rst2.next()){
+                        data.append("<img style='cursor:pointer;display:inline;' height='20px' width='20px' src='resources/Images/"+rst2.getString("ITEM_NAME")+".png'/>");
+                        }                       
+                        data.append(",").
+                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
                         append(",").
-                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>");
+                        append("<img height='20px' width='20px' src='resources/Images/task.png'/>");
                 response.addResponseValue("DATA", data.toString());
                 this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
             } else {
                 this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
-            }
+            } 
         } catch (Exception e) {
             this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
         }
+        
+        return response.getJSONResponse();
+    }
+     public String orderAssignmentMasterTailor(JSONObject jsonParams, String UserName) {         
+        ResponseJSONHandler response = new ResponseJSONHandler();        
+        try {            
+            String MasterName = jsonParams.getString("MASTER_NAME=STR");
+            String TailorName = jsonParams.getString("TAILOR_NAME=STR");            
+            String Date = getParsedTimeStamp(jsonParams.getString("ASSIGNMENT_DATE=DATE")).toString();
+            JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
+            Map<String, String> assignmentStatusMap = new HashMap();
+            int SuccessCount = 0;
+            int TotalBills = List_Of_Orders.length();
+
+            for (int i = 0; i < TotalBills; i++) {
+                String BillNo = List_Of_Orders.getString(i);
+                String AssignmentStatus = this.addMasterTailorAssignment(BillNo, MasterName, TailorName, Date);
+                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount+1 : SuccessCount;
+                assignmentStatusMap.put(BillNo, AssignmentStatus);
+            }
+            response.setResponse_Value(new JSONObject(assignmentStatusMap));           
+            generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully assigned.");
+        } catch (Exception e) {
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");            
+        }
 
         return response.getJSONResponse();
+
+    }
+
+    public String addMasterTailorAssignment(String BillNo, String MasterName, String TailorName, String Date) throws Exception {     
+            TransactionDefinition txDef = new DefaultTransactionDefinition();
+            TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+            try{
+            if(isOrderCuttingInProgress(BillNo) || isOrderStichingInProgress(BillNo)){
+            return "FAILED,Order already assigned to Master / Tailor, change the assignment ";
+            }
+            else{
+            int AsssignMentUID  =  this.getColumnAutoIncrementValue("ORDER_ASSIGNMENTS", "ASSIGNMENT_UID");
+            int MasterInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
+                    + " ORDER_ASSIGNMENTS ("
+                    + "ASSIGNMENT_UID,"
+                    + "BILL_NO,"
+                    + "ASSIGNMENT_DATE,"
+                    + "ASSIGNMENT_TYPE,"
+                    + "EMPLOYEE_NAME,"
+                    + "WAGE_AMOUNT,"
+                    + "WAGE_STATUS,"                    
+                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
+                    new Object[]{
+                        AsssignMentUID,
+                        BillNo,
+                        Date,
+                        "TO_MASTER",
+                        MasterName,
+                        0,
+                        "UNPAID",
+                        ""                        
+                    });
+            int TailorInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
+                    + " ORDER_ASSIGNMENTS ("
+                    + "ASSIGNMENT_UID,"
+                    + "BILL_NO,"
+                    + "ASSIGNMENT_DATE,"
+                    + "ASSIGNMENT_TYPE,"
+                    + "EMPLOYEE_NAME,"
+                    + "WAGE_AMOUNT,"
+                    + "WAGE_STATUS,"                    
+                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
+                    new Object[]{
+                        AsssignMentUID,
+                        BillNo,
+                        Date,
+                        "TO_TAILOR",
+                        TailorName,
+                        0,
+                        "UNPAID",
+                        ""                        
+                    });      
+            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), ConstantContainer.CURRENT_LOCATIONS.WORKSHOP.toString(), "Assigned with BulkMasterTailorEntry to : "+MasterName);
+            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.STICHING_IN_PROGRESS.toString(), ConstantContainer.CURRENT_LOCATIONS.WORKSHOP.toString(), "Assigned with BulkMasterTailorEntry to : "+TailorName);
+            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkMasterTailorEntry to "+MasterName+"/"+TailorName);
+             this.getTransactionManager().commit(txStatus);
+            return "SUCCES,DATAUPDATED";
+            } 
+            }catch(Exception e){
+            this.getTransactionManager().rollback(txStatus);
+            return "FAILED,"+e.getMessage();
+            }
     }
 
 }

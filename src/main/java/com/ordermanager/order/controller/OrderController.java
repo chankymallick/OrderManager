@@ -83,4 +83,10 @@ public class OrderController {
         }
         return new ModelAndView("StatisticsContainer", "OBJECT_MAP", requestMap);
     }
+        
+   @RequestMapping("/updateBulkMasterTailor_BulkUpdate")                                              
+    public ModelAndView updateBulkMasterTailor(@RequestParam("ParamData") JSONObject paramJson){ 
+     return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderAssignmentMasterTailor(paramJson, "Administrator"));
+    }   
+    
 }

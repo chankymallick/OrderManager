@@ -6,6 +6,7 @@ var com;
         (function (bulkupdate) {
             var BulkUpdate = (function () {
                 function BulkUpdate(UpdateModuleName, LayoutCell, NotificationCell, QueryFormHeight, AssignmentGridColumns) {
+                    this.ParameterJSON = {};
                     this.UpdateModuleName = UpdateModuleName;
                     this.LayoutCell = LayoutCell;
                     this.NotificationCell = NotificationCell;
@@ -13,18 +14,30 @@ var com;
                     this.constructLayout();
                     this.constructQueryForm();
                     this.constructAssignmentGrid();
+                    this.shortCutRegister();
                 }
+                BulkUpdate.prototype.shortCutRegister = function () {
+                    var _this = this;
+                    shortcut.add("F8", function () {
+                        _this.sendBulkQueryForUpdate();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                };
                 BulkUpdate.prototype.constructLayout = function () {
                     this.ModifiedLayoutObject = this.LayoutCell.attachLayout({
                         pattern: "3T",
                         cells: [
                             { id: "a", text: "Query", header: false, height: this.QueryFormHeight },
-                            { id: "b", text: "Assigned Orders", header: true, width: 800 },
-                            { id: "c", text: "Statistics", header: true, }
+                            { id: "b", text: "Assigned Orders", header: true, width: 1000 },
+                            { id: "c", text: "Statistics", header: true }
                         ]
                     });
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
-                    this.OperationToolbar.loadStruct("operationToolbarUpdate?formname=" + this.UpdateModuleName, "json");
+                    this.OperationToolbar.loadStruct("operationToolbarBulkUpdate?formname=" + this.UpdateModuleName, "json");
                     this.OperationToolbar.attachEvent("onClick", function (id) {
                         if (id === "update") {
                         }
@@ -47,51 +60,174 @@ var com;
                     });
                     this.QueryForm.attachEvent("onXLE", function () {
                         _this.QueryForm.setFocusOnFirstActive();
+                        _this.setSpecificOnLoad();
                     });
                 };
                 BulkUpdate.prototype.constructAssignmentGrid = function () {
+                    var _this = this;
                     this.AssignmentGrid = this.ModifiedLayoutObject.cells("b").attachGrid();
                     this.AssignmentGrid.load("LoadAssignmentGrid?gridname=" + this.UpdateModuleName + "&ParamJson=");
                     this.AssignmentGrid.setStyle("background-color:#003eba;color:white; font-weight:bold;", "font-weight:bold;", "", "");
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
+                            if (index === 10) {
+                                dhtmlx.confirm({
+                                    type: "confirm",
+                                    text: "Do you want to remove selected Order?",
+                                    callback: function (result) {
+                                        if (result) {
+                                            _this.AssignmentGrid.deleteRow(id);
+                                            _this.calculateStatistics();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    this.statisticCounterConstruction();
                 };
                 BulkUpdate.prototype.loadAssignmentGridData = function (Parameters) {
+                    this.ModifiedLayoutObject.progressOn();
                     var GridData;
                     var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_Query?ParamData=" + JSON.stringify(Parameters), "", null);
                     if (Response.RESPONSE_STATUS === "SUCCESS") {
                         var GridData = Response.RESPONSE_VALUE.DATA.split(",");
                         var RowNum = parseInt(this.AssignmentGrid.getRowsNum()) + 1;
                         GridData.splice(0, 0, RowNum);
-                        this.AssignmentGrid.addRow(RowNum, GridData);
-                        if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-                            if (GridData[5] > 10) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
+                        if (this.isBillNoExistInAssignmentGrid(GridData[1])) {
+                            this.AssignmentGrid.addRow(RowNum, GridData);
+                            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                                if (GridData[6] > 10) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
+                                }
+                                else if (GridData[6] < 0) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
+                                }
+                                else if (GridData[6] < 1) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
+                                }
+                                else if (GridData[6] < 3) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
+                                }
+                                else if (GridData[6] < 5) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
+                                }
+                                else if (GridData[6] <= 10) {
+                                    this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
+                                }
+                                this.calculateStatistics();
+                                this.QueryForm.setItemValue("BILL_NO=STR", "");
                             }
-                            if (GridData[5] < 10) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
-                            }
-                            if (GridData[5] < 5) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
-                            }
-                            if (GridData[5] < 3) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
-                            }
-                            if (GridData[5] < 1) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
-                            }
-                            if (GridData[5] < 0) {
-                                this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
-                            }
+                            showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                         }
-                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                         this.NotificationCell.collapse();
                     }
                     if (Response.RESPONSE_STATUS === "FAILED") {
                         showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
-                        this.NotificationCell.attachHTMLString("  : <b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
+                        this.NotificationCell.attachHTMLString(":<b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                         this.NotificationCell.expand();
                     }
+                    progressOffCustom(this.ModifiedLayoutObject);
                 };
-                BulkUpdate.prototype.setSpecificFormSettingsoNLoad = function () {
+                BulkUpdate.prototype.sendBulkQueryForUpdate = function () {
+                    this.setSpecificBeforeSave();
+                    if (this.QueryForm.validate()) {
+                        this.ModifiedLayoutObject.progressOn();
+                        var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" + JSON.stringify(this.ParameterJSON), "", null);
+                        if (Response.RESPONSE_STATUS === "SUCCESS") {
+                            showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                            this.setFormStateAfterSave(Response);
+                            this.NotificationCell.collapse();
+                            progressOffCustom(this.ModifiedLayoutObject);
+                        }
+                    }
+                };
+                BulkUpdate.prototype.isBillNoExistInAssignmentGrid = function (BillNo) {
+                    var _this = this;
+                    var status = true;
+                    if (this.AssignmentGrid.getRowsNum() == 0) {
+                        status = true;
+                    }
+                    this.AssignmentGrid.forEachRow(function (id) {
+                        if (_this.AssignmentGrid.cells(id, 1).getValue() === BillNo) {
+                            showFailedNotificationWithICON("Bill no already added in List");
+                            status = false;
+                        }
+                    });
+                    return status;
+                };
+                BulkUpdate.prototype.statisticCounterConstruction = function () {
+                    var StatFields = ["TOTAL PIECE", "URGENT PIECES", "EXTRA ITEMS", "STAT1", "STAT2"];
+                    this.StatisticsGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
+                    this.StatisticsGrid.setHeader("Stats");
+                    this.StatisticsGrid.setNoHeader(true);
+                    this.StatisticsGrid.setColAlign("left");
+                    this.StatisticsGrid.setColTypes("ro");
+                    this.StatisticsGrid.init();
+                    this.StatisticsGrid.addRow("STAT_KEY1_NAME", StatFields[0]);
+                    this.StatisticsGrid.addRow("STAT_KEY1_VALUE", "0");
+                    this.StatisticsGrid.addRow("STAT_KEY2_NAME", StatFields[1]);
+                    this.StatisticsGrid.addRow("STAT_KEY2_VALUE", "0");
+                    this.StatisticsGrid.addRow("STAT_KEY3_NAME", StatFields[2]);
+                    this.StatisticsGrid.addRow("STAT_KEY3_VALUE", "0");
+                    this.StatisticsGrid.addRow("STAT_KEY4_NAME", StatFields[3]);
+                    this.StatisticsGrid.addRow("STAT_KEY4_VALUE", "0");
+                    this.StatisticsGrid.addRow("STAT_KEY5_NAME", StatFields[4]);
+                    this.StatisticsGrid.addRow("STAT_KEY5_VALUE", "0");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY1_NAME", "color:white;background-color: #00a0ea; font-weight:bold; ");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY2_NAME", "color:white;background-color: #494949; font-weight:bold; ");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY3_NAME", "color:white;background-color: #e26600; font-weight:bold; ");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY4_NAME", "color:white;background-color: #009e98; font-weight:bold; ");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY5_NAME", "color:white;background-color: #0010a0; font-weight:bold; ");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY1_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY2_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY3_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY4_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                    this.StatisticsGrid.setRowTextStyle("STAT_KEY5_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                };
+                BulkUpdate.prototype.calculateStatistics = function () {
+                    var _this = this;
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        var TotalPiece = 0;
+                        this.AssignmentGrid.forEachRow(function (id) {
+                            TotalPiece += parseInt(_this.AssignmentGrid.cells(id, 4).getValue());
+                        });
+                        this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalPiece);
+                    }
+                };
+                BulkUpdate.prototype.setSpecificBeforeSave = function () {
+                    var _this = this;
+                    var AllBillNos = [];
+                    this.AssignmentGrid.forEachRow(function (id) {
+                        var BillNo = _this.AssignmentGrid.cells(id, 1).getValue();
+                        AllBillNos.push(BillNo);
+                    });
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                        this.ParameterJSON["MASTER_NAME=STR"] = this.QueryForm.getItemValue("MASTER_NAME=STR");
+                        this.ParameterJSON["TAILOR_NAME=STR"] = this.QueryForm.getItemValue("TAILOR_NAME=STR");
+                        ;
+                        this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                    }
+                };
+                BulkUpdate.prototype.setSpecificOnLoad = function () {
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
+                    }
+                };
+                BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
+                    var _this = this;
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        this.AssignmentGrid.forEachRow(function (id) {
+                            var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
+                            if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
+                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
+                            }
+                            else {
+                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/fail.png'/>");
+                            }
+                        });
+                    }
                 };
                 return BulkUpdate;
             }());

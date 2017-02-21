@@ -116,14 +116,14 @@ function showFailedNotification(data) {
 }
 function showSuccessNotificationWithICON(data) {
     dhtmlx.message({
-        text: "<img height='30px' width='30px' style='margin-right:5px;vertical-align:middle;'  src='resources/Images/ok.png'/><span>" + data + "</span>",
+        text:"<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/ok.png' height='30px' width='30px'></div><div >"+data+"</div></div>",
         expire: 5000,
         type: "SuccessNotification"
     });
 }
 function showFailedNotificationWithICON(data) {
     dhtmlx.message({
-        text: "<img height='30px' width='30px' style='margin-right:5px;vertical-align:middle;'  src='resources/Images/failed.png'/><span>" + data + "</span>",
+        text:"<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/failed.png' height='30px' width='30px'></div><div >"+data+"</div></div>",
         expire: 5000,
         type: "error"
     });

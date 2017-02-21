@@ -138,7 +138,7 @@ var com;
                     this.HomeLayoutObject.cells("c").showHeader();
                 };
                 OrderManagerHome.prototype.menuBulkUpdateActionInitializer = function (actionName, QueryFormHeight) {
-                    this.HomeLayoutObject.cells("a").expand();
+                    this.HomeLayoutObject.cells("a").collapse();
                     this.UpdateManagerObject = new com.ordermanager.bulkupdate.BulkUpdate(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight, 5);
                     this.HomeLayoutObject.cells("c").showHeader();
                 };

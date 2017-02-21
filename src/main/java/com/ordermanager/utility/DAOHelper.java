@@ -401,6 +401,24 @@ public class DAOHelper extends ConstantContainer {
                     });
         return OrderStatusLocationInsert;
     }
+    public boolean isOrderCuttingInProgress(String BillNumber){
+      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+    public boolean isOrderStichingInProgress(String BillNumber){
+     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }    
+    public boolean isOrderMasterWagePaid(String BillNumber){
+     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }     
+    public boolean isOrderTailorWagePaid(String BillNumber){
+     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }     
+    public boolean isOrderFinisherWagePaid(String BillNumber){
+     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }     
+    public boolean isOrderIronWagePaid(String BillNumber){
+     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }        
     
     public static void main(String[] args) {
         try {
