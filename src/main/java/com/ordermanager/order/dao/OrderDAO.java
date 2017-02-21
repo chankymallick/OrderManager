@@ -372,13 +372,13 @@ public class OrderDAO extends DAOHelper {
                         append(rst.getString("REMAINING")).
                         append(",").
                         append("").
-                        append(",").
-                        append("").
-                        append(",");
+                        append(",");                        
                         while(rst2.next()){
                         data.append("<img style='cursor:pointer;display:inline;' height='20px' width='20px' src='resources/Images/"+rst2.getString("ITEM_NAME")+".png'/>");
-                        }                       
-                        data.append(",").
+                        }   
+                        data.append("").
+                        append(",").
+                        append(",").
                         append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
                         append(",").
                         append("<img height='20px' width='20px' src='resources/Images/task.png'/>");

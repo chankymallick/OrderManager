@@ -9,11 +9,13 @@ import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
 import com.ordermanager.utility.ResponseJSONHandler;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Maliick
  */
+@Transactional
 public class EmployeeDAO extends DAOHelper {
 
     public String addNewEmployee(JSONObject paramJson, String CurrentUser) {

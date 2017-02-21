@@ -18,6 +18,7 @@ module com.ordermanager.bulkupdate {
         public AssignmentGrid: any;
         public StatisticsGrid: any;
         public ParameterJSON = {};
+        public AssigmentStatus = "START";
 
 
         constructor(UpdateModuleName: any, LayoutCell: any, NotificationCell: any, QueryFormHeight: any, AssignmentGridColumns: any) {
@@ -78,13 +79,19 @@ module com.ordermanager.bulkupdate {
             });
 
         }
+        public showAlertBox(Message){
+          dhtmlx.message({
+              type:"alert-error",
+              text:Message
+          });
+        }
         public constructAssignmentGrid() {
             this.AssignmentGrid = this.ModifiedLayoutObject.cells("b").attachGrid();
             this.AssignmentGrid.load("LoadAssignmentGrid?gridname=" + this.UpdateModuleName + "&ParamJson=");
             this.AssignmentGrid.setStyle("background-color:#003eba;color:white; font-weight:bold;", "font-weight:bold;", "", "");
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                 this.AssignmentGrid.attachEvent("onRowSelect", (id, index) => {
-                    if (index === 10) {
+                    if (index === 10 && this.AssigmentStatus == "START") {
                         dhtmlx.confirm({
                             type: "confirm",
                             text: "Do you want to remove selected Order?",
@@ -95,6 +102,9 @@ module com.ordermanager.bulkupdate {
                                 }
                             }
                         });
+                    }
+                    else if(index === 10 && this.AssigmentStatus == "END"){
+                    this.showAlertBox(this.AssignmentGrid.getUserData(id,"SERVER_DATA"));
                     }
                 });
             }
@@ -232,13 +242,18 @@ module com.ordermanager.bulkupdate {
         }
         public setFormStateAfterSave(Response: any) {
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+              this.AssigmentStatus="END";
               this.AssignmentGrid.forEachRow((id) => {
                   var BILLNO = this.AssignmentGrid.cells(id, 1).getValue()
+                  this.AssignmentGrid.setUserData(id,"SERVER_DATA",Response.RESPONSE_VALUE[BILLNO]);
                   if(Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0){
+                  this.AssignmentGrid.cells(id, 10).setValue("");
+                  this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
                   this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
                   }
                   else{
-                  this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/fail.png'/>");
+                  this.AssignmentGrid.cells(id, 10).setValue("<input type='button' value='HELP'/>");
+                  this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
                   }
                });
             }

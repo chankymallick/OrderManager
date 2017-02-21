@@ -14,11 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author Maliick
  */
+@Transactional
 public class UtilityDAO extends DAOHelper {
 
     public String isValueUnique(String Value, String TableName, String ColumnName) {

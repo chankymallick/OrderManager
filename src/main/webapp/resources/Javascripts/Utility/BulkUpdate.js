@@ -7,6 +7,7 @@ var com;
             var BulkUpdate = (function () {
                 function BulkUpdate(UpdateModuleName, LayoutCell, NotificationCell, QueryFormHeight, AssignmentGridColumns) {
                     this.ParameterJSON = {};
+                    this.AssigmentStatus = "START";
                     this.UpdateModuleName = UpdateModuleName;
                     this.LayoutCell = LayoutCell;
                     this.NotificationCell = NotificationCell;
@@ -63,6 +64,12 @@ var com;
                         _this.setSpecificOnLoad();
                     });
                 };
+                BulkUpdate.prototype.showAlertBox = function (Message) {
+                    dhtmlx.message({
+                        type: "alert-error",
+                        text: Message
+                    });
+                };
                 BulkUpdate.prototype.constructAssignmentGrid = function () {
                     var _this = this;
                     this.AssignmentGrid = this.ModifiedLayoutObject.cells("b").attachGrid();
@@ -70,7 +77,7 @@ var com;
                     this.AssignmentGrid.setStyle("background-color:#003eba;color:white; font-weight:bold;", "font-weight:bold;", "", "");
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                         this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
-                            if (index === 10) {
+                            if (index === 10 && _this.AssigmentStatus == "START") {
                                 dhtmlx.confirm({
                                     type: "confirm",
                                     text: "Do you want to remove selected Order?",
@@ -81,6 +88,9 @@ var com;
                                         }
                                     }
                                 });
+                            }
+                            else if (index === 10 && _this.AssigmentStatus == "END") {
+                                _this.showAlertBox(_this.AssignmentGrid.getUserData(id, "SERVER_DATA"));
                             }
                         });
                     }
@@ -218,13 +228,18 @@ var com;
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
                     var _this = this;
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        this.AssigmentStatus = "END";
                         this.AssignmentGrid.forEachRow(function (id) {
                             var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
+                            _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);
                             if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
+                                _this.AssignmentGrid.cells(id, 10).setValue("");
+                                _this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
                                 _this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
                             }
                             else {
-                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/fail.png'/>");
+                                _this.AssignmentGrid.cells(id, 10).setValue("<input type='button' value='HELP'/>");
+                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
                             }
                         });
                     }

@@ -15,12 +15,14 @@ import org.json.JSONObject;
 import org.omg.CORBA.portable.ResponseHandler;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  *
  * @author Maliick
  */
+@Transactional
 public class WorkshopProcessingDAO extends DAOHelper {
 
     public String orderAssignmentMasterTailor(JSONObject jsonParams, String UserName) {
