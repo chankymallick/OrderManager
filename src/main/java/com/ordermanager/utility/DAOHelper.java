@@ -160,9 +160,10 @@ public class DAOHelper extends ConstantContainer {
         List<Object> allRows = new ArrayList();
         List<String> columnNames = new ArrayList();
         List<Object> returnValues = new ArrayList();
+        Connection con;
         int totalCoumn = 0;
         try {
-            Connection con = this.jdbcTemplate.getDataSource().getConnection();
+            con = this.jdbcTemplate.getDataSource().getConnection();
             PreparedStatement pst = con.prepareStatement(SQLQuery);
             ResultSet rst = pst.executeQuery();
             ResultSetMetaData rsMetadata = rst.getMetaData();
@@ -185,11 +186,15 @@ public class DAOHelper extends ConstantContainer {
             returnValues.add(columnNames);
             rst.close();
             pst.close();
-            con.close();
-        } catch (Exception e) {
+           
+        }         
+        catch (Exception e) {
             e.printStackTrace();
 
         }
+       
+        
+        
         return returnValues;
     }
 

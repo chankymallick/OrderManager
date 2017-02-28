@@ -12,12 +12,13 @@
     </bean> -->
     <bean id="ds" class="com.mchange.v2.c3p0.ComboPooledDataSource"   destroy-method="close">
         <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
-        <property name="jdbcUrl" value="jdbc:sqlserver://192.168.1.101:1433;databaseName=OrderManager" />
+        <property name="jdbcUrl" value="jdbc:sqlserver://192.168.1.102:1433;databaseName=OrderManager" />
         <property name="user" value="sa" />
         <property name="password" value="520759" />
-        <property name="maxPoolSize" value="20" />
+        <property name="maxPoolSize" value="25" />
         <property name="minPoolSize" value="5" />
-        <property name="maxStatements" value="180" />       
+        <property name="maxStatements" value="180" />  
+        <property name="maxIdleTime" value="5" />     
     </bean>
     <bean id="JdbcDataSource" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="ds"/>

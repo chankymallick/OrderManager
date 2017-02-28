@@ -397,7 +397,8 @@ public class OrderDAO extends DAOHelper {
         ResponseJSONHandler response = new ResponseJSONHandler();        
         try {            
             String MasterName = jsonParams.getString("MASTER_NAME=STR");
-            String TailorName = jsonParams.getString("TAILOR_NAME=STR");            
+            String TailorName = jsonParams.getString("TAILOR_NAME=STR");      
+            String CurrentLocation = jsonParams.getString("LOCATION=STR");
             String Date = getParsedTimeStamp(jsonParams.getString("ASSIGNMENT_DATE=DATE")).toString();
             JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
             Map<String, String> assignmentStatusMap = new HashMap();
@@ -406,7 +407,7 @@ public class OrderDAO extends DAOHelper {
 
             for (int i = 0; i < TotalBills; i++) {
                 String BillNo = List_Of_Orders.getString(i);
-                String AssignmentStatus = this.addMasterTailorAssignment(BillNo, MasterName, TailorName, Date);
+                String AssignmentStatus = this.addMasterTailorAssignment(BillNo, MasterName, TailorName, Date,CurrentLocation);
                 SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount+1 : SuccessCount;
                 assignmentStatusMap.put(BillNo, AssignmentStatus);
             }
@@ -420,7 +421,7 @@ public class OrderDAO extends DAOHelper {
 
     }
 
-    public String addMasterTailorAssignment(String BillNo, String MasterName, String TailorName, String Date) throws Exception {     
+    public String addMasterTailorAssignment(String BillNo, String MasterName, String TailorName, String Date,String CurrentLocation) throws Exception {     
             TransactionDefinition txDef = new DefaultTransactionDefinition();
             TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
             try{
@@ -469,8 +470,8 @@ public class OrderDAO extends DAOHelper {
                         "UNPAID",
                         ""                        
                     });      
-            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), ConstantContainer.CURRENT_LOCATIONS.WORKSHOP.toString(), "Assigned with BulkMasterTailorEntry to : "+MasterName);
-            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.STICHING_IN_PROGRESS.toString(), ConstantContainer.CURRENT_LOCATIONS.WORKSHOP.toString(), "Assigned with BulkMasterTailorEntry to : "+TailorName);
+            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : "+MasterName);
+            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.STICHING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : "+TailorName);
             mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkMasterTailorEntry to "+MasterName+"/"+TailorName);
              this.getTransactionManager().commit(txStatus);
             return "SUCCES,DATAUPDATED";

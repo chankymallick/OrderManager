@@ -216,8 +216,8 @@ var com;
                         this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
                         this.ParameterJSON["MASTER_NAME=STR"] = this.QueryForm.getItemValue("MASTER_NAME=STR");
                         this.ParameterJSON["TAILOR_NAME=STR"] = this.QueryForm.getItemValue("TAILOR_NAME=STR");
-                        ;
                         this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                        this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
                     }
                 };
                 BulkUpdate.prototype.setSpecificOnLoad = function () {
