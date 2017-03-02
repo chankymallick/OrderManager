@@ -21,6 +21,7 @@ module com.ordermanager.home {
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
+        public static CODE_BULK_UPDATE_READY_TO_DELIVER= "UBRD";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -36,6 +37,7 @@ module com.ordermanager.home {
         public static UPDATE_NEW_ORDER ="updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
+        public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
 
 
         public HomeLayoutObject: any;
@@ -103,6 +105,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                   this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR,100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
+                  this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER,100);
                 }
                 else {
                     showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");

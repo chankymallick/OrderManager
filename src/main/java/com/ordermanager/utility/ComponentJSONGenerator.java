@@ -147,6 +147,10 @@ public class ComponentJSONGenerator {
     public ModelAndView bulkAssignmentQueryForm() {
         return new ModelAndView("LoadJSON", "FormType", "updateBulkMasterTailor_QueryForm");//Only Bill No
     }
+    @RequestMapping("/updateBulkReadyToDeliver_QueryForm")
+    public ModelAndView bulkAssignmentReadyToDeliverQueryForm() {
+        return new ModelAndView("LoadJSON", "FormType", "updateBulkReadyToDeliver_QueryForm");
+    }
 
     @RequestMapping("/updateNewOrder_Form")
     public ModelAndView updateOrderForm(@RequestParam("ParamJson") JSONObject paramJson) {

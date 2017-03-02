@@ -71,30 +71,38 @@ var com;
                     });
                 };
                 BulkUpdate.prototype.constructAssignmentGrid = function () {
-                    var _this = this;
                     this.AssignmentGrid = this.ModifiedLayoutObject.cells("b").attachGrid();
                     this.AssignmentGrid.load("LoadAssignmentGrid?gridname=" + this.UpdateModuleName + "&ParamJson=");
                     this.AssignmentGrid.setStyle("background-color:#003eba;color:white; font-weight:bold;", "font-weight:bold;", "", "");
-                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-                        this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
-                            if (index === 10 && _this.AssigmentStatus == "START") {
-                                dhtmlx.confirm({
-                                    type: "confirm",
-                                    text: "Do you want to remove selected Order?",
-                                    callback: function (result) {
-                                        if (result) {
-                                            _this.AssignmentGrid.deleteRow(id);
-                                            _this.calculateStatistics();
-                                        }
-                                    }
-                                });
-                            }
-                            else if (index === 10 && _this.AssigmentStatus == "END") {
-                                _this.showAlertBox(_this.AssignmentGrid.getUserData(id, "SERVER_DATA"));
-                            }
-                        });
-                    }
+                    this.attachEventonRow();
                     this.statisticCounterConstruction();
+                };
+                BulkUpdate.prototype.attachEventonRow = function () {
+                    var _this = this;
+                    var Removeindex;
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        Removeindex = 10;
+                    }
+                    else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                        Removeindex = 8;
+                    }
+                    this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
+                        if (index === Removeindex && _this.AssigmentStatus == "START") {
+                            dhtmlx.confirm({
+                                type: "confirm",
+                                text: "Do you want to remove selected Order?",
+                                callback: function (result) {
+                                    if (result) {
+                                        _this.AssignmentGrid.deleteRow(id);
+                                        _this.calculateStatistics();
+                                    }
+                                }
+                            });
+                        }
+                        else if (index === Removeindex && _this.AssigmentStatus == "END") {
+                            _this.showAlertBox(_this.AssignmentGrid.getUserData(id, "SERVER_DATA"));
+                        }
+                    });
                 };
                 BulkUpdate.prototype.loadAssignmentGridData = function (Parameters) {
                     this.ModifiedLayoutObject.progressOn();
@@ -106,28 +114,9 @@ var com;
                         GridData.splice(0, 0, RowNum);
                         if (this.isBillNoExistInAssignmentGrid(GridData[1])) {
                             this.AssignmentGrid.addRow(RowNum, GridData);
-                            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-                                if (GridData[6] > 10) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
-                                }
-                                else if (GridData[6] < 0) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
-                                }
-                                else if (GridData[6] < 1) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
-                                }
-                                else if (GridData[6] < 3) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
-                                }
-                                else if (GridData[6] < 5) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
-                                }
-                                else if (GridData[6] <= 10) {
-                                    this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
-                                }
-                                this.calculateStatistics();
-                                this.QueryForm.setItemValue("BILL_NO=STR", "");
-                            }
+                            this.afterAddrow(GridData, RowNum);
+                            this.calculateStatistics();
+                            this.QueryForm.setItemValue("BILL_NO=STR", "");
                             showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                         }
                         this.NotificationCell.collapse();
@@ -138,6 +127,28 @@ var com;
                         this.NotificationCell.expand();
                     }
                     progressOffCustom(this.ModifiedLayoutObject);
+                };
+                BulkUpdate.prototype.afterAddrow = function (GridData, RowNum) {
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                        if (GridData[6] > 10) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
+                        }
+                        else if (GridData[6] < 0) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
+                        }
+                        else if (GridData[6] < 1) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
+                        }
+                        else if (GridData[6] < 3) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
+                        }
+                        else if (GridData[6] < 5) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
+                        }
+                        else if (GridData[6] <= 10) {
+                            this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
+                        }
+                    }
                 };
                 BulkUpdate.prototype.sendBulkQueryForUpdate = function () {
                     this.setSpecificBeforeSave();
@@ -204,6 +215,13 @@ var com;
                         });
                         this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalPiece);
                     }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                        var TotalPiece = 0;
+                        this.AssignmentGrid.forEachRow(function (id) {
+                            TotalPiece += parseInt(_this.AssignmentGrid.cells(id, 4).getValue());
+                        });
+                        this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalPiece);
+                    }
                 };
                 BulkUpdate.prototype.setSpecificBeforeSave = function () {
                     var _this = this;
@@ -217,6 +235,13 @@ var com;
                         this.ParameterJSON["MASTER_NAME=STR"] = this.QueryForm.getItemValue("MASTER_NAME=STR");
                         this.ParameterJSON["TAILOR_NAME=STR"] = this.QueryForm.getItemValue("TAILOR_NAME=STR");
                         this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                        this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
+                    }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                        this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                        this.ParameterJSON["FINISHER_NAME=STR"] = this.QueryForm.getItemValue("FINISHER_NAME=STR");
+                        this.ParameterJSON["IRON=STR"] = this.QueryForm.getItemValue("IRON=STR");
+                        this.ParameterJSON["FINISHING_DATE=DATE"] = this.QueryForm.getItemValue("FINISHING_DATE=DATE", true);
                         this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
                     }
                 };

@@ -452,5 +452,20 @@
     </head> 
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('updateBulkReadyToDeliver')}">
+    <rows>
+        <head>            
+        <column width="40" type="ro" align="center" color="white" >NO</column>       
+        <column width="80" type="ro" align="center" color="white" >BILL NO</column>        
+        <column width="100" type="ro" align="center" color="white" >SHOP</column>
+        <column width="120" type="ro" align="center" color="white" >DELIVERY</column>
+        <column width="40" type="ro" align="center" color="white" >QTY</column>        
+        <column width="130" type="ro" align="center" color="white" >STATUS</column>
+        <column width="100" type="ro" align="center" color="white" >ITEM</column>
+        <column width="300" type="ro" align="center" color="white" >EXTRAS</column> 
+        <column width="80" type="ro" align="center" color="white" >REMOVE</column>      
+    </head> 
+</rows>
+</c:if>
     
   

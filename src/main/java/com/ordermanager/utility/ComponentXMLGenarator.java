@@ -68,10 +68,7 @@ public class ComponentXMLGenarator {
     @RequestMapping("/LoadAssignmentGrid")
     public ModelAndView assignmentUpdateGrid(@RequestParam("gridname") String Type) {
 
-        Map<String, Object> mvc = new HashMap<String, Object>();
-        if (Type.equals("updateBulkMasterTailor")) {
-
-        }
+        Map<String, Object> mvc = new HashMap<String, Object>();        
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

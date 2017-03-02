@@ -20,6 +20,7 @@ var com;
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
+            CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -82,6 +83,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
+                            _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
                         }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -210,6 +214,7 @@ var com;
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
+            OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

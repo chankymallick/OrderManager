@@ -363,14 +363,13 @@ public class DAOHelper extends ConstantContainer {
     public String getDistinctStringtDataFromDatabase(String SQL, Object[] placeHolderParams) {
         return this.getJdbcTemplate().queryForObject(SQL, placeHolderParams, String.class);
     }
-
     public int orderMobiltyUpdate(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note)throws Exception {
         int isOrderMovedBefore = getDistinctIntDataFromDatabase("SELECT COUNT(BILL_NO) FROM ORDER_MOBILITY WHERE BILL_NO=?", new Object[]{BillNo});
         if (isOrderMovedBefore > 0) {
-            double MainActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='MAIN_STATUS' AND STATUS_NAME = ?", new Object[]{MainStatus}));
-            double SubActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='SUB_STATUS' AND STATUS_NAME = ? AND STATUS_PARENT_NAME=?", new Object[]{SubStatus, MainStatus}));
-            double MainlastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?)) AND STATUS_TYPE='MAIN_STATUS'", new Object[]{BillNo, BillNo}));
-            double SubLastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase("SELECT DISTINCT STATUS_ORDER FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?))", new Object[]{BillNo, BillNo}));
+            double MainActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='MAIN_STATUS' AND STATUS_NAME = ?", new Object[]{MainStatus}));
+            double SubActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='SUB_STATUS' AND STATUS_NAME = ? AND STATUS_PARENT_NAME=?", new Object[]{SubStatus, MainStatus}));
+            double MainlastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?)) AND STATUS_TYPE='MAIN_STATUS'", new Object[]{BillNo, BillNo}));
+            double SubLastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?))", new Object[]{BillNo, BillNo}));
 
             if (MainActualStatusOrder > MainlastStatusOrder) {
                 int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
@@ -406,9 +405,15 @@ public class DAOHelper extends ConstantContainer {
                     });
         return OrderStatusLocationInsert;
     }
+    public boolean isOrderFinishingCompleted(String BillNumber){
+      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+    public boolean isOrderIronCompleted(String BillNumber){
+      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
     public boolean isOrderCuttingInProgress(String BillNumber){
       return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }
+    } 
     public boolean isOrderStichingInProgress(String BillNumber){
      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }    

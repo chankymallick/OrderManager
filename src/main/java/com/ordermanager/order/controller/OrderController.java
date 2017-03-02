@@ -88,5 +88,13 @@ public class OrderController {
     public ModelAndView updateBulkMasterTailor(@RequestParam("ParamData") JSONObject paramJson){ 
      return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderAssignmentMasterTailor(paramJson, "Administrator"));
     }   
+   @RequestMapping("/updateBulkReadyToDeliver_BulkUpdate")                                              
+    public ModelAndView updateBulkReadyToDeliver(@RequestParam("ParamData") JSONObject paramJson){ 
+     return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderAssignmentReadyToDeliver(paramJson, "Administrator"));
+    }   
+   @RequestMapping("/updateBulkReadyToDeliver_Query")
+    public ModelAndView getOrderDetailsReadyToDeliver(Model map, @RequestParam("ParamData") JSONObject Params) {
+    return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForReadyToDeliver(Params));    
+    }
     
 }
