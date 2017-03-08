@@ -96,5 +96,12 @@ public class OrderController {
     public ModelAndView getOrderDetailsReadyToDeliver(Model map, @RequestParam("ParamData") JSONObject Params) {
     return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForReadyToDeliver(Params));    
     }
+   @RequestMapping("/LoadScheduleOrderData")
+    public ModelAndView orderScheduler(Model map, @RequestParam("from")String  fromDate,@RequestParam("to")String toDate) {
+    Map<String, Object> mvc = new HashMap<String, Object>();        
+        mvc.put("Type", "SchedulerData");
+        mvc.put("DATA", orderDAO.getOrderScheduleStatusByMonth(fromDate,toDate));
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);   
+    }
     
 }

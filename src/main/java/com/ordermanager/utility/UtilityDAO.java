@@ -60,22 +60,28 @@ public class UtilityDAO extends DAOHelper {
      * @return
      */
     public JSONObject getdefaultDataOrderFormWithExistingData(String BILL_NO) {
+        Connection con = null;
+        PreparedStatement pst = null;
+        PreparedStatement pst1 = null;
+        PreparedStatement pst3 = null;
+        ResultSet rstPayment = null;
+        ResultSet rstOrder = null;
+        ResultSet rstSubStatusAndLocation = null;
         try {
             JSONObject defaultData = new JSONObject(this.getApplicationData("FORM_DEFAULT_VALUE", "addNewOrder"));
-            Connection con = this.getJDBCConnection();
-
-            PreparedStatement pst = con.prepareStatement("SELECT *FROM ORDERS WHERE BILL_NO =?");
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement("SELECT *FROM ORDERS WHERE BILL_NO =?");
             pst.setString(1, BILL_NO);
-            ResultSet rstOrder = pst.executeQuery();
-            PreparedStatement pst1 = con.prepareStatement("SELECT SUM(AMOUNT) AS TOTAL_PAID FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO =? AND (PAYMENT_TYPE=? OR PAYMENT_TYPE=?)");
+            rstOrder = pst.executeQuery();
+            pst1 = con.prepareStatement("SELECT SUM(AMOUNT) AS TOTAL_PAID FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO =? AND (PAYMENT_TYPE=? OR PAYMENT_TYPE=?)");
             pst1.setString(1, BILL_NO);
             pst1.setString(2, ConstantContainer.PAYMENT_TYPE.ADVANCE.toString());
             pst1.setString(3, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString());
-            ResultSet rstPayment = pst1.executeQuery();
+            rstPayment = pst1.executeQuery();
 
-            PreparedStatement pst3 = con.prepareStatement("SELECT TOP 1 MAIN_STATUS,SUB_STATUS,CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC");
+            pst3 = con.prepareStatement("SELECT TOP 1 MAIN_STATUS,SUB_STATUS,CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC");
             pst3.setString(1, BILL_NO);
-            ResultSet rstSubStatusAndLocation = pst3.executeQuery();
+            rstSubStatusAndLocation = pst3.executeQuery();
 
             if (rstSubStatusAndLocation.next()) {
                 defaultData.put("ORDER_STATUS=STR", rstSubStatusAndLocation.getString("MAIN_STATUS"));
@@ -130,32 +136,50 @@ public class UtilityDAO extends DAOHelper {
             return defaultData;
         } catch (Exception e) {
             return null;
+        } finally {
+            try {
+                pst.close();
+                pst1.close();
+                pst3.close();
+                rstPayment.close();
+                rstOrder.close();
+                rstSubStatusAndLocation.close();
+                con.close();
+
+            } catch (Exception e) {
+            }
+
         }
     }
 
-    public  Map<String,Object> getOrderPaymentData(String BILL_NO) {
+    public Map<String, Object> getOrderPaymentData(String BILL_NO) {
         Connection con = null;
-        Map<String,Object> orderData = new HashMap();
+        PreparedStatement pstAdvance = null;
+        PreparedStatement pstOrderData = null;
+        ResultSet rstAdvance = null;
+        ResultSet rstOrderData = null;
+
+        Map<String, Object> orderData = new HashMap();
         int TotalAdvance = 0;
         try {
             ArrayList<String[]> billData = new ArrayList();
             con = this.getJDBCConnection();
-            PreparedStatement pstAdvance = con.prepareStatement("SELECT '20/05/16' AS TRANSACTION_DATE,PAYMENT_TYPE,AMOUNT FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO=?");
+            pstAdvance = con.prepareStatement("SELECT '20/05/16' AS TRANSACTION_DATE,PAYMENT_TYPE,AMOUNT FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO=?");
             pstAdvance.setString(1, BILL_NO);
-            ResultSet rstAdvance = pstAdvance.executeQuery();
+            rstAdvance = pstAdvance.executeQuery();
             while (rstAdvance.next()) {
-                String P_type =rstAdvance.getString("PAYMENT_TYPE");
+                String P_type = rstAdvance.getString("PAYMENT_TYPE");
 //                for(int i =rstAdvance.getString("PAYMENT_TYPE").length();i<=10;i++){
 //                P_type+="&nbsp;";
 //                }
-                String [] rows = new String[]{rstAdvance.getString("TRANSACTION_DATE"),P_type,rstAdvance.getString("AMOUNT")};
+                String[] rows = new String[]{rstAdvance.getString("TRANSACTION_DATE"), P_type, rstAdvance.getString("AMOUNT")};
                 TotalAdvance += rstAdvance.getInt("AMOUNT");
                 billData.add(rows);
             }
             orderData.put("PAYMENT_DATA", billData);
-            PreparedStatement pstOrderData = con.prepareStatement("SELECT TOP 1 OD.ORDER_DATE, OD.DELIVERY_DATE,OD.PRICE,OM.MAIN_STATUS,OM.SUB_STATUS,CURRENT_LOCATION FROM ORDERS OD INNER JOIN ORDER_MOBILITY OM ON OD.BILL_NO=OM.BILL_NO WHERE OD.BILL_NO=? ORDER BY OM.MOBILITY_UID DESC");
+            pstOrderData = con.prepareStatement("SELECT TOP 1 OD.ORDER_DATE, OD.DELIVERY_DATE,OD.PRICE,OM.MAIN_STATUS,OM.SUB_STATUS,CURRENT_LOCATION FROM ORDERS OD INNER JOIN ORDER_MOBILITY OM ON OD.BILL_NO=OM.BILL_NO WHERE OD.BILL_NO=? ORDER BY OM.MOBILITY_UID DESC");
             pstOrderData.setString(1, BILL_NO);
-            ResultSet rstOrderData = pstOrderData.executeQuery();
+            rstOrderData = pstOrderData.executeQuery();
             while (rstOrderData.next()) {
                 orderData.put("ORDER_DATE", getCustomFormatDate(rstOrderData.getTimestamp("ORDER_DATE")));
                 orderData.put("DELIVERY_DATE", getCustomFormatDate(rstOrderData.getTimestamp("DELIVERY_DATE")));
@@ -165,14 +189,19 @@ public class UtilityDAO extends DAOHelper {
                 orderData.put("CURRENT_LOCATION", rstOrderData.getString("CURRENT_LOCATION"));
             }
             orderData.put("TOTAL_ADVANCE", Integer.toString(TotalAdvance));
-            pstAdvance.close();
-            rstAdvance.close();
-            pstOrderData.close();
-            rstAdvance.close();
-            con.close();
             return orderData;
         } catch (Exception e) {
             return null;
+        } finally {
+            try {
+                pstAdvance.close();
+                rstAdvance.close();
+                pstOrderData.close();
+                rstAdvance.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
         }
     }
 
@@ -191,14 +220,16 @@ public class UtilityDAO extends DAOHelper {
      */
     public String getComboValues(String TableName, String ColumnName, String QueryColumn, String QueryValue) throws SQLException {
         Connection con = null;
+        ResultSet rst = null;
+        PreparedStatement pst = null;
         ResponseJSONHandler rspj = new ResponseJSONHandler();
         try {
             String SQL = "SELECT DISTINCT " + ColumnName + " FROM " + TableName + " WHERE " + QueryColumn + " = ?";
             JSONArray jsonArray = new JSONArray();
             con = this.getJDBCConnection();
-            PreparedStatement pst = con.prepareStatement(SQL);
+            pst = con.prepareStatement(SQL);
             pst.setString(1, QueryValue);
-            ResultSet rst = pst.executeQuery();
+            rst = pst.executeQuery();
             JSONObject jsonObj2 = new JSONObject();
             jsonObj2.put("text", "");
             jsonObj2.put("value", "");
@@ -216,20 +247,24 @@ public class UtilityDAO extends DAOHelper {
             generateSQLExceptionResponse(rspj, e, "Select options Loading Failed");
             return rspj.getJSONResponse();
         } finally {
+            rst.close();
+            pst.close();
             con.close();
         }
 
     }
 
-    public String getComboValuesForCustomTag(String TableName, String ColumnName, boolean Blank) {
+    public String getComboValuesForCustomTag(String TableName, String ColumnName, boolean Blank) throws SQLException {
         Connection con = null;
+        ResultSet rst = null;
+        PreparedStatement pst = null;
         ResponseJSONHandler rspj = new ResponseJSONHandler();
         try {
             String SQL = "SELECT DISTINCT " + ColumnName + " FROM " + TableName;
             JSONArray jsonArray = new JSONArray();
             con = this.getJDBCConnection();
-            PreparedStatement pst = con.prepareStatement(SQL);
-            ResultSet rst = pst.executeQuery();
+            pst = con.prepareStatement(SQL);
+            rst = pst.executeQuery();
             if (Blank) {
                 JSONObject jsonObj2 = new JSONObject();
                 jsonObj2.put("text", "");
@@ -246,22 +281,23 @@ public class UtilityDAO extends DAOHelper {
         } catch (Exception e) {
             return "";
         } finally {
-            try {
-                con.close();
-            } catch (Exception e) {
-            }
+            rst.close();
+            pst.close();
+            con.close();
         }
     }
 
     public String getComboValuesForCustomTagWithQuery(String TableName, String ColumnName, String QueryColumn, String QueryValue, boolean Blank) {
         Connection con = null;
+        ResultSet rst = null;
+        PreparedStatement pst = null;
         try {
             String SQL = "SELECT DISTINCT " + ColumnName + " FROM " + TableName + " WHERE " + QueryColumn + "= ?";
             JSONArray jsonArray = new JSONArray();
             con = this.getJDBCConnection();
-            PreparedStatement pst = con.prepareStatement(SQL);
+            pst = con.prepareStatement(SQL);
             pst.setString(1, QueryValue);
-            ResultSet rst = pst.executeQuery();
+            rst = pst.executeQuery();
             if (Blank) {
                 JSONObject jsonObj2 = new JSONObject();
                 jsonObj2.put("text", "");
@@ -279,6 +315,8 @@ public class UtilityDAO extends DAOHelper {
             return "";
         } finally {
             try {
+                rst.close();
+                pst.close();
                 con.close();
             } catch (Exception e) {
             }

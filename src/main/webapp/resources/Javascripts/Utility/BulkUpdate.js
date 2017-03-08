@@ -50,6 +50,7 @@ var com;
                 };
                 BulkUpdate.prototype.constructQueryForm = function () {
                     var _this = this;
+                    this.ModifiedLayoutObject.progressOn();
                     if (this.QueryForm != null || this.QueryForm != undefined) {
                         this.QueryForm.unload();
                     }
@@ -62,6 +63,7 @@ var com;
                     this.QueryForm.attachEvent("onXLE", function () {
                         _this.QueryForm.setFocusOnFirstActive();
                         _this.setSpecificOnLoad();
+                        progressOffCustom(_this.ModifiedLayoutObject);
                     });
                 };
                 BulkUpdate.prototype.showAlertBox = function (Message) {
@@ -249,25 +251,36 @@ var com;
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                         this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
                     }
+                    else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                        this.QueryForm.setItemValue("FINISHING_DATE=DATE", getCurrentDate());
+                    }
                 };
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
                     var _this = this;
+                    var HelpCell;
+                    var IconCell;
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-                        this.AssigmentStatus = "END";
-                        this.AssignmentGrid.forEachRow(function (id) {
-                            var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
-                            _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);
-                            if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
-                                _this.AssignmentGrid.cells(id, 10).setValue("");
-                                _this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
-                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
-                            }
-                            else {
-                                _this.AssignmentGrid.cells(id, 10).setValue("<input type='button' value='HELP'/>");
-                                _this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
-                            }
-                        });
+                        HelpCell = 10;
+                        IconCell = 11;
                     }
+                    else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                        HelpCell = 7;
+                        IconCell = 8;
+                    }
+                    this.AssigmentStatus = "END";
+                    this.AssignmentGrid.forEachRow(function (id) {
+                        var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
+                        _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);
+                        if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
+                            _this.AssignmentGrid.cells(id, HelpCell).setValue("");
+                            _this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
+                            _this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
+                        }
+                        else {
+                            _this.AssignmentGrid.cells(id, HelpCell).setValue("<input type='button' value='HELP'/>");
+                            _this.AssignmentGrid.cells(id, IconCell).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
+                        }
+                    });
                 };
                 return BulkUpdate;
             }());

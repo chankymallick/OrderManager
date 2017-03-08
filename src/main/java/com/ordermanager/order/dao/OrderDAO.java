@@ -8,7 +8,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +51,15 @@ public class OrderDAO extends DAOHelper {
         String SQL = "SELECT ITEM_SUB_TYPE,ITEM_NAME FROM ITEMS WHERE ACTIVE=1 AND ITEM_TYPE='EXTRA' AND  PARENT_ITEM= ? AND ITEM_SUB_TYPE=?";
         ResultSet distinctRst = null;
         ResultSet rst = null;
+        Connection con = null;
+        PreparedStatement pst = null;
+        PreparedStatement distinctPst = null;
         Map<String, Object> map = new HashMap();
         ArrayList<String> Keys = new ArrayList();
         try {
-            PreparedStatement pst = this.getJDBCConnection().prepareStatement(SQL);
-            PreparedStatement distinctPst = this.getJDBCConnection().prepareStatement(DISTINCT_ITEM_SUB_TYPE);
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            distinctPst = this.getJDBCConnection().prepareStatement(DISTINCT_ITEM_SUB_TYPE);
             distinctPst.setString(1, ITEM_TYPE);
             distinctRst = distinctPst.executeQuery();
             while (distinctRst.next()) {
@@ -69,6 +78,16 @@ public class OrderDAO extends DAOHelper {
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                distinctRst.close();
+                rst.close();
+
+                pst.close();
+                distinctPst.close();
+                con.close();
+            } catch (Exception e) {
+            }
         }
         return map;
     }
@@ -344,8 +363,8 @@ public class OrderDAO extends DAOHelper {
     }
 
     public String getOrderDetails(JSONObject params) {
-        
-        ResponseJSONHandler response = new ResponseJSONHandler();      
+
+        ResponseJSONHandler response = new ResponseJSONHandler();
         PreparedStatement pst = null;
         ResultSet rst = null;
         try {
@@ -372,11 +391,11 @@ public class OrderDAO extends DAOHelper {
                         append(rst.getString("REMAINING")).
                         append(",").
                         append("").
-                        append(",");                        
-                        while(rst2.next()){
-                        data.append("<img style='cursor:pointer;display:inline;' height='20px' width='20px' src='resources/Images/"+rst2.getString("ITEM_NAME")+".png'/>");
-                        }   
-                        data.append("").
+                        append(",");
+                while (rst2.next()) {
+                    data.append("<img style='cursor:pointer;display:inline;' height='20px' width='20px' src='resources/Images/" + rst2.getString("ITEM_NAME") + ".png'/>");
+                }
+                data.append("").
                         append(",").
                         append(",").
                         append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
@@ -386,18 +405,19 @@ public class OrderDAO extends DAOHelper {
                 this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
             } else {
                 this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
-            } 
+            }
         } catch (Exception e) {
             this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
         }
-        
+
         return response.getJSONResponse();
     }
-     public String orderAssignmentMasterTailor(JSONObject jsonParams, String UserName) {         
-        ResponseJSONHandler response = new ResponseJSONHandler();        
-        try {            
+
+    public String orderAssignmentMasterTailor(JSONObject jsonParams, String UserName) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        try {
             String MasterName = jsonParams.getString("MASTER_NAME=STR");
-            String TailorName = jsonParams.getString("TAILOR_NAME=STR");      
+            String TailorName = jsonParams.getString("TAILOR_NAME=STR");
             String CurrentLocation = jsonParams.getString("LOCATION=STR");
             String Date = getParsedTimeStamp(jsonParams.getString("ASSIGNMENT_DATE=DATE")).toString();
             JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
@@ -407,84 +427,83 @@ public class OrderDAO extends DAOHelper {
 
             for (int i = 0; i < TotalBills; i++) {
                 String BillNo = List_Of_Orders.getString(i);
-                String AssignmentStatus = this.addMasterTailorAssignment(BillNo, MasterName, TailorName, Date,CurrentLocation);
-                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount+1 : SuccessCount;
+                String AssignmentStatus = this.addMasterTailorAssignment(BillNo, MasterName, TailorName, Date, CurrentLocation);
+                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
                 assignmentStatusMap.put(BillNo, AssignmentStatus);
             }
-            response.setResponse_Value(new JSONObject(assignmentStatusMap));           
+            response.setResponse_Value(new JSONObject(assignmentStatusMap));
             generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully assigned.");
         } catch (Exception e) {
-            generateSQLExceptionResponse(response, e, "Exception ... see Logs");            
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
         }
 
         return response.getJSONResponse();
 
     }
 
-    public String addMasterTailorAssignment(String BillNo, String MasterName, String TailorName, String Date,String CurrentLocation) throws Exception {     
-            TransactionDefinition txDef = new DefaultTransactionDefinition();
-            TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
-            try{
-            if(isOrderCuttingInProgress(BillNo) || isOrderStichingInProgress(BillNo)){
-            return "FAILED,Order already assigned to Master / Tailor, change the assignment ";
+    public String addMasterTailorAssignment(String BillNo, String MasterName, String TailorName, String Date, String CurrentLocation) throws Exception {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            if (isOrderCuttingInProgress(BillNo) || isOrderStichingInProgress(BillNo)) {
+                return "FAILED,Order already assigned to Master / Tailor, change the assignment ";
+            } else {
+                int AsssignMentUID = this.getColumnAutoIncrementValue("ORDER_ASSIGNMENTS", "ASSIGNMENT_UID");
+                int MasterInsertStatus = this.getJdbcTemplate().update("INSERT INTO"
+                        + " ORDER_ASSIGNMENTS ("
+                        + "ASSIGNMENT_UID,"
+                        + "BILL_NO,"
+                        + "ASSIGNMENT_DATE,"
+                        + "ASSIGNMENT_TYPE,"
+                        + "EMPLOYEE_NAME,"
+                        + "WAGE_AMOUNT,"
+                        + "WAGE_STATUS,"
+                        + "NOTE) VALUES (?,?,?,?,?,?,?,?)",
+                        new Object[]{
+                            AsssignMentUID,
+                            BillNo,
+                            Date,
+                            "TO_MASTER",
+                            MasterName,
+                            0,
+                            "UNPAID",
+                            ""
+                        });
+                int TailorInsertStatus = this.getJdbcTemplate().update("INSERT INTO"
+                        + " ORDER_ASSIGNMENTS ("
+                        + "ASSIGNMENT_UID,"
+                        + "BILL_NO,"
+                        + "ASSIGNMENT_DATE,"
+                        + "ASSIGNMENT_TYPE,"
+                        + "EMPLOYEE_NAME,"
+                        + "WAGE_AMOUNT,"
+                        + "WAGE_STATUS,"
+                        + "NOTE) VALUES (?,?,?,?,?,?,?,?)",
+                        new Object[]{
+                            AsssignMentUID + 1,
+                            BillNo,
+                            Date,
+                            "TO_TAILOR",
+                            TailorName,
+                            0,
+                            "UNPAID",
+                            ""
+                        });
+                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : " + MasterName);
+                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.STICHING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : " + TailorName);
+                mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkMasterTailorEntry to " + MasterName);
+                mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID + 1, "Assigned with BulkMasterTailorEntry to " + TailorName);
+                this.getTransactionManager().commit(txStatus);
+                return "SUCCES,DATAUPDATED";
             }
-            else{
-            int AsssignMentUID  =  this.getColumnAutoIncrementValue("ORDER_ASSIGNMENTS", "ASSIGNMENT_UID");
-            int MasterInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
-                    + " ORDER_ASSIGNMENTS ("
-                    + "ASSIGNMENT_UID,"
-                    + "BILL_NO,"
-                    + "ASSIGNMENT_DATE,"
-                    + "ASSIGNMENT_TYPE,"
-                    + "EMPLOYEE_NAME,"
-                    + "WAGE_AMOUNT,"
-                    + "WAGE_STATUS,"                    
-                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
-                    new Object[]{
-                        AsssignMentUID,
-                        BillNo,
-                        Date,
-                        "TO_MASTER",
-                        MasterName,
-                        0,
-                        "UNPAID",
-                        ""                        
-                    });
-            int TailorInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
-                    + " ORDER_ASSIGNMENTS ("
-                    + "ASSIGNMENT_UID,"
-                    + "BILL_NO,"
-                    + "ASSIGNMENT_DATE,"
-                    + "ASSIGNMENT_TYPE,"
-                    + "EMPLOYEE_NAME,"
-                    + "WAGE_AMOUNT,"
-                    + "WAGE_STATUS,"                    
-                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
-                    new Object[]{
-                        AsssignMentUID+1,
-                        BillNo,
-                        Date,
-                        "TO_TAILOR",
-                        TailorName,
-                        0,
-                        "UNPAID",
-                        ""                        
-                    });      
-            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : "+MasterName);
-            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.STICHING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterTailorEntry to : "+TailorName);
-            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkMasterTailorEntry to "+MasterName);
-            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID+1, "Assigned with BulkMasterTailorEntry to "+TailorName);
-            this.getTransactionManager().commit(txStatus);
-            return "SUCCES,DATAUPDATED";
-            } 
-            }catch(Exception e){
+        } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
-            return "FAILED,"+e.getMessage();
-            }
+            return "FAILED," + e.getMessage();
+        }
     }
-    
-    public String getOrderDetailsForReadyToDeliver(JSONObject params) {        
-        ResponseJSONHandler response = new ResponseJSONHandler();      
+
+    public String getOrderDetailsForReadyToDeliver(JSONObject params) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
         PreparedStatement pst = null;
         ResultSet rst = null;
         try {
@@ -500,9 +519,9 @@ public class OrderDAO extends DAOHelper {
                 ResultSet rst2 = pst2.executeQuery();
                 StringBuilder data = new StringBuilder();
                 data.append(rst.getString("BILL_NO")).
-                        append(",").                        
+                        append(",").
                         append(rst.getString("LOCATION")).
-                        append(",").                        
+                        append(",").
                         append(this.getCustomFormatDate(rst.getTimestamp("DELIVERY_DATE"))).
                         append(",").
                         append(rst.getString("QUANTITY")).
@@ -510,28 +529,29 @@ public class OrderDAO extends DAOHelper {
                         append(rst.getString("MAIN_STATUS")).
                         append(",").
                         append(rst.getString("ORDER_TYPE")).
-                        append(",");                                            
-                        while(rst2.next()){
-                        data.append(rst2.getString("ITEM_NAME")+"  ");                        
-                        }                        
-                        data.append(",").
-                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>");               
+                        append(",");
+                while (rst2.next()) {
+                    data.append(rst2.getString("ITEM_NAME") + "  ");
+                }
+                data.append(",").
+                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>");
                 response.addResponseValue("DATA", data.toString());
                 this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
             } else {
                 this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
-            } 
+            }
         } catch (Exception e) {
             this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
         }
-        
+
         return response.getJSONResponse();
     }
-      public String orderAssignmentReadyToDeliver(JSONObject jsonParams, String UserName) {         
-        ResponseJSONHandler response = new ResponseJSONHandler();        
-        try {            
+
+    public String orderAssignmentReadyToDeliver(JSONObject jsonParams, String UserName) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        try {
             String FinisherName = jsonParams.getString("FINISHER_NAME=STR");
-            String IronMan = jsonParams.getString("IRON=STR");      
+            String IronMan = jsonParams.getString("IRON=STR");
             String CurrentLocation = jsonParams.getString("LOCATION=STR");
             String Date = getParsedTimeStamp(jsonParams.getString("FINISHING_DATE=DATE")).toString();
             JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
@@ -541,80 +561,103 @@ public class OrderDAO extends DAOHelper {
 
             for (int i = 0; i < TotalBills; i++) {
                 String BillNo = List_Of_Orders.getString(i);
-                String AssignmentStatus = this.addFinisherIronAssignment(BillNo, FinisherName, IronMan, Date,CurrentLocation);
-                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount+1 : SuccessCount;
+                String AssignmentStatus = this.addFinisherIronAssignment(BillNo, FinisherName, IronMan, Date, CurrentLocation);
+                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
                 assignmentStatusMap.put(BillNo, AssignmentStatus);
             }
-            response.setResponse_Value(new JSONObject(assignmentStatusMap));           
+            response.setResponse_Value(new JSONObject(assignmentStatusMap));
             generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully assigned.");
         } catch (Exception e) {
-            generateSQLExceptionResponse(response, e, "Exception ... see Logs");            
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
         }
 
         return response.getJSONResponse();
 
     }
-       public String addFinisherIronAssignment(String BillNo, String FinisherName, String IronMan, String Date,String CurrentLocation) throws Exception {     
-            TransactionDefinition txDef = new DefaultTransactionDefinition();
-            TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
-            try{
-            if(isOrderIronCompleted(BillNo)){
-              return "FAILED,Order already assigned to Iron, change the assignment ";
+
+    public String addFinisherIronAssignment(String BillNo, String FinisherName, String IronMan, String Date, String CurrentLocation) throws Exception {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            if (isOrderIronCompleted(BillNo)) {
+                return "FAILED,Order already assigned to Iron, change the assignment ";
+            } else if (isOrderFinishingCompleted(BillNo)) {
+                return "FAILED,Order already assigned to Finisher, change the assignment ";
+            } else {
+                int AsssignMentUID = this.getColumnAutoIncrementValue("ORDER_ASSIGNMENTS", "ASSIGNMENT_UID");
+                int FinisherInsertStatus = this.getJdbcTemplate().update("INSERT INTO"
+                        + " ORDER_ASSIGNMENTS ("
+                        + "ASSIGNMENT_UID,"
+                        + "BILL_NO,"
+                        + "ASSIGNMENT_DATE,"
+                        + "ASSIGNMENT_TYPE,"
+                        + "EMPLOYEE_NAME,"
+                        + "WAGE_AMOUNT,"
+                        + "WAGE_STATUS,"
+                        + "NOTE) VALUES (?,?,?,?,?,?,?,?)",
+                        new Object[]{
+                            AsssignMentUID,
+                            BillNo,
+                            Date,
+                            "TO_FINISHER",
+                            FinisherName,
+                            0,
+                            "UNPAID",
+                            ""
+                        });
+                int IronInsertStatus = this.getJdbcTemplate().update("INSERT INTO"
+                        + " ORDER_ASSIGNMENTS ("
+                        + "ASSIGNMENT_UID,"
+                        + "BILL_NO,"
+                        + "ASSIGNMENT_DATE,"
+                        + "ASSIGNMENT_TYPE,"
+                        + "EMPLOYEE_NAME,"
+                        + "WAGE_AMOUNT,"
+                        + "WAGE_STATUS,"
+                        + "NOTE) VALUES (?,?,?,?,?,?,?,?)",
+                        new Object[]{
+                            AsssignMentUID,
+                            BillNo,
+                            Date,
+                            "TO_IRON",
+                            IronMan,
+                            0,
+                            "UNPAID",
+                            ""
+                        });
+                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString(), "", CurrentLocation, "Assigned with BulkReadyToDeliverEntry");
+                mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkReadyToDeliver to " + FinisherName + "/" + IronMan);
+                this.getTransactionManager().commit(txStatus);
+                return "SUCCES,DATAUPDATED";
             }
-            else if(isOrderFinishingCompleted(BillNo)){
-            return "FAILED,Order already assigned to Finisher, change the assignment ";
-            }
-            else{
-            int AsssignMentUID  =  this.getColumnAutoIncrementValue("ORDER_ASSIGNMENTS", "ASSIGNMENT_UID");
-            int FinisherInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
-                    + " ORDER_ASSIGNMENTS ("
-                    + "ASSIGNMENT_UID,"
-                    + "BILL_NO,"
-                    + "ASSIGNMENT_DATE,"
-                    + "ASSIGNMENT_TYPE,"
-                    + "EMPLOYEE_NAME,"
-                    + "WAGE_AMOUNT,"
-                    + "WAGE_STATUS,"                    
-                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
-                    new Object[]{
-                        AsssignMentUID,
-                        BillNo,
-                        Date,
-                        "TO_FINISHER",
-                        FinisherName,
-                        0,
-                        "UNPAID",
-                        ""                        
-                    });
-            int IronInsertStatus  = this.getJdbcTemplate().update("INSERT INTO"
-                    + " ORDER_ASSIGNMENTS ("
-                    + "ASSIGNMENT_UID,"
-                    + "BILL_NO,"
-                    + "ASSIGNMENT_DATE,"
-                    + "ASSIGNMENT_TYPE,"
-                    + "EMPLOYEE_NAME,"
-                    + "WAGE_AMOUNT,"
-                    + "WAGE_STATUS,"                    
-                    + "NOTE) VALUES (?,?,?,?,?,?,?,?)", 
-                    new Object[]{
-                        AsssignMentUID,
-                        BillNo,
-                        Date,
-                        "TO_IRON",
-                        IronMan,
-                        0,
-                        "UNPAID",
-                        ""                        
-                    });      
-            this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString(), "", CurrentLocation, "Assigned with BulkReadyToDeliverEntry");           
-            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkReadyToDeliver to "+FinisherName+"/"+IronMan);
-             this.getTransactionManager().commit(txStatus);
-            return "SUCCES,DATAUPDATED";
-            } 
-            }catch(Exception e){
+        } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
-            return "FAILED,"+e.getMessage();
-            }
+            return "FAILED," + e.getMessage();
+        }
     }
 
+    public List getOrderScheduleStatusByMonth(String fromDate, String toDate) {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<String[]> datalist = new ArrayList();
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+            Date startDate = formatter.parse(fromDate);
+            Date endDate = formatter.parse(toDate);
+            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+                int TotalOrder = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE  IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1)", Integer.class);
+                int Ready = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1) AND (CURRENT_STATUS = 'READY_TO_DELIVER' OR CURRENT_STATUS = 'DELIVERY_COMPLETED')", Integer.class);
+                int NotReady = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' OR CURRENT_STATUS IS NULL) AND (CURRENT_STATUS <> 'DELIVERY_COMPLETED' OR CURRENT_STATUS IS NULL)", Integer.class);
+                String FormatedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
+                if (TotalOrder > 0) {
+                    String data[] = {"Total : " + TotalOrder, "Ready : " + Ready, "Not Ready : " + NotReady, FormatedDate};
+                    datalist.add(data);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return datalist;
+    }
 }

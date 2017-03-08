@@ -221,17 +221,34 @@
             .hdrcell{
                 text-align:center;
             }
+            .dhx_cal_event_clear{
+                height: 18px !important;
+            }
+            .dhx_month_head{
+                font-weight: bolder !important;
+                font-size: 16px !important;
+            }
+            .dhx_month_body{                
+                background: #feffff; /* Old browsers */
+                background: -moz-linear-gradient(top, #feffff 0%, #d2ebf9 100%); /* FF3.6-15 */
+                background: -webkit-linear-gradient(top, #feffff 0%,#d2ebf9 100%); /* Chrome10-25,Safari5.1-6 */
+                background: linear-gradient(to bottom, #feffff 0%,#d2ebf9 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#feffff', endColorstr='#d2ebf9',GradientType=0 );
+            }
 
         </style>
         <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
         <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />
+        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.css' />" type="text/css" rel="stylesheet" />      
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.js' />" ></script>
+        <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/ReportingUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/UpdateUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/BulkUpdate.js' />" ></script> 
+        <script src="<c:url value='/resources/Javascripts/Utility/OrderScheduler.js' />" ></script> 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script>
             loadLanguagePack();

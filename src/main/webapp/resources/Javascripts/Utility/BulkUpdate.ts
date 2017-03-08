@@ -64,6 +64,7 @@ module com.ordermanager.bulkupdate {
             });
         }
         public constructQueryForm() {
+            this.ModifiedLayoutObject.progressOn();
             if (this.QueryForm != null || this.QueryForm != undefined) {
                 this.QueryForm.unload();
             }
@@ -76,6 +77,7 @@ module com.ordermanager.bulkupdate {
             this.QueryForm.attachEvent("onXLE", () => {
                 this.QueryForm.setFocusOnFirstActive();
                 this.setSpecificOnLoad();
+                progressOffCustom(this.ModifiedLayoutObject);
             });
 
         }
@@ -265,24 +267,37 @@ module com.ordermanager.bulkupdate {
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                 this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
             }
+            else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                this.QueryForm.setItemValue("FINISHING_DATE=DATE", getCurrentDate());
+            }
         }
         public setFormStateAfterSave(Response: any) {
+            var HelpCell;
+            var IconCell;
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+              HelpCell = 10;
+              IconCell = 11;
+            }
+            else if(this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER){
+              HelpCell = 7;
+              IconCell = 8;
+
+            }
               this.AssigmentStatus="END";
               this.AssignmentGrid.forEachRow((id) => {
                   var BILLNO = this.AssignmentGrid.cells(id, 1).getValue()
                   this.AssignmentGrid.setUserData(id,"SERVER_DATA",Response.RESPONSE_VALUE[BILLNO]);
                   if(Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0){
-                  this.AssignmentGrid.cells(id, 10).setValue("");
+                  this.AssignmentGrid.cells(id, HelpCell).setValue("");
                   this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
-                  this.AssignmentGrid.cells(id, 11).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
+                  this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
                   }
                   else{
-                  this.AssignmentGrid.cells(id, 10).setValue("<input type='button' value='HELP'/>");
-                  this.AssignmentGrid.cells(id, 11).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
+                  this.AssignmentGrid.cells(id, HelpCell).setValue("<input type='button' value='HELP'/>");
+                  this.AssignmentGrid.cells(id, IconCell).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
                   }
                });
-            }
+
         }
 
     }

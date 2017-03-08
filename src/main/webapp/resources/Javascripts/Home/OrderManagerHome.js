@@ -21,6 +21,7 @@ var com;
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
             CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
+            CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
                 function OrderManagerHome() {
@@ -86,6 +87,11 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
+                            _this.HomeLayoutObject.cells("a").collapse();
+                            _this.ReportViewManagerObject = new com.ordermanager.OrderScheduler.OrderScheduler(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"));
+                            _this.HomeLayoutObject.cells("c").showHeader();
                         }
                         else {
                             showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -182,7 +188,7 @@ var com;
                             _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
                         }
                         if (id === OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
-                            _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
                         }
                         if (id === "advanceReport") {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
@@ -211,6 +217,7 @@ var com;
             OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
             OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
+            OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";

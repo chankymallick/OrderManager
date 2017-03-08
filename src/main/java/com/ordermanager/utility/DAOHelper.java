@@ -9,8 +9,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.ArrayList;
@@ -160,12 +164,14 @@ public class DAOHelper extends ConstantContainer {
         List<Object> allRows = new ArrayList();
         List<String> columnNames = new ArrayList();
         List<Object> returnValues = new ArrayList();
-        Connection con;
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rst = null;
         int totalCoumn = 0;
         try {
             con = this.jdbcTemplate.getDataSource().getConnection();
-            PreparedStatement pst = con.prepareStatement(SQLQuery);
-            ResultSet rst = pst.executeQuery();
+            pst = con.prepareStatement(SQLQuery);
+            rst = pst.executeQuery();
             ResultSetMetaData rsMetadata = rst.getMetaData();
             totalCoumn = rsMetadata.getColumnCount();
             for (int i = 1; i <= totalCoumn; i++) {
@@ -186,15 +192,18 @@ public class DAOHelper extends ConstantContainer {
             returnValues.add(columnNames);
             rst.close();
             pst.close();
-           
-        }         
-        catch (Exception e) {
-            e.printStackTrace();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rst.close();
+                con.close();
+            } catch (Exception e) {
+            }
         }
-       
-        
-        
+
         return returnValues;
     }
 
@@ -248,6 +257,13 @@ public class DAOHelper extends ConstantContainer {
 
     public Timestamp getParsedTimeStamp(String Date) throws Exception {
         SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
+        Date lFromDate1 = datetimeFormatter1.parse(Date);
+        Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
+        return fromTS1;
+    }
+
+    public Timestamp getParsedTimeStampDash(String Date) throws Exception {
+        SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("yyyy-MM-dd");
         Date lFromDate1 = datetimeFormatter1.parse(Date);
         Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
         return fromTS1;
@@ -363,7 +379,8 @@ public class DAOHelper extends ConstantContainer {
     public String getDistinctStringtDataFromDatabase(String SQL, Object[] placeHolderParams) {
         return this.getJdbcTemplate().queryForObject(SQL, placeHolderParams, String.class);
     }
-    public int orderMobiltyUpdate(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note)throws Exception {
+
+    public int orderMobiltyUpdate(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note) throws Exception {
         int isOrderMovedBefore = getDistinctIntDataFromDatabase("SELECT COUNT(BILL_NO) FROM ORDER_MOBILITY WHERE BILL_NO=?", new Object[]{BillNo});
         if (isOrderMovedBefore > 0) {
             double MainActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='MAIN_STATUS' AND STATUS_NAME = ?", new Object[]{MainStatus}));
@@ -386,7 +403,7 @@ public class DAOHelper extends ConstantContainer {
             if (MainActualStatusOrder < MainlastStatusOrder) {
                 throw new Exception("Status already completed");
             }
-            throw new Exception("Order Mobilty Exception in orderMobiltyUpdate Method ");           
+            throw new Exception("Order Mobilty Exception in orderMobiltyUpdate Method ");
         } else {
             int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
             return OrderStatusLocationInsert;
@@ -394,53 +411,90 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public int addOrderMobility(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note) {
-        int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)",new Object[]{
-                   this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
-                   BillNo,
-                   Date,
-                   MainStatus,
-                   SubStatus,                    
-                   CurrentLocation,                    
-                   Note                  
-                    });
+        int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)", new Object[]{
+            this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
+            BillNo,
+            Date,
+            MainStatus,
+            SubStatus,
+            CurrentLocation,
+            Note
+        });
+        if (OrderStatusLocationInsert > 0) {
+            this.getJdbcTemplate().update("UPDATE ORDERS SET CURRENT_STATUS= ? WHERE BILL_NO = ?", new Object[]{MainStatus, BillNo});
+        }
         return OrderStatusLocationInsert;
     }
-    public boolean isOrderFinishingCompleted(String BillNumber){
-      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+
+    public boolean isOrderFinishingCompleted(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    public boolean isOrderIronCompleted(String BillNumber){
-      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+
+    public boolean isOrderIronCompleted(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    public boolean isOrderCuttingInProgress(String BillNumber){
-      return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    } 
-    public boolean isOrderStichingInProgress(String BillNumber){
-     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }    
-    public boolean isOrderMasterWagePaid(String BillNumber){
-     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }     
-    public boolean isOrderTailorWagePaid(String BillNumber){
-     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }     
-    public boolean isOrderFinisherWagePaid(String BillNumber){
-     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }     
-    public boolean isOrderIronWagePaid(String BillNumber){
-     return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
-    }        
-    
+
+    public boolean isOrderCuttingInProgress(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
+    public boolean isOrderStichingInProgress(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
+    public boolean isOrderMasterWagePaid(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
+    public boolean isOrderTailorWagePaid(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
+    public boolean isOrderFinisherWagePaid(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
+    public boolean isOrderIronWagePaid(String BillNumber) {
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+    }
+
     public static void main(String[] args) {
         try {
-            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
-            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");
-            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
-            Timestamp Date = new Timestamp(lFromDate1.getTime());
-            long date = fromTS1.getTime();
-            Date dateObj = new Date(date);
-            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yy");
-            String text = df.format(dateObj);
-            System.out.println(text);
+//            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
+//            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");
+//            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
+//            Timestamp Date = new Timestamp(lFromDate1.getTime());
+//            long date = fromTS1.getTime();
+//            Date dateObj = new Date(date);
+//            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yy");
+//            String text = df.format(dateObj);
+//            System.out.println(text);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+            Date startDate = formatter.parse("01/02/17");
+            Date endDate = formatter.parse("01/05/17");
+            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+                // Do your job here with `date`.
+             
+                System.out.println(date.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+        }
+//            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+//            Date startDate = formatter.parse("10/12/16");
+//            Date endDate = formatter.parse("15/12/16");
+//
+//            Calendar start = Calendar.getInstance();
+//            start.setTime(startDate);
+//            Calendar end = Calendar.getInstance();
+//            end.setTime(endDate);
+//
+//            for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
+//                // Do your job here with `date`.
+//                System.out.println(date);
+//            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

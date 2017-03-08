@@ -1,17 +1,6 @@
-<%-- 
-    Document   : ErrorPage
-    Created on : Sep 28, 2016, 4:28:50 PM
-    Author     : Maliick
---%>
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
-</html>
+<%@page contentType="application/json" pageEncoding="UTF-8"%>
+[
+{"end_date":"01/02/17","text":"Toertal Order : 0","start_date":"01/02/17"},
+{"end_date":"01/02/17","text":"Tottal Order : 0","start_date":"01/02/17"},
+{"end_date":"01/02/17","text":"Totrtal Order : 0","start_date":"01/02/17"}
+]

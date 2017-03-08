@@ -7,7 +7,7 @@
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addneworder"/></b>]]></cell>        
         </row>
-          <row id="quickNewOrder">
+        <row id="quickNewOrder">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="quickNewOrder"/></b>]]></cell>        
         </row>
@@ -234,7 +234,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -268,7 +268,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -298,7 +298,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -331,7 +331,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -362,7 +362,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -398,7 +398,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -428,7 +428,7 @@
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-            </c:forEach>
+                </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -467,5 +467,29 @@
     </head> 
 </rows>
 </c:if>
-    
-  
+<c:if test="${OBJECT_MAP.get('Type').equals('SchedulerData')}">
+    <data>
+        <c:set var="ID" value="${0}"/>
+        <c:forEach items="${OBJECT_MAP.get('DATA')}" var="DATA_OBJECT" >
+            <event id="${ID}">
+                <text><![CDATA[<b style='display:inline-block;width:120px;background-color: #00c9f2;color:white;font-size: 14px;'>${DATA_OBJECT[0]}</b>]]></text>
+                <start_date>${DATA_OBJECT[3]}</start_date>
+                <end_date>${DATA_OBJECT[3]}</end_date>
+            </event>   
+             <c:set var="ID" value="${ID+1}"/>
+            <event id="${ID}">
+                <text><![CDATA[<b style='display:inline-block;width:120px;background-color: yellowgreen;color:white;font-size: 14px;'>${DATA_OBJECT[1]}</b>]]>></text>
+                <start_date>${DATA_OBJECT[3]}</start_date>
+                <end_date>${DATA_OBJECT[3]}</end_date>
+            </event>   
+             <c:set var="ID" value="${ID+1}"/>
+            <event id="${ID}">
+                <text><![CDATA[<b style='display:inline-block;width:120px;background-color: red;color:white;font-size: 14px;'>${DATA_OBJECT[2]}</b>]]></text>
+                <start_date>${DATA_OBJECT[3]}</start_date>
+                <end_date>${DATA_OBJECT[3]}</end_date>
+            </event>   
+            <c:set var="ID" value="${ID+1}"/>
+        </c:forEach>
+    </data>
+</c:if>
+

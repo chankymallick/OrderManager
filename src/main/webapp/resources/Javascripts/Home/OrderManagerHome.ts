@@ -22,6 +22,7 @@ module com.ordermanager.home {
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
         public static CODE_BULK_UPDATE_READY_TO_DELIVER= "UBRD";
+        public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -33,6 +34,7 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         //---------------------------------------------------
         public static REPORT_DAILY_ADVANCE = "advanceReport";
+        public static REPORT_ORDER_SCHEDULER = "orderScheduler"
         //---------------------------------------------------
         public static UPDATE_NEW_ORDER ="updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
@@ -109,6 +111,11 @@ module com.ordermanager.home {
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                   this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER,100);
                 }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
+                  this.HomeLayoutObject.cells("a").collapse();
+                  this.ReportViewManagerObject = new com.ordermanager.OrderScheduler.OrderScheduler(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
+                  this.HomeLayoutObject.cells("c").showHeader();              
+                }
                 else {
                     showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
                 }
@@ -174,8 +181,6 @@ module com.ordermanager.home {
             this.HomeLayoutObject.cells("a").collapse();
             this.ReportViewManagerObject = new com.ordermanager.reportingutility.TransactionReports(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName);
             this.HomeLayoutObject.cells("c").showHeader();
-
-
         }
         public loadMenuItems(itemtype: any) {
             if (this.MenuGrid != null || this.MenuGrid === undefined) {
@@ -207,7 +212,7 @@ module com.ordermanager.home {
                     this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
                 }
                 if (id === OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE) {
-                    this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
                 }
                 if (id === "advanceReport") {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
