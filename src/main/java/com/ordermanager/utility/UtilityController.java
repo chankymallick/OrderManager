@@ -50,4 +50,8 @@ public class UtilityController {
     public ModelAndView getComboValue(@RequestParam("TableName") String TableName, @RequestParam("ColumnName") String ColumnName, @RequestParam("QueryColumn") String QueryColumn, @RequestParam("QueryValue") String QueryValue) throws SQLException {
         return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.getComboValues(TableName, ColumnName, QueryColumn, QueryValue));
     }
+    @RequestMapping("/getdBStatus")
+    public ModelAndView getDBStatus() throws SQLException {
+        return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.isDbConnected123());
+    }
 }

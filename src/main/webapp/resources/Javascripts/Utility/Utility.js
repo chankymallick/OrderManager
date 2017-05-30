@@ -109,6 +109,7 @@ var com;
                 };
                 FormEntryManager.prototype.FormInitialization = function () {
                     var _this = this;
+                    this.ModifiedLayoutObject.progressOn();
                     if (this.FormObject != null || this.FormObject != undefined) {
                         this.FormObject.unload();
                     }

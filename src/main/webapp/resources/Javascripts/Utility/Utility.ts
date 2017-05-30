@@ -127,6 +127,7 @@ module com.ordermanager.utilty {
             });
         }
         public FormInitialization() {
+            this.ModifiedLayoutObject.progressOn();
             if (this.FormObject != null || this.FormObject != undefined) {
                 this.FormObject.unload();
             }

@@ -235,8 +235,13 @@
                 background: linear-gradient(to bottom, #feffff 0%,#d2ebf9 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#feffff', endColorstr='#d2ebf9',GradientType=0 );
             }
+            .dhx_cal_event_clear {
+            color:  rgba(200, 54, 54, 0) !important;
+           
+             }
 
-        </style>
+        </style>       
+        <script src="<c:url value='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
         <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />
@@ -252,6 +257,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script>
             loadLanguagePack();
+            //console.log(JSON.stringify(Language));
             dhtmlXForm.prototype.keyPlus = function () {
 
                 var keyps = {}

@@ -321,5 +321,18 @@ public class UtilityDAO extends DAOHelper {
             } catch (Exception e) {
             }
         }
+    }    
+    public boolean isDbConnected123(){
+        try {
+            int state = this.getJdbcTemplate().queryForObject("SELECT 1", Integer.class);
+            if(state == 1)
+            return true;
+            else
+            return false;            
+        } catch (Exception e) {
+            return false;
+        }
+    
     }
 }
+   

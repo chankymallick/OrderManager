@@ -1,27 +1,31 @@
 /// <reference path="..//Utility/Utility.ts"/>
 /// <reference path="..//Utility/UpdateUtility.ts"/>
 /// <reference path="../Utility/BulkUpdate.ts"/>
+/// <reference path="../Utility/ReportingUtility.ts"/>
+/// <reference path="../Utility/OrderScheduler.ts"/>
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 declare var Language: any;
 declare var showFailedNotificationWithICON: any;
+declare var jQuery: any;
 module com.ordermanager.home {
     export class CommandHandler {
 
         public static CODE_FORM_NEW_ITEM = "ANI";
         public static CODE_FORM_NEW_USER = "ANU";
         public static CODE_FORM_NEW_ORDER = "ANO";
-        public static CODE_ADD_NEW_STATUS_TYPE= "ANST";
+        public static CODE_ADD_NEW_STATUS_TYPE = "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
         public static CODE_QUICK_NEW_LOCATION = "ANL";
-        public static CODE_ADD_NEW_EMPLOYEE= "ANE";
+        public static CODE_ADD_NEW_EMPLOYEE = "ANE";
+        public static CODE_UPLOAD = "UIMG";
         //----------------------------------------
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         //----------------------------------------
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
-        public static CODE_BULK_UPDATE_READY_TO_DELIVER= "UBRD";
+        public static CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
         public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
     }
     export class OrderManagerHome {
@@ -29,14 +33,14 @@ module com.ordermanager.home {
         public static FORM_NEW_USER = "addNewUser";
         public static FORM_NEW_ORDER = "addNewOrder";
         public static FORM_QUICK_NEW_ORDER = "quickNewOrder";
-        public static FORM_ADD_NEW_STATUS_TYPE ="addNewStatusType";
+        public static FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         //---------------------------------------------------
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         public static REPORT_ORDER_SCHEDULER = "orderScheduler"
         //---------------------------------------------------
-        public static UPDATE_NEW_ORDER ="updateNewOrder";
+        public static UPDATE_NEW_ORDER = "updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
@@ -48,7 +52,8 @@ module com.ordermanager.home {
         public MenuGrid: any;
         public FormEntryManagerObject: any;
         public ReportViewManagerObject: any;
-        public UpdateManagerObject:any;
+        public UpdateManagerObject: any;
+        public DBConnection: any;
         constructor() {
             this.initLayout();
             this.commandRegister();
@@ -65,7 +70,7 @@ module com.ordermanager.home {
         }
         public commandRegister() {
             shortcut.add("Home", () => {
-                (<HTMLInputElement>document.getElementById("searchCode")).value = "";
+                (<HTMLInputElement> document.getElementById("searchCode")).value = "";
                 document.getElementById("searchCode").focus();
             }, {
                     'type': 'keyup',
@@ -74,7 +79,7 @@ module com.ordermanager.home {
                     'propagate': true
                 });
             shortcut.add("Enter", () => {
-                var command = (<HTMLInputElement>document.getElementById("searchCode")).value
+                var command = (<HTMLInputElement> document.getElementById("searchCode")).value
                 if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                 }
@@ -100,21 +105,24 @@ module com.ordermanager.home {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
-                  this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER,100);
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
-                  this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE,100);
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
-                  this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR,100);
+                    this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
-                  this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER,100);
+                    this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
+                    this.webcamImageManager();
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
-                  this.HomeLayoutObject.cells("a").collapse();
-                  this.ReportViewManagerObject = new com.ordermanager.OrderScheduler.OrderScheduler(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
-                  this.HomeLayoutObject.cells("c").showHeader();              
+                    this.HomeLayoutObject.cells("a").collapse();
+                    this.ReportViewManagerObject = new com.ordermanager.OrderScheduler.OrderScheduler(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
+                    this.HomeLayoutObject.cells("c").showHeader();
                 }
                 else {
                     showFailedNotificationWithICON(command.trim().toUpperCase() + ": Command Not Found");
@@ -132,15 +140,20 @@ module com.ordermanager.home {
                 pattern: "3L",
                 cells:
                 [
-                    { id: "a", text: "Menu", width: 250 },
-                    { id: "b", text: "Dashboard" },
-                    { id: "c", text: "Notifications", height: 150, collapse: true }
+                    {id: "a", text: "Menu", width: 250},
+                    {id: "b", text: "Dashboard"},
+                    {id: "c", text: "Notifications", height: 150, collapse: true}
                 ]
             });
+            //   console.log("Loading : " + JSON.stringify(Language));
             this.HomeLayoutObject.progressOn();
             this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
+            this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
+            this.HomeToolbar.disableItem("dbState");
+            this.HomeToolbar.addSpacer("appname");
+            this.dbStatusLoader();
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
             this.HomeLayoutObject.cells("a").showHeader();
             this.MenuAccordionObj.addItem("ordersandbills", Language.orderandbill);
@@ -155,6 +168,40 @@ module com.ordermanager.home {
                 this.loadMenuItems(id)
             });
         }
+        public dbStatusLoader() {
+            var intervalVar = setInterval(() => {
+                try {
+                    var currentRequest = null;
+                    currentRequest = jQuery.ajax({
+                        type: 'POST',
+                        data: '',
+                        url: 'getdBStatus',
+                        beforeSend:  ()=> {
+                            if (currentRequest != null) {
+                                currentRequest.abort();
+                                this.HomeToolbar.disableItem("dbState");
+                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+                            }
+                        },
+                        success:  (data)=> {
+                            if (data == true) {
+                                this.HomeToolbar.enableItem("dbState");
+                                this.HomeToolbar.setItemText("dbState", "Connected");
+                            }
+                            else {
+                                this.HomeToolbar.disableItem("dbState");
+                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+                            }
+                        },
+                        error:  (e)=> {
+                            this.HomeToolbar.disableItem("dbState");
+                            this.HomeToolbar.setItemText("dbState", "Disconnected");
+                        }
+                    });
+                } catch (e) {
+                }
+            }, 30*1000);
+        }
         public skinChanger(dhtmlxObject: any, skinType: any) {
             if (skinType === "white") {
                 dhtmlxObject.setSkin("dhx_web");
@@ -165,16 +212,16 @@ module com.ordermanager.home {
             this.FormEntryManagerObject = new com.ordermanager.utilty.FormEntryManager(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), actionName, 0, dataviewcellheight);
             this.HomeLayoutObject.cells("c").showHeader();
         }
-        public menuUpdateActionInitializer(actionName,QueryFormHeight){
-          this.HomeLayoutObject.cells("a").expand();
-          this.UpdateManagerObject = new com.ordermanager.UpdateUtility.UpdateUtility(actionName,this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight);
-          this.HomeLayoutObject.cells("c").showHeader();
+        public menuUpdateActionInitializer(actionName, QueryFormHeight) {
+            this.HomeLayoutObject.cells("a").expand();
+            this.UpdateManagerObject = new com.ordermanager.UpdateUtility.UpdateUtility(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight);
+            this.HomeLayoutObject.cells("c").showHeader();
 
         }
-        public menuBulkUpdateActionInitializer(actionName,QueryFormHeight){
-          this.HomeLayoutObject.cells("a").collapse();
-          this.UpdateManagerObject = new com.ordermanager.bulkupdate.BulkUpdate(actionName,this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight,5);
-          this.HomeLayoutObject.cells("c").showHeader();
+        public menuBulkUpdateActionInitializer(actionName, QueryFormHeight) {
+            this.HomeLayoutObject.cells("a").collapse();
+            this.UpdateManagerObject = new com.ordermanager.bulkupdate.BulkUpdate(actionName, this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"), QueryFormHeight, 5);
+            this.HomeLayoutObject.cells("c").showHeader();
 
         }
         public menurReportsActionIntializer(actionName) {
@@ -218,18 +265,32 @@ module com.ordermanager.home {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
                 }
                 if (id === "updateNewOrder") {
-                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER,100);
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
                 }
                 if (id === "addadvance") {
-                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE,100);
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
                 }
                 if (id === "addNewLocation") {
-                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION,220);
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_LOCATION, 220);
                 }
                 if (id === "addNewEmployee") {
-                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE,180);
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 180);
                 }
             });
+        }
+        public webcamImageManager() {
+            var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
+            WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=9988");
+        }
+        public getModelWindow(HeaderText: any, Height: any, Width: any) {
+            var myWins = new dhtmlXWindows();
+            myWins.createWindow("win1", 50, 50, Height, Width);
+            myWins.window("win1").denyPark();
+            myWins.window("win1").denyResize();
+            myWins.window("win1").center();
+            myWins.window("win1").setModal(true);
+            myWins.window("win1").setText(HeaderText);
+            return myWins.window("win1");
         }
 
     }

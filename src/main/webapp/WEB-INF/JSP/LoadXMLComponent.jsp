@@ -475,13 +475,13 @@
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: #00c9f2;color:white;font-size: 14px;'>${DATA_OBJECT[0]}</b>]]></text>
                 <start_date>${DATA_OBJECT[3]}</start_date>
                 <end_date>${DATA_OBJECT[3]}</end_date>
-            </event>   
+            </event>            
              <c:set var="ID" value="${ID+1}"/>
             <event id="${ID}">
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: yellowgreen;color:white;font-size: 14px;'>${DATA_OBJECT[1]}</b>]]>></text>
                 <start_date>${DATA_OBJECT[3]}</start_date>
                 <end_date>${DATA_OBJECT[3]}</end_date>
-            </event>   
+            </event>        
              <c:set var="ID" value="${ID+1}"/>
             <event id="${ID}">
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: red;color:white;font-size: 14px;'>${DATA_OBJECT[2]}</b>]]></text>

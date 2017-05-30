@@ -16,6 +16,7 @@ var com;
             CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
             CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
             CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
+            CommandHandler.CODE_UPLOAD = "UIMG";
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
@@ -88,6 +89,9 @@ var com;
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
                         }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
+                            _this.webcamImageManager();
+                        }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
                             _this.HomeLayoutObject.cells("a").collapse();
                             _this.ReportViewManagerObject = new com.ordermanager.OrderScheduler.OrderScheduler(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"));
@@ -118,6 +122,10 @@ var com;
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
                     this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
+                    this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
+                    this.HomeToolbar.disableItem("dbState");
+                    this.HomeToolbar.addSpacer("appname");
+                    this.dbStatusLoader();
                     this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
                     this.HomeLayoutObject.cells("a").showHeader();
                     this.MenuAccordionObj.addItem("ordersandbills", Language.orderandbill);
@@ -131,6 +139,42 @@ var com;
                     this.MenuAccordionObj.attachEvent("onActive", function (id, state) {
                         _this.loadMenuItems(id);
                     });
+                };
+                OrderManagerHome.prototype.dbStatusLoader = function () {
+                    var _this = this;
+                    var intervalVar = setInterval(function () {
+                        try {
+                            var currentRequest = null;
+                            currentRequest = jQuery.ajax({
+                                type: 'POST',
+                                data: '',
+                                url: 'getdBStatus',
+                                beforeSend: function () {
+                                    if (currentRequest != null) {
+                                        currentRequest.abort();
+                                        _this.HomeToolbar.disableItem("dbState");
+                                        _this.HomeToolbar.setItemText("dbState", "Disconnected");
+                                    }
+                                },
+                                success: function (data) {
+                                    if (data == true) {
+                                        _this.HomeToolbar.enableItem("dbState");
+                                        _this.HomeToolbar.setItemText("dbState", "Connected");
+                                    }
+                                    else {
+                                        _this.HomeToolbar.disableItem("dbState");
+                                        _this.HomeToolbar.setItemText("dbState", "Disconnected");
+                                    }
+                                },
+                                error: function (e) {
+                                    _this.HomeToolbar.disableItem("dbState");
+                                    _this.HomeToolbar.setItemText("dbState", "Disconnected");
+                                }
+                            });
+                        }
+                        catch (e) {
+                        }
+                    }, 30 * 1000);
                 };
                 OrderManagerHome.prototype.skinChanger = function (dhtmlxObject, skinType) {
                     if (skinType === "white") {
@@ -206,6 +250,20 @@ var com;
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 180);
                         }
                     });
+                };
+                OrderManagerHome.prototype.webcamImageManager = function () {
+                    var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
+                    WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=9988");
+                };
+                OrderManagerHome.prototype.getModelWindow = function (HeaderText, Height, Width) {
+                    var myWins = new dhtmlXWindows();
+                    myWins.createWindow("win1", 50, 50, Height, Width);
+                    myWins.window("win1").denyPark();
+                    myWins.window("win1").denyResize();
+                    myWins.window("win1").center();
+                    myWins.window("win1").setModal(true);
+                    myWins.window("win1").setText(HeaderText);
+                    return myWins.window("win1");
                 };
                 return OrderManagerHome;
             }());

@@ -35,7 +35,7 @@ public class LoginController {
         } else {
             new PropertyFileReader().loadLanguageProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
             new PropertyFileReader().loadSelectItemProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
-        }
+        } 
         return new ModelAndView("Home");
     }
 
