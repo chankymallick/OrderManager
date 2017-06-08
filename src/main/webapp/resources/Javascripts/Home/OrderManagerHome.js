@@ -1,3 +1,8 @@
+/// <reference path="..//Utility/Utility.ts"/>
+/// <reference path="..//Utility/UpdateUtility.ts"/>
+/// <reference path="../Utility/BulkUpdate.ts"/>
+/// <reference path="../Utility/ReportingUtility.ts"/>
+/// <reference path="../Utility/OrderScheduler.ts"/>
 var com;
 (function (com) {
     var ordermanager;
@@ -17,7 +22,10 @@ var com;
             CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
             CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
             CommandHandler.CODE_UPLOAD = "UIMG";
+            //----------------------------------------
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
+            CommandHandler.CODE_REPORT_PROUCTION_REPORT = "RDP";
+            //----------------------------------------
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
@@ -89,6 +97,10 @@ var com;
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
                         }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_PROUCTION_REPORT) {
+                            _this.HomeLayoutObject.cells("a").collapse();
+                            new com.ordermanager.reportingutility.DayWiseProductionReport(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"));
+                        }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                             _this.webcamImageManager();
                         }
@@ -118,6 +130,7 @@ var com;
                             { id: "c", text: "Notifications", height: 150, collapse: true }
                         ]
                     });
+                    //   console.log("Loading : " + JSON.stringify(Language));
                     this.HomeLayoutObject.progressOn();
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
@@ -274,8 +287,10 @@ var com;
             OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
             OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
             OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+            //---------------------------------------------------
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
+            //---------------------------------------------------
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";

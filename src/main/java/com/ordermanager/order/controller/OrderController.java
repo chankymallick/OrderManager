@@ -95,7 +95,7 @@ public class OrderController {
    @RequestMapping("/updateBulkReadyToDeliver_Query")
     public ModelAndView getOrderDetailsReadyToDeliver(Model map, @RequestParam("ParamData") JSONObject Params) {
     return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForReadyToDeliver(Params));    
-    }
+    }  
    @RequestMapping("/LoadScheduleOrderData")
     public ModelAndView orderScheduler(Model map, @RequestParam("from")String  fromDate,@RequestParam("to")String toDate) {
     Map<String, Object> mvc = new HashMap<String, Object>();        
@@ -103,5 +103,24 @@ public class OrderController {
         mvc.put("DATA", orderDAO.getOrderScheduleStatusByMonth(fromDate,toDate));
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);   
     }
-    
+     @RequestMapping("/getDayWiseProductionDetails")                                              
+    public ModelAndView getDayWiseProductionDetails(Model map, @RequestParam("ProductionType") String ProductionType,@RequestParam("Name") String Name,@RequestParam("ReportType") String ReportType){ 
+      
+        Map<String, Object> mvc = new HashMap<String, Object>();        
+        mvc.put("Type", "DayWiseProduction");
+        mvc.put("DATA", orderDAO.getProductionData(ProductionType, Name, ReportType, "", ""));
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);      
+    }  
+     @RequestMapping("/getDayWiseProductionDetails2")                                              
+    public ModelAndView getDayWiseProductionDetails2(Model map, @RequestParam("ProductionType") String ProductionType,@RequestParam("Name") String Name,@RequestParam("ReportType") String ReportType,@RequestParam("fromDate") String FromDate,@RequestParam("toDate") String ToDate){ 
+        Map<String, Object> mvc = new HashMap<String, Object>();        
+        mvc.put("Type", "DayWiseProduction2");
+        mvc.put("DATA", orderDAO.getProductionData2(ProductionType, Name, ReportType, FromDate ,ToDate));
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);      
+    }  
+     @RequestMapping("/getDayWiseProductionStats")                                              
+    public ModelAndView getDayWiseProductionStats(Model map, @RequestParam("ProductionType") String ProductionType,@RequestParam("Name") String Name,@RequestParam("ReportType") String ReportType,@RequestParam("fromDate") String FromDate,@RequestParam("toDate") String ToDate){ 
+        Map<String, Object> mvc = new HashMap<String, Object>();        
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.getDayWiseProductionStats(ProductionType, Name, ReportType, FromDate ,ToDate));  
+        }  
 }

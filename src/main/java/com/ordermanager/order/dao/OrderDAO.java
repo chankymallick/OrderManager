@@ -7,6 +7,7 @@ import com.ordermanager.utility.ResponseJSONHandler;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
@@ -465,7 +467,7 @@ public class OrderDAO extends DAOHelper {
                             Date,
                             "TO_MASTER",
                             MasterName,
-                            0,
+                            this.getWageAmount(BillNo, ASSIGNMENTS_TYPES.TO_MASTER),
                             "UNPAID",
                             ""
                         });
@@ -485,7 +487,7 @@ public class OrderDAO extends DAOHelper {
                             Date,
                             "TO_TAILOR",
                             TailorName,
-                            0,
+                            this.getWageAmount(BillNo, ASSIGNMENTS_TYPES.TO_TAILOR),
                             "UNPAID",
                             ""
                         });
@@ -601,7 +603,7 @@ public class OrderDAO extends DAOHelper {
                             Date,
                             "TO_FINISHER",
                             FinisherName,
-                            0,
+                            this.getWageAmount(BillNo, ASSIGNMENTS_TYPES.TO_FINISHER),
                             "UNPAID",
                             ""
                         });
@@ -621,7 +623,7 @@ public class OrderDAO extends DAOHelper {
                             Date,
                             "TO_IRON",
                             IronMan,
-                            0,
+                            this.getWageAmount(BillNo, ASSIGNMENTS_TYPES.TO_IRON),
                             "UNPAID",
                             ""
                         });
@@ -660,4 +662,204 @@ public class OrderDAO extends DAOHelper {
         }
         return datalist;
     }
+
+    public Map<String, Object> getProductionData(String ProductionType, String Name, String ReportType, String FromDate, String ToDate) {
+        Connection con = null;
+        PreparedStatement mainQuery = null;
+        ResultSet mainGridResultSet = null;
+        Map<String, Object> dateWiseListMap = new LinkedHashMap();
+
+        try {
+            con = this.getJDBCConnection();
+            if (ReportType.equals("ALL")) {
+                mainQuery = con.prepareStatement("SELECT OAS.BILL_NO,OAS.ASSIGNMENT_DATE,OD.PIECE_VENDOR,OD.ORDER_TYPE,OD.QUANTITY, (Select DISTINCT substring( ( Select ','+ST1.ITEM_NAME AS [text()] From dbo.ORDER_ITEMS ST1 INNER JOIN ITEMS ITM ON ST1.ITEM_NAME=ITM.ITEM_NAME Where ST1.BILL_NO = ST2.BILL_NO AND ITM.ITEM_TYPE='EXTRA' ORDER BY ST1.ITEM_NAME For XML PATH ('') ), 2, 1000) [ORDER_ITEMS] From dbo.ORDER_ITEMS ST2 WHERE ST2.BILL_NO=OAS.BILL_NO) AS ITEMS, OAS.WAGE_STATUS,OAS.WAGE_AMOUNT,OAS.PAYMENT_DATE, ( SELECT TOP 1 OM.MAIN_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS MAIN_STATUS, ( SELECT TOP 1 OM.SUB_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS SUB_STATUS, ( SELECT TOP 1 OM.CURRENT_LOCATION FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS LOCATION FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? ORDER BY OAS.ASSIGNMENT_DATE DESC");
+
+                mainQuery.setString(1, ProductionType);
+                mainQuery.setString(2, Name);
+                mainGridResultSet = mainQuery.executeQuery();
+                ArrayList<Object> allBillsOfADay = new ArrayList();
+                String LastDate = null;
+                while (mainGridResultSet.next()) {
+                    String CurrentDate = this.getCustomFormatDate(mainGridResultSet.getTimestamp("ASSIGNMENT_DATE"));
+                    Map<String, Object> singleBillData = new HashMap();
+                    singleBillData.put("BILL_NO", mainGridResultSet.getString("BILL_NO"));
+                    singleBillData.put("ASSIGNMENT_DATE", CurrentDate);
+                    singleBillData.put("PIECE_VENDOR", mainGridResultSet.getString("PIECE_VENDOR"));
+                    singleBillData.put("ORDER_TYPE", mainGridResultSet.getString("ORDER_TYPE"));
+                    singleBillData.put("QUANTITY", mainGridResultSet.getInt("QUANTITY"));
+                    singleBillData.put("ITEMS", mainGridResultSet.getString("ITEMS"));
+                    singleBillData.put("WAGE_STATUS", mainGridResultSet.getString("WAGE_STATUS"));
+                    singleBillData.put("WAGE_AMOUNT", mainGridResultSet.getInt("WAGE_AMOUNT"));
+                    singleBillData.put("PAYMENT_DATE", this.getCustomFormatDate(mainGridResultSet.getTimestamp("PAYMENT_DATE")));
+                    singleBillData.put("MAIN_STATUS", mainGridResultSet.getString("MAIN_STATUS"));
+                    singleBillData.put("SUB_STATUS", mainGridResultSet.getString("SUB_STATUS"));
+                    singleBillData.put("LOCATION", mainGridResultSet.getString("LOCATION"));
+
+                    if ((LastDate == null)) {
+                        allBillsOfADay.add(singleBillData);
+                    } else if (LastDate.equals(CurrentDate)) {
+                        allBillsOfADay.add(singleBillData);
+                    } else {
+                        dateWiseListMap.put(LastDate, allBillsOfADay);
+                        allBillsOfADay = new ArrayList();
+                        allBillsOfADay.add(singleBillData);
+                    }
+                    LastDate = this.getCustomFormatDate(mainGridResultSet.getTimestamp("ASSIGNMENT_DATE"));
+                }
+                return dateWiseListMap;
+            }
+
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                mainGridResultSet.close();
+                mainQuery.close();
+                con.close();
+            } catch (Exception e) {
+            }
+        }
+        return null;
+    }
+
+    public List<Object> getProductionData2(String ProductionType, String Name, String ReportType, String FromDate, String ToDate) {
+        Connection con = null;
+        PreparedStatement mainQuery = null;
+        ResultSet mainGridResultSet = null;
+        Map<String, Object> dateWiseListMap = new LinkedHashMap();
+
+        try {
+            con = this.getJDBCConnection();
+            if (ReportType.equals("ALL")) {
+                mainQuery = con.prepareStatement("SELECT OAS.BILL_NO,OAS.ASSIGNMENT_DATE,DATENAME(dw,OAS.ASSIGNMENT_DATE) as WEEKDAY,OD.PIECE_VENDOR,OD.ORDER_TYPE,OD.QUANTITY, (Select DISTINCT substring( ( Select ','+ST1.ITEM_NAME AS [text()] From dbo.ORDER_ITEMS ST1 INNER JOIN ITEMS ITM ON ST1.ITEM_NAME=ITM.ITEM_NAME Where ST1.BILL_NO = ST2.BILL_NO AND ITM.ITEM_TYPE='EXTRA' ORDER BY ST1.ITEM_NAME For XML PATH ('') ), 2, 1000) [ORDER_ITEMS] From dbo.ORDER_ITEMS ST2 WHERE ST2.BILL_NO=OAS.BILL_NO) AS ITEMS, OAS.WAGE_STATUS,OAS.WAGE_AMOUNT,OAS.PAYMENT_DATE, ( SELECT TOP 1 OM.MAIN_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS MAIN_STATUS, ( SELECT TOP 1 OM.SUB_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS SUB_STATUS, ( SELECT TOP 1 OM.CURRENT_LOCATION FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS LOCATION FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? ORDER BY OAS.ASSIGNMENT_DATE DESC");
+                mainQuery.setString(1, ProductionType);
+                mainQuery.setString(2, Name);
+            }
+            if (ReportType.equals("BY DATE")) {
+                mainQuery = con.prepareStatement("SELECT OAS.BILL_NO,OAS.ASSIGNMENT_DATE,DATENAME(dw,OAS.ASSIGNMENT_DATE) as WEEKDAY,OD.PIECE_VENDOR,OD.ORDER_TYPE,OD.QUANTITY, (Select DISTINCT substring( ( Select ','+ST1.ITEM_NAME AS [text()] From dbo.ORDER_ITEMS ST1 INNER JOIN ITEMS ITM ON ST1.ITEM_NAME=ITM.ITEM_NAME Where ST1.BILL_NO = ST2.BILL_NO AND ITM.ITEM_TYPE='EXTRA' ORDER BY ST1.ITEM_NAME For XML PATH ('') ), 2, 1000) [ORDER_ITEMS] From dbo.ORDER_ITEMS ST2 WHERE ST2.BILL_NO=OAS.BILL_NO) AS ITEMS, OAS.WAGE_STATUS,OAS.WAGE_AMOUNT,OAS.PAYMENT_DATE, ( SELECT TOP 1 OM.MAIN_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS MAIN_STATUS, ( SELECT TOP 1 OM.SUB_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS SUB_STATUS, ( SELECT TOP 1 OM.CURRENT_LOCATION FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS LOCATION FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN ? AND ? ORDER BY OAS.ASSIGNMENT_DATE ASC");
+                mainQuery.setString(1, ProductionType);
+                mainQuery.setString(2, Name);
+                mainQuery.setTimestamp(3, this.getParsedTimeStamp(FromDate));
+                mainQuery.setTimestamp(4, this.getParsedTimeStamp(ToDate));
+            }
+            if (ReportType.equals("WEEKLY")) {
+                mainQuery = con.prepareStatement("SELECT OAS.BILL_NO,OAS.ASSIGNMENT_DATE,DATENAME(dw,OAS.ASSIGNMENT_DATE) as WEEKDAY,OD.PIECE_VENDOR,OD.ORDER_TYPE,OD.QUANTITY, (Select DISTINCT substring( ( Select ','+ST1.ITEM_NAME AS [text()] From dbo.ORDER_ITEMS ST1 INNER JOIN ITEMS ITM ON ST1.ITEM_NAME=ITM.ITEM_NAME Where ST1.BILL_NO = ST2.BILL_NO AND ITM.ITEM_TYPE='EXTRA' ORDER BY ST1.ITEM_NAME For XML PATH ('') ), 2, 1000) [ORDER_ITEMS] From dbo.ORDER_ITEMS ST2 WHERE ST2.BILL_NO=OAS.BILL_NO) AS ITEMS, OAS.WAGE_STATUS,OAS.WAGE_AMOUNT,OAS.PAYMENT_DATE, ( SELECT TOP 1 OM.MAIN_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS MAIN_STATUS, ( SELECT TOP 1 OM.SUB_STATUS FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS SUB_STATUS, ( SELECT TOP 1 OM.CURRENT_LOCATION FROM ORDER_MOBILITY OM WHERE OM.BILL_NO=OAS.BILL_NO ORDER BY MOBILITY_UID DESC ) AS LOCATION FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN (SELECT GETDATE() - (SELECT DATEPART(dw,GETDATE()))+1) AND GETDATE() ORDER BY OAS.ASSIGNMENT_DATE ASC");
+                mainQuery.setString(1, ProductionType);
+                mainQuery.setString(2, Name);
+            }
+            mainGridResultSet = mainQuery.executeQuery();
+            ArrayList<Object> allBillsOfADay = new ArrayList();
+            while (mainGridResultSet.next()) {
+                String CurrentDate = this.getCustomFormatDate(mainGridResultSet.getTimestamp("ASSIGNMENT_DATE"));
+                Map<String, Object> singleBillData = new HashMap();
+                singleBillData.put("BILL_NO", mainGridResultSet.getString("BILL_NO"));
+                singleBillData.put("ASSIGNMENT_DATE", CurrentDate);
+                singleBillData.put("WEEKDAY", mainGridResultSet.getString("WEEKDAY"));
+                singleBillData.put("PIECE_VENDOR", mainGridResultSet.getString("PIECE_VENDOR"));
+                singleBillData.put("ORDER_TYPE", mainGridResultSet.getString("ORDER_TYPE"));
+                singleBillData.put("QUANTITY", mainGridResultSet.getInt("QUANTITY"));
+                singleBillData.put("ITEMS", mainGridResultSet.getString("ITEMS"));
+                singleBillData.put("WAGE_STATUS", mainGridResultSet.getString("WAGE_STATUS"));
+                singleBillData.put("WAGE_AMOUNT", mainGridResultSet.getInt("WAGE_AMOUNT"));
+                singleBillData.put("PAYMENT_DATE", this.getCustomFormatDate(mainGridResultSet.getTimestamp("PAYMENT_DATE")));
+                singleBillData.put("MAIN_STATUS", mainGridResultSet.getString("MAIN_STATUS"));
+                singleBillData.put("SUB_STATUS", mainGridResultSet.getString("SUB_STATUS"));
+                singleBillData.put("LOCATION", mainGridResultSet.getString("LOCATION"));
+                allBillsOfADay.add(singleBillData);
+            }
+            return allBillsOfADay;
+
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                mainGridResultSet.close();
+                mainQuery.close();
+                con.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public String getDayWiseProductionStats(String ProductionType, String Name, String ReportType, String FromDate, String ToDate) {
+        ResponseJSONHandler rsp = new ResponseJSONHandler();
+        Map <String,String> itemValues = new HashMap();
+        Connection con = null;
+        PreparedStatement itemsQuery = null;
+        ResultSet itemsResultSet = null;
+        String TotalPiece = "0";
+        String TotalFinshed = "0";
+        String TotalWage = "0";
+        
+        
+        try {
+            con = this.getJDBCConnection();
+            if (ReportType.equals("ALL")) {
+                
+                TotalPiece = this.getJdbcTemplate().queryForObject("SELECT SUM(OD.QUANTITY) AS TOTAL_PIECE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=?", new Object[]{ProductionType, Name}, String.class);
+                TotalWage = this.getJdbcTemplate().queryForObject("SELECT SUM(OAS.WAGE_AMOUNT) AS TOTAL_WAGE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=?", new Object[]{ProductionType, Name}, String.class);
+                TotalFinshed = this.getJdbcTemplate().queryForObject("SELECT DISTINCT SUM(OS.QUANTITY) FROM ORDERS OS INNER JOIN ORDER_ASSIGNMENTS OAS ON OS.BILL_NO=OAS.BILL_NO WHERE ASSIGNMENT_TYPE=? AND EMPLOYEE_NAME=? AND (OS.CURRENT_STATUS = 'READY_TO_DELIVER' OR OS.CURRENT_STATUS = 'DELIVERY_COMPLETED')", new Object[]{ProductionType, Name}, String.class);
+                itemsQuery = con.prepareStatement("SELECT OI.ITEM_NAME,SUM(ODS.QUANTITY) FROM ORDER_ITEMS OI INNER JOIN ORDER_ASSIGNMENTS OAS ON OI.BILL_NO=OAS.BILL_NO INNER JOIN ORDERS ODS ON OI.BILL_NO = ODS.BILL_NO INNER JOIN ORDERS OD ON OD.BILL_NO = OI.BILL_NO WHERE OAS.ASSIGNMENT_TYPE=? AND OAS.EMPLOYEE_NAME = ? GROUP BY OI.ITEM_NAME");
+                itemsQuery.setString(1, ProductionType);
+                itemsQuery.setString(2, Name);
+                itemsResultSet = itemsQuery.executeQuery();
+                
+                while (itemsResultSet.next()) {
+                    itemValues.put(itemsResultSet.getString("ITEM_NAME"), itemsResultSet.getString(2));
+                }
+            }
+            if (ReportType.equals("BY DATE")) {
+
+                TotalPiece = this.getJdbcTemplate().queryForObject("SELECT SUM(OD.QUANTITY) AS TOTAL_PIECE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN ? AND ?", new Object[]{ProductionType, Name, this.getParsedTimeStamp(FromDate), this.getParsedTimeStamp(ToDate)}, String.class);
+                TotalWage = this.getJdbcTemplate().queryForObject("SELECT SUM(OAS.WAGE_AMOUNT) AS TOTAL_WAGE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN ? AND ?", new Object[]{ProductionType, Name, this.getParsedTimeStamp(FromDate), this.getParsedTimeStamp(ToDate)}, String.class);
+                TotalFinshed = this.getJdbcTemplate().queryForObject("SELECT DISTINCT SUM(OS.QUANTITY) FROM ORDERS OS INNER JOIN ORDER_ASSIGNMENTS OAS ON OS.BILL_NO=OAS.BILL_NO WHERE ASSIGNMENT_TYPE=? AND EMPLOYEE_NAME=? AND (OS.CURRENT_STATUS = 'READY_TO_DELIVER' OR OS.CURRENT_STATUS = 'DELIVERY_COMPLETED') AND OAS.ASSIGNMENT_DATE BETWEEN ? AND ?", new Object[]{ProductionType, Name, this.getParsedTimeStamp(FromDate), this.getParsedTimeStamp(ToDate)}, String.class);
+                itemsQuery = con.prepareStatement("SELECT OI.ITEM_NAME,SUM(ODS.QUANTITY) FROM ORDER_ITEMS OI INNER JOIN ORDER_ASSIGNMENTS OAS ON OI.BILL_NO=OAS.BILL_NO INNER JOIN ORDERS ODS ON OI.BILL_NO = ODS.BILL_NO INNER JOIN ORDERS OD ON OD.BILL_NO = OI.BILL_NO WHERE OAS.ASSIGNMENT_TYPE=? AND OAS.EMPLOYEE_NAME = ? AND OAS.ASSIGNMENT_DATE BETWEEN ? AND ? GROUP BY OI.ITEM_NAME");
+                itemsQuery.setString(1, ProductionType);
+                itemsQuery.setString(2, Name);
+                itemsQuery.setTimestamp(3, this.getParsedTimeStamp(FromDate));
+                itemsQuery.setTimestamp(4, this.getParsedTimeStamp(ToDate));
+                itemsResultSet = itemsQuery.executeQuery();
+                while (itemsResultSet.next()) {
+                    itemValues.put(itemsResultSet.getString("ITEM_NAME"), itemsResultSet.getString(2));
+                }
+          
+            }
+            if (ReportType.equals("WEEKLY")) {
+
+                TotalPiece = this.getJdbcTemplate().queryForObject("SELECT SUM(OD.QUANTITY) AS TOTAL_PIECE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN (SELECT GETDATE() - (SELECT DATEPART(dw,GETDATE()))+1) AND GETDATE()", new Object[]{ProductionType, Name}, String.class);
+                TotalWage = this.getJdbcTemplate().queryForObject("SELECT SUM(OAS.WAGE_AMOUNT) AS TOTAL_WAGE FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OAS ON OD.BILL_NO=OAS.BILL_NO WHERE OAS.ASSIGNMENT_TYPE =? AND OAS.EMPLOYEE_NAME=? AND OAS.ASSIGNMENT_DATE BETWEEN (SELECT GETDATE() - (SELECT DATEPART(dw,GETDATE()))+1) AND GETDATE()", new Object[]{ProductionType, Name}, String.class);
+                TotalFinshed = this.getJdbcTemplate().queryForObject("SELECT DISTINCT SUM(OS.QUANTITY) FROM ORDERS OS INNER JOIN ORDER_ASSIGNMENTS OAS ON OS.BILL_NO=OAS.BILL_NO WHERE ASSIGNMENT_TYPE=? AND EMPLOYEE_NAME=? AND (OS.CURRENT_STATUS = 'READY_TO_DELIVER' OR OS.CURRENT_STATUS = 'DELIVERY_COMPLETED') AND OAS.ASSIGNMENT_DATE BETWEEN (SELECT GETDATE() - (SELECT DATEPART(dw,GETDATE()))+1) AND GETDATE() ", new Object[]{ProductionType, Name}, String.class);
+                itemsQuery = con.prepareStatement("SELECT OI.ITEM_NAME,SUM(ODS.QUANTITY) FROM ORDER_ITEMS OI INNER JOIN ORDER_ASSIGNMENTS OAS ON OI.BILL_NO=OAS.BILL_NO INNER JOIN ORDERS ODS ON OI.BILL_NO = ODS.BILL_NO INNER JOIN ORDERS OD ON OD.BILL_NO = OI.BILL_NO WHERE OAS.ASSIGNMENT_TYPE=? AND OAS.EMPLOYEE_NAME = ? AND OAS.ASSIGNMENT_DATE BETWEEN (SELECT GETDATE() - (SELECT DATEPART(dw,GETDATE()))+1) AND GETDATE() GROUP BY OI.ITEM_NAME");
+                itemsQuery.setString(1, ProductionType);
+                itemsQuery.setString(2, Name);
+                itemsResultSet = itemsQuery.executeQuery();
+                while (itemsResultSet.next()) {
+                    itemValues.put(itemsResultSet.getString("ITEM_NAME"), itemsResultSet.getString(2));
+                }
+            
+            }
+            TotalPiece = (TotalPiece == null ) ?  "0" : TotalPiece;
+            TotalFinshed =(TotalFinshed == null ) ?  "0" : TotalFinshed;
+            TotalWage = (TotalWage == null ) ?  "0" : TotalWage;
+            String TotalUnfinished =Integer.toString(Integer.parseInt(TotalPiece ) - Integer.parseInt(TotalFinshed));
+            rsp.addResponseValue("ALL_ITEMS",new JSONObject(itemValues));
+            rsp.addResponseValue("TOTAL_PIECE", TotalPiece);
+            rsp.addResponseValue("TOTAL_WAGE",TotalWage);
+            rsp.addResponseValue("TOTAL_FINISHED", TotalFinshed);
+            rsp.addResponseValue("TOTAL_UNFINISHED", TotalUnfinished);
+
+            return rsp.getJSONResponse();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                itemsResultSet.close();
+                itemsQuery.close();
+                con.close();
+            } catch (Exception e) {
+            }
+        }
+
+    }
+
 }

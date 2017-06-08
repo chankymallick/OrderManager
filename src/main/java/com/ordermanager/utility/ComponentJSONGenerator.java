@@ -133,6 +133,11 @@ public class ComponentJSONGenerator {
         return new ModelAndView("LoadJSON", "FormType", "advanceReport_Form");
 
     }
+    @RequestMapping("/daily_productionReport_Form")
+    public ModelAndView dailyProductionReport() {
+        return new ModelAndView("LoadJSON", "FormType", "daily_productionReport_Form");
+
+    }
 
     @RequestMapping("/updateNewOrder_QueryForm")
     public ModelAndView updateOrderQueryForm() {

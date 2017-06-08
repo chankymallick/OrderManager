@@ -457,6 +457,24 @@ public class DAOHelper extends ConstantContainer {
     public boolean isOrderIronWagePaid(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
+    public int getWageAmount(String Bill_NO,ConstantContainer.ASSIGNMENTS_TYPES Type ){            
+            int WageAmount = 0;        
+            if(Type.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_MASTER)){
+            WageAmount = this.getJdbcTemplate().queryForObject("SELECT (SELECT SUM(IT.MASTER_PRICE) FROM ORDER_ITEMS OI INNER JOIN ITEMS IT ON OI.ITEM_NAME=IT.ITEM_NAME WHERE OI.BILL_NO=?) * (SELECT QUANTITY FROM ORDERS WHERE BILL_NO = ? ) AS MASTER_PRICE",new Object[]{Bill_NO,Bill_NO}, Integer.class);
+            }            
+            else if(Type.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_TAILOR)){            
+            WageAmount = this.getJdbcTemplate().queryForObject("SELECT (SELECT SUM(IT.TAILOR_PRICE) FROM ORDER_ITEMS OI INNER JOIN ITEMS IT ON OI.ITEM_NAME=IT.ITEM_NAME WHERE OI.BILL_NO=?) * (SELECT QUANTITY FROM ORDERS WHERE BILL_NO = ? ) AS TAILOR_PRICE",new Object[]{Bill_NO,Bill_NO}, Integer.class);
+            
+            }            
+            else if(Type.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_FINISHER)){            
+            WageAmount = this.getJdbcTemplate().queryForObject("SELECT (SELECT SUM(IT.FINISHER_PRICE) FROM ORDER_ITEMS OI INNER JOIN ITEMS IT ON OI.ITEM_NAME=IT.ITEM_NAME WHERE OI.BILL_NO=?) * (SELECT QUANTITY FROM ORDERS WHERE BILL_NO = ? ) AS FINISHER_PRICE",new Object[]{Bill_NO,Bill_NO}, Integer.class);
+            }            
+            else
+            {
+            WageAmount=this.getJdbcTemplate().queryForObject("SELECT 4 * (SELECT QUANTITY FROM ORDERS WHERE BILL_NO = ? ) AS MASTER_PRICE",new Object[]{Bill_NO}, Integer.class);
+            }       
+            return WageAmount;
+    }
 
     public static void main(String[] args) {
         try {

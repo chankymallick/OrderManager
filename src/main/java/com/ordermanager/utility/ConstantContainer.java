@@ -49,6 +49,9 @@ public class ConstantContainer {
     public enum  EMPLOYEE_PAYMENT_TYPES{
     EXPENSE_ADVANCE,PAYMENT,LOAN_ISSUE,LOAN_REPAID,ALTERS,OTHERS
     }
+    public enum ASSIGNMENTS_TYPES{
+    TO_MASTER,TO_TAILOR,TO_FINISHER,TO_IRON
+    }
     public static String Property_File_Path_Language_English; 
     public static String Property_File_Path_Language_Bengali; 
     public static String Query_File_Path_Microsoft_SQL_Server;

@@ -21,6 +21,7 @@ module com.ordermanager.home {
         public static CODE_UPLOAD = "UIMG";
         //----------------------------------------
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
+        public static CODE_REPORT_PROUCTION_REPORT = "RDP";
         //----------------------------------------
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
@@ -115,6 +116,10 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                     this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_PROUCTION_REPORT) {
+                          this.HomeLayoutObject.cells("a").collapse();
+                          new com.ordermanager.reportingutility.DayWiseProductionReport(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                     this.webcamImageManager();
