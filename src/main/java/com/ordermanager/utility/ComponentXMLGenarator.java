@@ -7,6 +7,8 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class ComponentXMLGenarator {
 
+    @ModelAttribute
+    public void MemoryMonitor(Model mvc) {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory(); // current heap allocated to the VM process
+        long freeMemory = runtime.freeMemory(); // out of the current heap, how much is free
+        long maxMemory = runtime.maxMemory(); // Max heap VM can use e.g. Xmx setting
+        long usedMemory = totalMemory - freeMemory; // how much of the current heap the VM is using
+        long availableMemory = maxMemory - usedMemory;
+        
+        System.out.println("Total : "+totalMemory);
+        System.out.println("freeMemory : "+freeMemory);
+        System.out.println("usedMemory : "+usedMemory);
+
+             
+    }
     @Autowired
     OrderDAO OrderDAO;
 

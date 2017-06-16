@@ -240,12 +240,12 @@
            
              }
 
-        </style>       
+        </style>    
         <script src="<c:url value='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js' />" ></script>
-        <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>
+          <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>       
         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
-        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />
-        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.css' />" type="text/css" rel="stylesheet" />      
+        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.css' />" type="text/css" rel="stylesheet" />  
+        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />          
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 

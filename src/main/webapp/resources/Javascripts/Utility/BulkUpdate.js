@@ -273,7 +273,7 @@ var com;
                         _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);
                         if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
                             _this.AssignmentGrid.cells(id, HelpCell).setValue("");
-                            _this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
+                            _this.AssignmentGrid.setRowTextStyle(id, "color:#0026ff;background-color: #cccccc; font-weight:bold; ");
                             _this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
                         }
                         else {

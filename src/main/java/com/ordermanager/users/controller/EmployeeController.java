@@ -24,7 +24,7 @@ public class EmployeeController {
     @Autowired
     EmployeeDAO employeeDAO;
 
-    @RequestMapping(value = "/addNewEmployee", method = RequestMethod.GET)
+    @RequestMapping(value = "/addNewEmployee")
     public ModelAndView addNewEmployee(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", employeeDAO.addNewEmployee(paramJson, "Administrator"));
     }

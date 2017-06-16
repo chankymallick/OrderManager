@@ -25,6 +25,7 @@ var com;
             //----------------------------------------
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_REPORT_PROUCTION_REPORT = "RDP";
+            CommandHandler.CODE_WAGE_PAYMENT_SYSTEM = "WPS";
             //----------------------------------------
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
@@ -64,7 +65,7 @@ var com;
                         if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                         }
-                        if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 200);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
@@ -100,6 +101,10 @@ var com;
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_PROUCTION_REPORT) {
                             _this.HomeLayoutObject.cells("a").collapse();
                             new com.ordermanager.reportingutility.DayWiseProductionReport(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"));
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_WAGE_PAYMENT_SYSTEM) {
+                            _this.HomeLayoutObject.cells("a").collapse();
+                            new com.ordermanager.reportingutility.WagePaymentSystem(_this.HomeLayoutObject.cells("b"), _this.HomeLayoutObject.cells("c"));
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                             _this.webcamImageManager();
@@ -154,40 +159,38 @@ var com;
                     });
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
-                    var _this = this;
-                    var intervalVar = setInterval(function () {
-                        try {
-                            var currentRequest = null;
-                            currentRequest = jQuery.ajax({
-                                type: 'POST',
-                                data: '',
-                                url: 'getdBStatus',
-                                beforeSend: function () {
-                                    if (currentRequest != null) {
-                                        currentRequest.abort();
-                                        _this.HomeToolbar.disableItem("dbState");
-                                        _this.HomeToolbar.setItemText("dbState", "Disconnected");
-                                    }
-                                },
-                                success: function (data) {
-                                    if (data == true) {
-                                        _this.HomeToolbar.enableItem("dbState");
-                                        _this.HomeToolbar.setItemText("dbState", "Connected");
-                                    }
-                                    else {
-                                        _this.HomeToolbar.disableItem("dbState");
-                                        _this.HomeToolbar.setItemText("dbState", "Disconnected");
-                                    }
-                                },
-                                error: function (e) {
-                                    _this.HomeToolbar.disableItem("dbState");
-                                    _this.HomeToolbar.setItemText("dbState", "Disconnected");
-                                }
-                            });
-                        }
-                        catch (e) {
-                        }
-                    }, 30 * 1000);
+                    //            var intervalVar = setInterval(() => {
+                    //                try {
+                    //                    var currentRequest = null;
+                    //                    currentRequest = jQuery.ajax({
+                    //                        type: 'POST',
+                    //                        data: '',
+                    //                        url: 'getdBStatus',
+                    //                        beforeSend:  ()=> {
+                    //                            if (currentRequest != null) {
+                    //                                currentRequest.abort();
+                    //                                this.HomeToolbar.disableItem("dbState");
+                    //                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+                    //                            }
+                    //                        },
+                    //                        success:  (data)=> {
+                    //                            if (data == true) {
+                    //                                this.HomeToolbar.enableItem("dbState");
+                    //                                this.HomeToolbar.setItemText("dbState", "Connected");
+                    //                            }
+                    //                            else {
+                    //                                this.HomeToolbar.disableItem("dbState");
+                    //                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+                    //                            }
+                    //                        },
+                    //                        error:  (e)=> {
+                    //                            this.HomeToolbar.disableItem("dbState");
+                    //                            this.HomeToolbar.setItemText("dbState", "Disconnected");
+                    //                        }
+                    //                    });
+                    //                } catch (e) {
+                    //                }
+                    //            }, 30*1000);
                 };
                 OrderManagerHome.prototype.skinChanger = function (dhtmlxObject, skinType) {
                     if (skinType === "white") {

@@ -12,7 +12,35 @@ declare var dhtmlXWindows: any;
 declare var getCurrentDate: any;
 module com.ordermanager.utilty {
     export class MainUtility {
+        public static getRandomColorLight() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        public static getRandomColorDark() {
+            var letters = '012345'.split('');
+            var color = '#';
+            color += letters[Math.round(Math.random() * 5)];
+            letters = '0123456789ABCDEF'.split('');
+            for (var i = 0; i < 5; i++) {
+                color += letters[Math.round(Math.random() * 15)];
+            }
+            return color;
+        }
         public getModelWindow(HeaderText: any, Height: any, Width: any) {
+            var myWins = new dhtmlXWindows();
+            myWins.createWindow("win1", 50, 50, Height, Width);
+            myWins.window("win1").denyPark();
+            myWins.window("win1").denyResize();
+            myWins.window("win1").center();
+            myWins.window("win1").setModal(true);
+            myWins.window("win1").setText(HeaderText);
+            return myWins.window("win1");
+        }
+        public static getModelWindow(HeaderText: any, Height: any, Width: any) {
             var myWins = new dhtmlXWindows();
             myWins.createWindow("win1", 50, 50, Height, Width);
             myWins.window("win1").denyPark();
@@ -85,8 +113,8 @@ module com.ordermanager.utilty {
             this.ModifiedLayoutObject = this.DataEntryLayoutCell.attachLayout({
                 pattern: "2E",
                 cells: [
-                    { id: "a", text: "Data", header: false },
-                    { id: "b", text: "Existing Data", header: false, height: this.DataViewLayoutCellHeight }
+                    {id: "a", text: "Data", header: false},
+                    {id: "b", text: "Existing Data", header: false, height: this.DataViewLayoutCellHeight}
                 ]
             });
             this.ModifiedLayoutObject.progressOn();
@@ -262,8 +290,13 @@ module com.ordermanager.utilty {
                 });
                 //this.FormObject.attachEvent("onXLE", () => {
                 this.FormObject.attachEvent("onButtonClick", (name) => {
-                    if (name === "ITEM_BUTTON=BUTTON")
-                        var Value = this.constructItemSelectionWindow();
+                    if (name === "ITEM_BUTTON=BUTTON"){
+                        var Value = this.constructItemSelectionWindow();}
+                    if (name === "AUTO_BILL=BUTTON"){
+                        var BillNo = SynchronousGetAjaxRequest("getNextBillNo");
+                        this.FormObject.setItemValue("BILL_NO=STR",BillNo.toString());
+                        }
+                        
                 });
                 //  });
 
@@ -380,11 +413,11 @@ module com.ordermanager.utilty {
         }
         public customRateWindow() {
             var FormObj = [
-                { type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130 },
-                { type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label" },
-                { type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
-                { type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
-                { type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok" }
+                {type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130},
+                {type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
+                {type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
+                {type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
+                {type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok"}
             ];
             var ItemWindow = this.MainUtilityObj.getModelWindow("Enter Custom Rates", 290, 300);
             var RateForm = ItemWindow.attachForm(FormObj);

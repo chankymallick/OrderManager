@@ -19,7 +19,21 @@ public class ComponentJSONGenerator {
 
     @Autowired
     UtilityDAO UtilityDAO;
+@ModelAttribute
+    public void MemoryMonitor(Model mvc) {
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory(); // current heap allocated to the VM process
+        long freeMemory = runtime.freeMemory(); // out of the current heap, how much is free
+        long maxMemory = runtime.maxMemory(); // Max heap VM can use e.g. Xmx setting
+        long usedMemory = totalMemory - freeMemory; // how much of the current heap the VM is using
+        long availableMemory = maxMemory - usedMemory;
+        
+        System.out.println("Total : "+totalMemory);
+        System.out.println("freeMemory : "+freeMemory);
+        System.out.println("usedMemory : "+usedMemory);
 
+             
+    }
     @RequestMapping("/addNewOrder_Form")
     public ModelAndView addNewOrder(@RequestParam("Default") boolean isDefaultOn) {
         Map<String, Object> requestMap = new HashMap();
@@ -138,6 +152,11 @@ public class ComponentJSONGenerator {
         return new ModelAndView("LoadJSON", "FormType", "daily_productionReport_Form");
 
     }
+    @RequestMapping("/print_module_form")
+    public ModelAndView PrintModuleForm() {
+        return new ModelAndView("LoadJSON", "FormType", "print_module_form");
+
+    }
 
     @RequestMapping("/updateNewOrder_QueryForm")
     public ModelAndView updateOrderQueryForm() {
@@ -203,6 +222,19 @@ public class ComponentJSONGenerator {
     @RequestMapping("/operationToolbar")
     public String operationToolbar(Model map, @RequestParam("formname") String FormName) {
         map.addAttribute("FormType", "operationToolbar");
+        map.addAttribute("FormName", FormName);
+        return "LoadJSON";
+    }
+
+   @RequestMapping("/wagePaymentUnpaidToolbar")
+    public String wagePaymentUnpaidToolbar(Model map, @RequestParam("formname") String FormName) {
+        map.addAttribute("FormType", "wagePaymentUnpaidToolbar");
+        map.addAttribute("FormName", FormName);
+        return "LoadJSON";
+    }
+   @RequestMapping("/printModuleToolbar")
+    public String printModule(Model map, @RequestParam("formname") String FormName) {
+        map.addAttribute("FormType", "printModuleToolbar");
         map.addAttribute("FormName", FormName);
         return "LoadJSON";
     }

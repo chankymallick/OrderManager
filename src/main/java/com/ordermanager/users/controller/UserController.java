@@ -13,7 +13,7 @@ public class UserController {
    @Autowired 
     UserDAO UserDAO;
 
-    @RequestMapping(value = "/addNewUser",method = RequestMethod.GET)                                              
+    @RequestMapping(value = "/addNewUser")                                              
     public ModelAndView addNewUser(@RequestParam("ParamData") JSONObject paramJson){ 
      return new ModelAndView("MakeResponse", "responseValue", UserDAO.addUser(paramJson, "Administrator"));
     }    

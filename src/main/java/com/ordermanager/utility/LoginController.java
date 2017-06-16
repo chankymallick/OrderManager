@@ -39,7 +39,7 @@ public class LoginController {
         return new ModelAndView("Home");
     }
 
-    @RequestMapping(value = {"/", "/index.html", "/Login.jsp", "/Login.html", "/index.jsp"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/", "/index.html", "/Login.jsp", "/Login.html", "/index.jsp"})
     public ModelAndView WelcomePageRedirection(Model model) {
         return new ModelAndView("Login");
     }

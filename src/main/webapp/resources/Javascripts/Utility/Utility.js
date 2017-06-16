@@ -1,3 +1,4 @@
+/// <reference path="../Home/OrderManagerHome.ts"/>
 var com;
 (function (com) {
     var ordermanager;
@@ -7,7 +8,35 @@ var com;
             var MainUtility = (function () {
                 function MainUtility() {
                 }
+                MainUtility.getRandomColorLight = function () {
+                    var letters = '0123456789ABCDEF';
+                    var color = '#';
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                };
+                MainUtility.getRandomColorDark = function () {
+                    var letters = '012345'.split('');
+                    var color = '#';
+                    color += letters[Math.round(Math.random() * 5)];
+                    letters = '0123456789ABCDEF'.split('');
+                    for (var i = 0; i < 5; i++) {
+                        color += letters[Math.round(Math.random() * 15)];
+                    }
+                    return color;
+                };
                 MainUtility.prototype.getModelWindow = function (HeaderText, Height, Width) {
+                    var myWins = new dhtmlXWindows();
+                    myWins.createWindow("win1", 50, 50, Height, Width);
+                    myWins.window("win1").denyPark();
+                    myWins.window("win1").denyResize();
+                    myWins.window("win1").center();
+                    myWins.window("win1").setModal(true);
+                    myWins.window("win1").setText(HeaderText);
+                    return myWins.window("win1");
+                };
+                MainUtility.getModelWindow = function (HeaderText, Height, Width) {
                     var myWins = new dhtmlXWindows();
                     myWins.createWindow("win1", 50, 50, Height, Width);
                     myWins.window("win1").denyPark();
@@ -188,6 +217,7 @@ var com;
                     if (this.FormObject.validate()) {
                         if (this.customValidation()) {
                             this.FormObject.updateValues();
+                            //this.DataEntryLayoutCell.progressOn();
                             var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                             if (Response.RESPONSE_STATUS === "SUCCESS") {
                                 showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -199,6 +229,7 @@ var com;
                                 showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                                 this.NotificationCell.attachHTMLString(this.FormName + "  : <b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                                 this.NotificationCell.expand();
+                                //progressOffCustom(this.DataEntryLayoutCell);
                             }
                         }
                     }
@@ -240,10 +271,17 @@ var com;
                                 }
                             }
                         });
+                        //this.FormObject.attachEvent("onXLE", () => {
                         this.FormObject.attachEvent("onButtonClick", function (name) {
-                            if (name === "ITEM_BUTTON=BUTTON")
+                            if (name === "ITEM_BUTTON=BUTTON") {
                                 var Value = _this.constructItemSelectionWindow();
+                            }
+                            if (name === "AUTO_BILL=BUTTON") {
+                                var BillNo = SynchronousGetAjaxRequest("getNextBillNo");
+                                _this.FormObject.setItemValue("BILL_NO=STR", BillNo.toString());
+                            }
                         });
+                        //  });
                         this.FormObject.attachEvent("onChange", function (name, value) {
                             if (name == "ORDER_STATUS=STR") {
                                 _this.ModifiedLayoutObject.progressOn();

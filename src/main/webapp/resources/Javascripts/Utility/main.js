@@ -18,13 +18,21 @@ function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
         return null;
     }
 }
-function SynchronousGetAjaxRequest(Url, Paramas, ProgressObject) {
+function SynchronousGetAjaxRequest(Url, Params, ProgressObject) {
     try {
         if (ProgressObject != null) {
             ProgressObject.progressOn();
         }
-
-        var response = window.dhx.ajax.getSync(Url, Paramas);
+        if(Params == null || Params == ""){
+            
+            Url = encodeURI(Url);
+        }
+        else{
+              Url = encodeURI(Url);
+              Params = encodeURI(Params);
+            
+        }
+        var response = window.dhx.ajax.getSync(Url, Params);
         var json = window.dhx.s2j(response.xmlDoc.responseText);
         if (ProgressObject != null) {
             ProgressObject.progressOff();
@@ -81,7 +89,7 @@ function UserNameValidation(data) {
 }
 
 function OrderBillNoValidation(data) {
-    if (data === "" || data === null || (data.length > 10 || data.length < 1)) {
+        if (data === "" || data === null || (data.length > 10 || data.length < 1)) {
         return false;
     } else {
         var Response = SynchronousGetAjaxRequest("isValueUnique?VALUE=" + data.trim() + "&TABLE_NAME=ORDERS&COLUMN_NAME=BILL_NO", "", null);

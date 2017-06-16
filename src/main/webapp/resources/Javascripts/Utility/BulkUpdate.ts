@@ -171,7 +171,7 @@ module com.ordermanager.bulkupdate {
             this.setSpecificBeforeSave();
             if (this.QueryForm.validate()) {
                 this.ModifiedLayoutObject.progressOn();
-                var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" + JSON.stringify(this.ParameterJSON), "", null);
+                var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" +JSON.stringify(this.ParameterJSON), "", null);
                 if (Response.RESPONSE_STATUS === "SUCCESS") {
                     showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                     this.setFormStateAfterSave(Response);
@@ -289,7 +289,7 @@ module com.ordermanager.bulkupdate {
                   this.AssignmentGrid.setUserData(id,"SERVER_DATA",Response.RESPONSE_VALUE[BILLNO]);
                   if(Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0){
                   this.AssignmentGrid.cells(id, HelpCell).setValue("");
-                  this.AssignmentGrid.setRowTextStyle(id, "color:#b7b7b7;background-color: #cccccc; font-weight:bold; ");
+                  this.AssignmentGrid.setRowTextStyle(id, "color:#0026ff;background-color: #cccccc; font-weight:bold; ");
                   this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
                   }
                   else{

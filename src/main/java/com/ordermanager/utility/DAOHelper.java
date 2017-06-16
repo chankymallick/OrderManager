@@ -441,21 +441,20 @@ public class DAOHelper extends ConstantContainer {
     public boolean isOrderStichingInProgress(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-
     public boolean isOrderMasterWagePaid(String BillNumber) {
-        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
 
     public boolean isOrderTailorWagePaid(String BillNumber) {
-        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
 
     public boolean isOrderFinisherWagePaid(String BillNumber) {
-        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
 
     public boolean isOrderIronWagePaid(String BillNumber) {
-        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID''", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
+        return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
     public int getWageAmount(String Bill_NO,ConstantContainer.ASSIGNMENTS_TYPES Type ){            
             int WageAmount = 0;        
@@ -476,6 +475,66 @@ public class DAOHelper extends ConstantContainer {
             return WageAmount;
     }
 
+    public String[] payMasterWage(String BillNo ,String MasterName){
+        try {
+            if(!isOrderMasterWagePaid(BillNo)){
+                int i = this.getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET WAGE_STATUS='PAID', PAYMENT_DATE=GETDATE() WHERE BILL_NO= ? AND EMPLOYEE_NAME= ? AND ASSIGNMENT_TYPE ='TO_MASTER' AND WAGE_STATUS='UNPAID' ", new Object[]{BillNo,MasterName});
+                 auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDER_ASSIGNMENTS, Integer.parseInt(BillNo), BillNo+" Wage Paid to "+MasterName, "WAGE PAID");
+                return new String[]{"SUCCES",BillNo+" Payment Succesfull"};
+            }
+            else{
+            return new String[]{"FAIL",BillNo+" Already paid to Master"};
+            }
+        } catch (Exception e) {
+            return new String[]{"FAIL",e.getMessage()};
+        }
+    }
+
+    public String[] payTailorWage(String BillNo ,String TailorName){
+        try {
+            if(!isOrderTailorWagePaid(BillNo)){
+                int i = this.getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET WAGE_STATUS='PAID' , PAYMENT_DATE=GETDATE() WHERE BILL_NO= ? AND EMPLOYEE_NAME= ? AND ASSIGNMENT_TYPE ='TO_TAILOR' AND WAGE_STATUS='UNPAID'", new Object[]{BillNo,TailorName});
+               auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDER_ASSIGNMENTS, Integer.parseInt(BillNo), BillNo+" Wage Paid to "+TailorName, "WAGE PAID");
+                return new String[]{"SUCCES",BillNo+" Payment Succesfull"};
+            }
+            else{
+            return new String[]{"FAIL",BillNo+" Already paid to Tailor"};
+            }
+        } catch (Exception e) {
+            return new String[]{"FAIL",e.getMessage()};
+        }
+    }
+
+    public String[] payFinisherWage(String BillNo ,String FinisherName){
+        try {
+            if(!isOrderFinisherWagePaid(BillNo)){
+                int i = this.getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET WAGE_STATUS='PAID' , PAYMENT_DATE=GETDATE() WHERE BILL_NO= ? AND EMPLOYEE_NAME= ? AND ASSIGNMENT_TYPE ='TO_FINISHER' AND WAGE_STATUS='UNPAID'", new Object[]{BillNo,FinisherName});
+                 auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDER_ASSIGNMENTS, Integer.parseInt(BillNo), BillNo+" Wage Paid to "+FinisherName, "WAGE PAID");
+                return new String[]{"SUCCES",BillNo+" Payment Succesfull"};
+            }
+            else{
+            return new String[]{"FAIL",BillNo+" Already paid to Finisher"};
+            }
+        } catch (Exception e) {
+            return new String[]{"FAIL",e.getMessage()};
+        }
+    }
+
+    public String[] payIronWage(String BillNo ,String IronName){
+        try {
+            if(!isOrderIronWagePaid(BillNo)){
+                int i = this.getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET WAGE_STATUS='PAID' , PAYMENT_DATE=GETDATE() WHERE BILL_NO= ? AND EMPLOYEE_NAME= ? AND ASSIGNMENT_TYPE ='TO_IRON' AND WAGE_STATUS='UNPAID'", new Object[]{BillNo,IronName});
+                 auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDER_ASSIGNMENTS, Integer.parseInt(BillNo), BillNo+" Wage Paid to "+IronName, "WAGE PAID");
+                return new String[]{"SUCCES",BillNo+" Payment Succesfull"};
+            }
+            else{
+            return new String[]{"FAIL",BillNo+" Already paid to ironman"};
+            }
+        } catch (Exception e) {
+            return new String[]{"FAIL",e.getMessage()};
+        }
+    }
+    
     public static void main(String[] args) {
         try {
 //            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");

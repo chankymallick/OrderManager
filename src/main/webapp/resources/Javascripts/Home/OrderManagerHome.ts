@@ -22,6 +22,7 @@ module com.ordermanager.home {
         //----------------------------------------
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         public static CODE_REPORT_PROUCTION_REPORT = "RDP";
+        public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";
         //----------------------------------------
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
@@ -84,7 +85,7 @@ module com.ordermanager.home {
                 if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                 }
-                if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_EMPLOYEE) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_EMPLOYEE, 200);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_USER) {
@@ -120,6 +121,10 @@ module com.ordermanager.home {
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_PROUCTION_REPORT) {
                           this.HomeLayoutObject.cells("a").collapse();
                           new com.ordermanager.reportingutility.DayWiseProductionReport(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_WAGE_PAYMENT_SYSTEM) {
+                          this.HomeLayoutObject.cells("a").collapse();
+                          new com.ordermanager.reportingutility.WagePaymentSystem(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                     this.webcamImageManager();
@@ -173,39 +178,39 @@ module com.ordermanager.home {
                 this.loadMenuItems(id)
             });
         }
-        public dbStatusLoader() {
-            var intervalVar = setInterval(() => {
-                try {
-                    var currentRequest = null;
-                    currentRequest = jQuery.ajax({
-                        type: 'POST',
-                        data: '',
-                        url: 'getdBStatus',
-                        beforeSend:  ()=> {
-                            if (currentRequest != null) {
-                                currentRequest.abort();
-                                this.HomeToolbar.disableItem("dbState");
-                                this.HomeToolbar.setItemText("dbState", "Disconnected");
-                            }
-                        },
-                        success:  (data)=> {
-                            if (data == true) {
-                                this.HomeToolbar.enableItem("dbState");
-                                this.HomeToolbar.setItemText("dbState", "Connected");
-                            }
-                            else {
-                                this.HomeToolbar.disableItem("dbState");
-                                this.HomeToolbar.setItemText("dbState", "Disconnected");
-                            }
-                        },
-                        error:  (e)=> {
-                            this.HomeToolbar.disableItem("dbState");
-                            this.HomeToolbar.setItemText("dbState", "Disconnected");
-                        }
-                    });
-                } catch (e) {
-                }
-            }, 30*1000);
+          public dbStatusLoader() {
+//            var intervalVar = setInterval(() => {
+//                try {
+//                    var currentRequest = null;
+//                    currentRequest = jQuery.ajax({
+//                        type: 'POST',
+//                        data: '',
+//                        url: 'getdBStatus',
+//                        beforeSend:  ()=> {
+//                            if (currentRequest != null) {
+//                                currentRequest.abort();
+//                                this.HomeToolbar.disableItem("dbState");
+//                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+//                            }
+//                        },
+//                        success:  (data)=> {
+//                            if (data == true) {
+//                                this.HomeToolbar.enableItem("dbState");
+//                                this.HomeToolbar.setItemText("dbState", "Connected");
+//                            }
+//                            else {
+//                                this.HomeToolbar.disableItem("dbState");
+//                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+//                            }
+//                        },
+//                        error:  (e)=> {
+//                            this.HomeToolbar.disableItem("dbState");
+//                            this.HomeToolbar.setItemText("dbState", "Disconnected");
+//                        }
+//                    });
+//                } catch (e) {
+//                }
+//            }, 30*1000);
         }
         public skinChanger(dhtmlxObject: any, skinType: any) {
             if (skinType === "white") {
