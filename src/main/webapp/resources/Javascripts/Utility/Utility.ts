@@ -294,7 +294,8 @@ module com.ordermanager.utilty {
                         var Value = this.constructItemSelectionWindow();}
                     if (name === "AUTO_BILL=BUTTON"){
                         var BillNo = SynchronousGetAjaxRequest("getNextBillNo");
-                        this.FormObject.setItemValue("BILL_NO=STR",BillNo.toString());
+                        this.FormObject.setItemValue("BILL_NO=STR",BillNo.toString()); 
+                        this.FormObject.setItemFocus("VERIFY_BILL_NO=STR");
                         }
                         
                 });

@@ -56,5 +56,6 @@ public class ConstantContainer {
     public static String Property_File_Path_Language_Bengali; 
     public static String Query_File_Path_Microsoft_SQL_Server;
     public static String Application_Context_File_Path;
+    public static String WEB_INF_PATH;
     
 }

@@ -279,6 +279,7 @@ var com;
                             if (name === "AUTO_BILL=BUTTON") {
                                 var BillNo = SynchronousGetAjaxRequest("getNextBillNo");
                                 _this.FormObject.setItemValue("BILL_NO=STR", BillNo.toString());
+                                _this.FormObject.setItemFocus("VERIFY_BILL_NO=STR");
                             }
                         });
                         //  });

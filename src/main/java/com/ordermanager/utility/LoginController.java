@@ -25,8 +25,10 @@ public class LoginController {
 
         try {
             File rootDir = new File(servletContext.getRealPath("/WEB-INF/applicationContext.xml"));          
+            File temp = new File(servletContext.getRealPath("/WEB-INF/"));          
             System.out.println(rootDir.getAbsolutePath());
             ConstantContainer.Application_Context_File_Path = rootDir.getAbsolutePath();
+            ConstantContainer.WEB_INF_PATH = temp.getAbsolutePath();
         } catch (Exception e) {
         }
         if (LanguageType.equals("bng")) {           

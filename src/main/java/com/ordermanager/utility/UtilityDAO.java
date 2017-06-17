@@ -5,12 +5,14 @@
  */
 package com.ordermanager.utility;
 
+import com.ordermanager.backupmanager.BackUpSQLServer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -321,18 +323,38 @@ public class UtilityDAO extends DAOHelper {
             } catch (Exception e) {
             }
         }
-    }    
-    public boolean isDbConnected123(){
+    }
+
+    public boolean isDbConnected123() {
         try {
             int state = this.getJdbcTemplate().queryForObject("SELECT 1", Integer.class);
-            if(state == 1)
-            return true;
-            else
-            return false;            
+            if (state == 1) {
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             return false;
         }
-    
+
+    }
+
+    public String createAndUploadDatabaseBackUp() {
+        Map<String, String> stepResults = new LinkedHashMap<>();
+        String FilePath =null;
+        String FileName = "";
+        String DatabseName = PropertyFileReader.getPropertiesFileValue("DB_DATABASE_NAME");
+        try {
+            if (System.getProperty("os.name").startsWith("Windows")) {
+              FilePath = PropertyFileReader.getPropertiesFileValue("DB_FILE_PATH");
+             }
+             FileName =  DatabseName.concat("_").concat(this.getCustomFormatDate(this.getCurrentTimeStamp()).replace("/", "_").concat("_").concat(Long.toString(this.getCurrentTimeStamp().getTime()))).concat("_").concat(PropertyFileReader.getPropertiesFileValue("DB_SCHEMA_VERSION")).concat(".bak");
+             String status =  BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName,this.getJdbcTemplate());
+             stepResults.put("CREATING BACKUP FILE",status);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+
+        return "";
     }
 }
-   

@@ -65,6 +65,18 @@ public class PropertyFileReader extends DAOHelper {
         }
     }
 
+    public static String getPropertiesFileValue(String Key) {
+        try {
+            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Properties/AppSettings.properties");
+            Properties LanguageProperties = new Properties();
+            LanguageProperties.load(new FileInputStream(rootDir.getAbsolutePath()));
+            System.out.println(LanguageProperties.getProperty(Key));
+            return LanguageProperties.getProperty(Key);
+        } catch (Exception e) {
+            return null;
+        }        
+    }
+
     public void loadSelectItemProperties(HttpServletRequest request, ServletContext servletContext, ConstantContainer.LANGUAGES LanguangeName) {
         Map<String, List<String>> selectItemMap = new HashMap();
         File rootDir = null;
@@ -92,17 +104,16 @@ public class PropertyFileReader extends DAOHelper {
                     String key = (String) keys.nextElement();
                     String selectItem[] = key.split("\\.");
                     if ((value + "." + selectItem[2]).equals(selectItem[0] + "." + selectItem[1] + "." + selectItem[2])) {
-                        if(isBengali){
-                        selectValues.add(SelectItemProperties.getProperty(key));
-                        }
-                        else{
-                        selectValues.add(SelectItemProperties.getProperty(key).split(",")[0]+","+SelectItemProperties.getProperty(key).split(",")[0]);
+                        if (isBengali) {
+                            selectValues.add(SelectItemProperties.getProperty(key));
+                        } else {
+                            selectValues.add(SelectItemProperties.getProperty(key).split(",")[0] + "," + SelectItemProperties.getProperty(key).split(",")[0]);
                         }
                     }
                 }
                 selectItemMap.put(value, selectValues);
             }
-                request.getSession(false).setAttribute("SelectList", selectItemMap);
+            request.getSession(false).setAttribute("SelectList", selectItemMap);
         } catch (Exception e) {
 
         }

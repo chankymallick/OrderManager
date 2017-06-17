@@ -5,6 +5,7 @@
  */
 package com.ordermanager.utility;
 
+import com.ordermanager.backupmanager.BackUpSQLServer;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -72,5 +73,9 @@ public class UtilityController {
     @RequestMapping("/getdBStatus")
     public ModelAndView getDBStatus() throws SQLException {
         return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.isDbConnected123());
+    }
+    @RequestMapping("/databaseBackUP")
+    public ModelAndView databaseBackUP() throws SQLException {            
+        return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.createAndUploadDatabaseBackUp());
     }
 }
