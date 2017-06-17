@@ -340,6 +340,7 @@ public class UtilityDAO extends DAOHelper {
     }
 
     public String createAndUploadDatabaseBackUp() {
+        ResponseJSONHandler rsp = new ResponseJSONHandler();
         Map<String, String> stepResults = new LinkedHashMap<>();
         String FilePath =null;
         String FileName = "";
@@ -351,10 +352,12 @@ public class UtilityDAO extends DAOHelper {
              FileName =  DatabseName.concat("_").concat(this.getCustomFormatDate(this.getCurrentTimeStamp()).replace("/", "_").concat("_").concat(Long.toString(this.getCurrentTimeStamp().getTime()))).concat("_").concat(PropertyFileReader.getPropertiesFileValue("DB_SCHEMA_VERSION")).concat(".bak");
              String status =  BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName,this.getJdbcTemplate());
              stepResults.put("CREATING BACKUP FILE",status);
-        } catch (Exception e) {
-            return e.getMessage();
-        }
-
-        return "";
+             this.generateSQLSuccessResponse(rsp, "BACK UP EVENT COMPLETED");             
+             rsp.addResponseValue("STEPS", new JSONObject(stepResults));
+             return rsp.getJSONResponse();
+        } catch (Exception e) {      
+            generateSQLExceptionResponse(rsp, e, "BACK UP FAILED");
+            return rsp.getJSONResponse();     
+        }        
     }
 }
