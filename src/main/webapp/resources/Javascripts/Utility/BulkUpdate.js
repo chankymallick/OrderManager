@@ -246,13 +246,31 @@ var com;
                         this.ParameterJSON["FINISHING_DATE=DATE"] = this.QueryForm.getItemValue("FINISHING_DATE=DATE", true);
                         this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
                     }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                        this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                        this.ParameterJSON["TYPE=STR"] = "TO_" + this.QueryForm.getItemValue("TYPE=STR");
+                        this.ParameterJSON["NAME=STR"] = this.QueryForm.getItemValue("NAME=STR");
+                        this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                        this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
+                    }
                 };
                 BulkUpdate.prototype.setSpecificOnLoad = function () {
+                    var _this = this;
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                         this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
                     }
                     else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
                         this.QueryForm.setItemValue("FINISHING_DATE=DATE", getCurrentDate());
+                    }
+                    else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                        this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
+                        this.QueryForm.attachEvent("onChange", function (name, value) {
+                            if (name == "TYPE=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.QueryForm.getOptions("NAME=STR"), "EMPLOYEES", "EMP_NAME", "EMP_ROLE", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                        });
                     }
                 };
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
@@ -266,6 +284,10 @@ var com;
                     else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
                         HelpCell = 7;
                         IconCell = 8;
+                    }
+                    else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                        HelpCell = 10;
+                        IconCell = 11;
                     }
                     this.AssigmentStatus = "END";
                     this.AssignmentGrid.forEachRow(function (id) {

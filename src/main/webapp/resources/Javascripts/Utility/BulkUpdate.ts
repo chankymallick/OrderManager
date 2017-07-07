@@ -46,9 +46,9 @@ module com.ordermanager.bulkupdate {
             this.ModifiedLayoutObject = this.LayoutCell.attachLayout({
                 pattern: "3T",
                 cells: [
-                    { id: "a", text: "Query", header: false, height: this.QueryFormHeight },
-                    { id: "b", text: "Assigned Orders", header: true, width: 1000 },
-                    { id: "c", text: "Statistics", header: true }
+                    {id: "a", text: "Query", header: false, height: this.QueryFormHeight},
+                    {id: "b", text: "Assigned Orders", header: true, width: 1000},
+                    {id: "c", text: "Statistics", header: true}
                 ]
             });
             this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
@@ -81,11 +81,11 @@ module com.ordermanager.bulkupdate {
             });
 
         }
-        public showAlertBox(Message){
-          dhtmlx.message({
-              type:"alert-error",
-              text:Message
-          });
+        public showAlertBox(Message) {
+            dhtmlx.message({
+                type: "alert-error",
+                text: Message
+            });
         }
         public constructAssignmentGrid() {
             this.AssignmentGrid = this.ModifiedLayoutObject.cells("b").attachGrid();
@@ -94,31 +94,31 @@ module com.ordermanager.bulkupdate {
             this.attachEventonRow();
             this.statisticCounterConstruction();
         }
-        public attachEventonRow(){
-          var Removeindex ;
-          if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-              Removeindex = 10;
-          }
-          else if(this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER){
-              Removeindex = 8;
-          }
-          this.AssignmentGrid.attachEvent("onRowSelect", (id, index) => {
-              if (index === Removeindex && this.AssigmentStatus == "START") {
-                  dhtmlx.confirm({
-                      type: "confirm",
-                      text: "Do you want to remove selected Order?",
-                      callback: (result) => {
-                          if (result) {
-                              this.AssignmentGrid.deleteRow(id);
-                              this.calculateStatistics();
-                          }
-                      }
-                  });
-              }
-              else if(index === Removeindex && this.AssigmentStatus == "END"){
-              this.showAlertBox(this.AssignmentGrid.getUserData(id,"SERVER_DATA"));
-              }
-          });
+        public attachEventonRow() {
+            var Removeindex;
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                Removeindex = 10;
+            }
+            else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                Removeindex = 8;
+            }
+            this.AssignmentGrid.attachEvent("onRowSelect", (id, index) => {
+                if (index === Removeindex && this.AssigmentStatus == "START") {
+                    dhtmlx.confirm({
+                        type: "confirm",
+                        text: "Do you want to remove selected Order?",
+                        callback: (result) => {
+                            if (result) {
+                                this.AssignmentGrid.deleteRow(id);
+                                this.calculateStatistics();
+                            }
+                        }
+                    });
+                }
+                else if (index === Removeindex && this.AssigmentStatus == "END") {
+                    this.showAlertBox(this.AssignmentGrid.getUserData(id, "SERVER_DATA"));
+                }
+            });
         }
         public loadAssignmentGridData(Parameters: any) {
             this.ModifiedLayoutObject.progressOn();
@@ -130,7 +130,7 @@ module com.ordermanager.bulkupdate {
                 GridData.splice(0, 0, RowNum);
                 if (this.isBillNoExistInAssignmentGrid(GridData[1])) {
                     this.AssignmentGrid.addRow(RowNum, GridData);
-                    this.afterAddrow(GridData,RowNum);
+                    this.afterAddrow(GridData, RowNum);
                     this.calculateStatistics();
                     this.QueryForm.setItemValue("BILL_NO=STR", "");
                     showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -145,33 +145,33 @@ module com.ordermanager.bulkupdate {
             progressOffCustom(this.ModifiedLayoutObject);
         }
 
-        public afterAddrow(GridData:any,RowNum:any){
-        if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-          if (GridData[6] > 10) {
-              this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
-          }
-          else if (GridData[6] < 0) {
-              this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
-          }
-          else if (GridData[6] < 1) {
-              this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
-          }
-          else if (GridData[6] < 3) {
-              this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
-          }
-          else if (GridData[6] < 5) {
-              this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
-          }
-          else if (GridData[6] <= 10) {
-              this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
-          }
-        }
+        public afterAddrow(GridData: any, RowNum: any) {
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
+                if (GridData[6] > 10) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#43fc2a");
+                }
+                else if (GridData[6] < 0) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#ff0000");
+                }
+                else if (GridData[6] < 1) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#ff4800");
+                }
+                else if (GridData[6] < 3) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#ff7621");
+                }
+                else if (GridData[6] < 5) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#effc5f");
+                }
+                else if (GridData[6] <= 10) {
+                    this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
+                }
+            }
         }
         public sendBulkQueryForUpdate() {
             this.setSpecificBeforeSave();
             if (this.QueryForm.validate()) {
                 this.ModifiedLayoutObject.progressOn();
-                var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" +JSON.stringify(this.ParameterJSON), "", null);
+                var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" + JSON.stringify(this.ParameterJSON), "", null);
                 if (Response.RESPONSE_STATUS === "SUCCESS") {
                     showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                     this.setFormStateAfterSave(Response);
@@ -262,6 +262,13 @@ module com.ordermanager.bulkupdate {
                 this.ParameterJSON["FINISHING_DATE=DATE"] = this.QueryForm.getItemValue("FINISHING_DATE=DATE", true);
                 this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
             }
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                this.ParameterJSON["TYPE=STR"] = "TO_"+this.QueryForm.getItemValue("TYPE=STR");
+                this.ParameterJSON["NAME=STR"] = this.QueryForm.getItemValue("NAME=STR");
+                this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
+            }
         }
         public setSpecificOnLoad() {
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
@@ -270,33 +277,47 @@ module com.ordermanager.bulkupdate {
             else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
                 this.QueryForm.setItemValue("FINISHING_DATE=DATE", getCurrentDate());
             }
+            else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
+                this.QueryForm.attachEvent("onChange", (name, value) => {
+                    if (name == "TYPE=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.QueryForm.getOptions("NAME=STR"), "EMPLOYEES", "EMP_NAME", "EMP_ROLE", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
+
+            }
         }
         public setFormStateAfterSave(Response: any) {
             var HelpCell;
             var IconCell;
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
-              HelpCell = 10;
-              IconCell = 11;
+                HelpCell = 10;
+                IconCell = 11;
             }
-            else if(this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER){
-              HelpCell = 7;
-              IconCell = 8;
-
+            else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
+                HelpCell = 7;
+                IconCell = 8;
             }
-              this.AssigmentStatus="END";
-              this.AssignmentGrid.forEachRow((id) => {
-                  var BILLNO = this.AssignmentGrid.cells(id, 1).getValue()
-                  this.AssignmentGrid.setUserData(id,"SERVER_DATA",Response.RESPONSE_VALUE[BILLNO]);
-                  if(Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0){
-                  this.AssignmentGrid.cells(id, HelpCell).setValue("");
-                  this.AssignmentGrid.setRowTextStyle(id, "color:#0026ff;background-color: #cccccc; font-weight:bold; ");
-                  this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
-                  }
-                  else{
-                  this.AssignmentGrid.cells(id, HelpCell).setValue("<input type='button' value='HELP'/>");
-                  this.AssignmentGrid.cells(id, IconCell).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
-                  }
-               });
+            else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
+                HelpCell = 10;
+                IconCell = 11;
+            }
+            this.AssigmentStatus = "END";
+            this.AssignmentGrid.forEachRow((id) => {
+                var BILLNO = this.AssignmentGrid.cells(id, 1).getValue()
+                this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);
+                if (Response.RESPONSE_VALUE[BILLNO].split(",")[0].indexOf("SUCCES") == 0) {
+                    this.AssignmentGrid.cells(id, HelpCell).setValue("");
+                    this.AssignmentGrid.setRowTextStyle(id, "color:#0026ff;background-color: #cccccc; font-weight:bold; ");
+                    this.AssignmentGrid.cells(id, IconCell).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
+                }
+                else {
+                    this.AssignmentGrid.cells(id, HelpCell).setValue("<input type='button' value='HELP'/>");
+                    this.AssignmentGrid.cells(id, IconCell).setValue("<img height='20px' width='20px' src='resources/Images/failed.png'/>");
+                }
+            });
 
         }
 

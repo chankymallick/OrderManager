@@ -18,15 +18,14 @@ module com.ordermanager.home {
         public static CODE_QUICK_NEW_ORDER = "AQA"
         public static CODE_QUICK_NEW_LOCATION = "ANL";
         public static CODE_ADD_NEW_EMPLOYEE = "ANE";
-        public static CODE_UPLOAD = "UIMG";
-        //----------------------------------------
+        public static CODE_UPLOAD = "UIMG";      
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         public static CODE_REPORT_PROUCTION_REPORT = "RDP";
-        public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";
-        //----------------------------------------
+        public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";     
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
+        public static CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";       
         public static CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
         public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
     }
@@ -37,17 +36,14 @@ module com.ordermanager.home {
         public static FORM_QUICK_NEW_ORDER = "quickNewOrder";
         public static FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
-        public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
-        //---------------------------------------------------
+        public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";      
         public static REPORT_DAILY_ADVANCE = "advanceReport";
-        public static REPORT_ORDER_SCHEDULER = "orderScheduler"
-        //---------------------------------------------------
+        public static REPORT_ORDER_SCHEDULER = "orderScheduler"     
         public static UPDATE_NEW_ORDER = "updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
-
-
+        public static UPDATE_BULK_SINGLE = "updateBulkToSingle";        
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -114,6 +110,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                     this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT) {
+                    this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_SINGLE, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                     this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);

@@ -377,7 +377,8 @@ module com.ordermanager.utilty {
             var ItemWindow = this.MainUtilityObj.getModelWindow("Select Items", 535, 500);
             ItemWindow.progressOn();
             var ItemGrid = ItemWindow.attachGrid();
-            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR"));
+            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR"); 
+            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO);
             ItemGrid.setNoHeader(true)
             ItemGrid.attachEvent("onXLE", () => {
                 ItemWindow.progressOff();

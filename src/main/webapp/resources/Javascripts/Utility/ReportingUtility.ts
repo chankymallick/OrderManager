@@ -623,7 +623,8 @@ module com.ordermanager.reportingutility {
                 this.StatisticsGrid.setRowTextStyle("STAT_VALUE_NAME_" + StatFields[SingleField], "background-color:#ebffbc; font-weight:bold;font-size:22px;");
                 this.MainStatsForPrint += SingleField.replace("_", " ") + " : " + StatFields[SingleField] + " ,"
             }
-            progressOffCustom(this.ModifiedLayoutObject.cells("c"))
+            progressOffCustom(this.ModifiedLayoutObject.cells("c"));
+            console.log("sddsd");
         }
     }
 

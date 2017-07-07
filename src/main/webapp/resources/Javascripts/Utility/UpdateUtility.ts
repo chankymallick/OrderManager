@@ -112,11 +112,13 @@ module com.ordermanager.UpdateUtility {
         }
 
         public constructItemSelectionWindow() {
-            this.SelectedItemNameList = [];
-            var ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Select Items", 535, 500);
+           
+            var ItemWindow = null;
+            ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Select Items", 535, 500);
             ItemWindow.progressOn();
             var ItemGrid = ItemWindow.attachGrid();
-            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR"));
+            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR"); 
+            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO); 
             ItemGrid.setNoHeader(true)
             ItemGrid.attachEvent("onXLE", () => {
                 ItemWindow.progressOff();
@@ -126,7 +128,8 @@ module com.ordermanager.UpdateUtility {
             ToolBar.setAlign("right");
             ToolBar.attachEvent("onClick", (id) => {
                 if (id === "OK") {
-                    ItemGrid.forEachRow((id) => {
+                    this.SelectedItemNameList = [];
+                    ItemGrid.forEachRow((id) => {                      
                         if (ItemGrid.cells(id, 2).getValue() != "") {
                             this.SelectedItemNameList.push(ItemGrid.getUserData(id, "ITEM_NAME"));
                         }

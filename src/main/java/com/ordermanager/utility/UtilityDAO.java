@@ -6,6 +6,7 @@
 package com.ordermanager.utility;
 
 import com.ordermanager.backupmanager.BackUpSQLServer;
+import com.ordermanager.security.FileCryptoUtils;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -124,6 +125,9 @@ public class UtilityDAO extends DAOHelper {
                 }
                 if (rstOrder.getString("MEASURED_BY") != null) {
                     defaultData.put("MEASURED_BY=STR", rstOrder.getString("MEASURED_BY"));
+                }
+                if (rstOrder.getString("CUSTOM_PRICE_ENABLED") != null) {
+                    defaultData.put("CUSTOM_RATE=NUM", rstOrder.getInt("CUSTOM_PRICE_ENABLED"));
                 }
                 if (rstOrder.getString("NOTE") != null) {
                     defaultData.put("NOTE=STR", rstOrder.getString("NOTE"));
@@ -351,7 +355,7 @@ public class UtilityDAO extends DAOHelper {
              }
              FileName =  DatabseName.concat("_").concat(this.getCustomFormatDate(this.getCurrentTimeStamp()).replace("/", "_").concat("_").concat(Long.toString(this.getCurrentTimeStamp().getTime()))).concat("_").concat(PropertyFileReader.getPropertiesFileValue("DB_SCHEMA_VERSION")).concat(".bak");
              String status =  BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName,this.getJdbcTemplate());
-             stepResults.put("CREATING BACKUP FILE",status);
+             stepResults.put("CREATING BACKUP FILE",status);            
              this.generateSQLSuccessResponse(rsp, "BACK UP EVENT COMPLETED");             
              rsp.addResponseValue("STEPS", new JSONObject(stepResults));
              return rsp.getJSONResponse();

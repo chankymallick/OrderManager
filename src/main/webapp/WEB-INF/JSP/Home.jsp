@@ -240,7 +240,8 @@
            
              }
 
-        </style>    
+        </style>   
+        <link rel="shortcut icon"  href="<c:url value='/resources/Images/favicon.ico' />" type="image/x-icon"/>
         <script src="<c:url value='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js' />" ></script>
           <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>       
         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
@@ -254,6 +255,7 @@
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/BulkUpdate.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/OrderScheduler.js' />" ></script> 
+        
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <script>
             loadLanguagePack();

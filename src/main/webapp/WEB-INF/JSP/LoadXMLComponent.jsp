@@ -113,7 +113,20 @@
                         <userdata name="ITEM_NAME">${ITEM_NAME}</userdata> 
                         <cell><![CDATA[<div class='SUB_ITEMCSS'><b>${Key}</b></div>]]></cell>  
                         <cell><![CDATA[<a href="#" class="ITEM_BUTTON${CSSID}">${ITEM_NAME}</a> ]]></cell>
-                        <cell></cell>   
+                            <c:set var="contains" value="false" />
+                            <c:forEach var="SavedItem" items="${SavedList}">
+                                <c:if test="${SavedItem eq ITEM_NAME}">
+                                    <c:set var="contains" value="true" />
+                                </c:if>
+                            </c:forEach>
+                            <c:choose>
+                                <c:when test = "${contains eq 'true' }">    
+                                <cell><![CDATA[<img src='resources/Images/ok.png' width='30px' height='30px'/>]]></cell>   
+                                </c:when>                 
+                                <c:otherwise>           
+                                <cell></cell>   
+                                </c:otherwise>
+                            </c:choose>                        
                     </row>     
                 </c:if>
                 <c:if test="${GroupEnd>0}">
@@ -122,7 +135,20 @@
                         <userdata name="ITEM_NAME">${ITEM_NAME}</userdata> 
                         <cell></cell>  
                         <cell><![CDATA[<a href="#" class="ITEM_BUTTON${CSSID}">${ITEM_NAME}</a> ]]></cell>
-                        <cell></cell>   
+                         <c:set var="contains" value="false" />
+                            <c:forEach var="SavedItem" items="${SavedList}">
+                                <c:if test="${SavedItem eq ITEM_NAME}">
+                                    <c:set var="contains" value="true" />
+                                </c:if>
+                            </c:forEach>
+                            <c:choose>
+                                <c:when test = "${contains eq 'true' }">    
+                                <cell><![CDATA[<img src='resources/Images/ok.png' width='30px' height='30px'/>]]></cell>   
+                                </c:when>                 
+                                <c:otherwise>           
+                                <cell></cell>   
+                                </c:otherwise>
+                            </c:choose>     
                     </row>     
                 </c:if>              
                 <c:set var="ID" value="${ID+1}"/>      
@@ -452,6 +478,24 @@
     </head> 
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('updateBulkToSingle')}">
+    <rows>
+        <head>            
+        <column width="40" type="ro" align="center" color="white" >NO</column>       
+        <column width="80" type="ro" align="center" color="white" >BILL NO</column>       
+        <column width="100" type="ro" align="center" color="white" >ORDER</column>
+        <column width="100" type="ro" align="center" color="white" >DELIVERY</column>
+        <column width="40" type="ro" align="center" color="white" >QTY</column>
+        <column width="90" type="ro" align="center" color="white" >DAY</column>
+        <column width="90" type="ro" align="center" color="white" >REMAINING</column>  
+        <column width="100" type="ro" align="center" color="white" >STATUS</column>
+        <column width="100" type="ro" align="center" color="white" >ITEMS</column>
+        <column width="80" type="ro" align="center" color="white" >STARS</column> 
+        <column width="80" type="ro" align="center" color="white" >REMOVE</column> 
+        <column width="100" type="ro" align="center" color="white" >RESULT</column> 
+    </head> 
+</rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('updateBulkReadyToDeliver')}">
     <rows>
         <head>            
@@ -579,147 +623,147 @@
         <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
         <c:choose>
             <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
-            </c:when>
-            <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
-            </c:when>
-            <c:otherwise>
-                   <row id="${ID+1}">    
-            </c:otherwise>
-        </c:choose>  
-            <cell>${ID+1}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>        
-        </row>
-        <c:set var="ID" value="${ID+1}"/>   
-    </c:forEach>
-</rows>
-</c:if>
-<c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionUnpaid')}">
-    <rows>
-        <head>            
-        <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
-        <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
-        <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
-        <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
-        <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
-        <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
-        <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
-        <column width="100" type="ro" align="center" color="white" sort="str">REMOVE</column> 
-        <beforeInit> 
-            <call command="setImagePath"> 
-                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
-            </call>             
-        </beforeInit> 
-        <afterInit>  
-            <call command="attachHeader">
-                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>
-            </call> 
-        </afterInit>     
-    </head> 
-    <c:set var="ID" value="${0}"/>    
-    <c:set var="DATE" value=""/>
-    <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
-        <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
-            <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
-                <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
-            </row>  
+                <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
+                </c:when>
+                <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
+                    <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
+                    </c:when>
+                    <c:otherwise>
+                        <row id="${ID+1}">    
+                        </c:otherwise>
+                    </c:choose>  
+                    <cell>${ID+1}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
+                    <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>        
+                </row>
+                <c:set var="ID" value="${ID+1}"/>   
+            </c:forEach>
+            </rows>
         </c:if>
-        <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
-        <c:choose>
-            <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
-            </c:when>
-            <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
-            </c:when>
-            <c:otherwise>
-                   <row id="${ID+1}">    
-            </c:otherwise>
-        </c:choose>  
-            <cell>${ID+1}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
-            <cell><![CDATA[ <img height='20px' width='20px' src='resources/Images/cancel_order.png'/> ]]></cell>        
-        </row>
-        <c:set var="ID" value="${ID+1}"/>   
-    </c:forEach>
-</rows>
-</c:if>
-<c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionPaid')}">
-    <rows>
-        <head>            
-        <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
-        <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
-        <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
-        <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
-        <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
-        <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
-        <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
-        <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
- 
-        <beforeInit> 
-            <call command="setImagePath"> 
-                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
-            </call>             
-        </beforeInit> 
-        <afterInit>             
-        </afterInit>     
-    </head> 
-    <c:set var="ID" value="${0}"/>    
-    <c:set var="DATE" value=""/>
-    <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
-        <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
-            <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
-                <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
-            </row>  
-        </c:if>
-        <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
-        <c:choose>
-            <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
-            </c:when>
-            <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                   <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
-            </c:when>
-            <c:otherwise>
-                   <row id="${ID+1}">    
-            </c:otherwise>
-        </c:choose>  
-            <cell>${ID+1}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
-            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>
-        </row>
-        <c:set var="ID" value="${ID+1}"/>   
-    </c:forEach>
-</rows>
-</c:if>
+        <c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionUnpaid')}">
+            <rows>
+                <head>            
+                <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
+                <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
+                <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
+                <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
+                <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
+                <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
+                <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
+                <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
+                <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
+                <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
+                <column width="100" type="ro" align="center" color="white" sort="str">REMOVE</column> 
+                <beforeInit> 
+                    <call command="setImagePath"> 
+                        <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                    </call>             
+                </beforeInit> 
+                <afterInit>  
+                    <call command="attachHeader">
+                        <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>
+                    </call> 
+                </afterInit>     
+                </head> 
+                <c:set var="ID" value="${0}"/>    
+                <c:set var="DATE" value=""/>
+                <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
+                    <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
+                        <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
+                            <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
+                        </row>  
+                    </c:if>
+                    <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
+                    <c:choose>
+                        <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
+                            <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
+                            </c:when>
+                            <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
+                                <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
+                                </c:when>
+                                <c:otherwise>
+                                    <row id="${ID+1}">    
+                                    </c:otherwise>
+                                </c:choose>  
+                                <cell>${ID+1}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
+                                <cell><![CDATA[ <img height='20px' width='20px' src='resources/Images/cancel_order.png'/> ]]></cell>        
+                            </row>
+                            <c:set var="ID" value="${ID+1}"/>   
+                        </c:forEach>
+                        </rows>
+                    </c:if>
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionPaid')}">
+                        <rows>
+                            <head>            
+                            <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
+                            <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
+                            <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
+                            <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
+                            <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
+                            <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
+                            <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
+                            <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
+                            <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
+                            <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
+
+                            <beforeInit> 
+                                <call command="setImagePath"> 
+                                    <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                                </call>             
+                            </beforeInit> 
+                            <afterInit>             
+                            </afterInit>     
+                            </head> 
+                            <c:set var="ID" value="${0}"/>    
+                            <c:set var="DATE" value=""/>
+                            <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
+                                <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
+                                    <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
+                                        <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
+                                    </row>  
+                                </c:if>
+                                <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
+                                <c:choose>
+                                    <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
+                                        <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
+                                        </c:when>
+                                        <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
+                                            <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
+                                            </c:when>
+                                            <c:otherwise>
+                                                <row id="${ID+1}">    
+                                                </c:otherwise>
+                                            </c:choose>  
+                                            <cell>${ID+1}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
+                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>
+                                        </row>
+                                        <c:set var="ID" value="${ID+1}"/>   
+                                    </c:forEach>
+                                    </rows>
+                                </c:if>
 

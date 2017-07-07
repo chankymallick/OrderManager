@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Order Manager V 1.0 </title>    
     <link href="<c:url value='/resources/TemplateFiles/loginpagefiles/style.css' />" type="text/css" rel="stylesheet" />
+    <link rel="shortcut icon"  href="<c:url value='/resources/Images/favicon.ico' />" type="image/x-icon"/>
 </head>
 <body>
     <div id="headerTab">       

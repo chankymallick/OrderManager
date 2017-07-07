@@ -81,10 +81,11 @@ public class OrderController {
     }
 
     @RequestMapping("/getExtraItems")
-    public String getItemSelectionList(Model map, @RequestParam("ITEM_TYPE") String ITEM_TYPE) {
+    public String getItemSelectionList(Model map, @RequestParam("ITEM_TYPE") String ITEM_TYPE,@RequestParam("BILL_NO") String Bill_No) {
         Map<String, Object> dataMap = orderDAO.getItemSelectionList(ITEM_TYPE);
         map.addAttribute("Type", "ItemSelectionList");
         map.addAttribute("DataMap", dataMap);
+        map.addAttribute("SavedList", orderDAO.getSavedItemSelectionList(Bill_No));
         return "LoadXMLComponent";
     }
     
@@ -109,9 +110,18 @@ public class OrderController {
     public ModelAndView updateBulkReadyToDeliver(@RequestParam("ParamData") JSONObject paramJson){ 
      return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderAssignmentReadyToDeliver(paramJson, "Administrator"));
     }   
+    
+   @RequestMapping("/updateBulkToSingle_BulkUpdate")      
+    public ModelAndView updateBulkToSingle(@RequestParam("ParamData") JSONObject paramJson){ 
+     return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderSingleAssignment(paramJson, "Administrator"));
+    }   
    @RequestMapping("/updateBulkReadyToDeliver_Query")
     public ModelAndView getOrderDetailsReadyToDeliver(Model map, @RequestParam("ParamData") JSONObject Params) {
     return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForReadyToDeliver(Params));    
+    } 
+   @RequestMapping("/updateBulkToSingle_Query")
+    public ModelAndView getOrderDetailsSingleAssignment(Model map, @RequestParam("ParamData") JSONObject Params) {
+    return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsSingleAssignment(Params));    
     }  
    @RequestMapping("/LoadScheduleOrderData")
     public ModelAndView orderScheduler(Model map, @RequestParam("from")String  fromDate,@RequestParam("to")String toDate) {

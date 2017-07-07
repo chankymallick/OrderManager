@@ -1,3 +1,4 @@
+/// <reference path="../Home/OrderManagerHome.ts"/>
 var com;
 (function (com) {
     var ordermanager;
@@ -19,7 +20,7 @@ var com;
                         pattern: "2E",
                         cells: [
                             { id: "a", text: "Query", header: false, height: this.QueryFormHeight },
-                            { id: "b", text: "UpdateForm", header: false, }
+                            { id: "b", text: "UpdateForm", header: false }
                         ]
                     });
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
@@ -93,11 +94,12 @@ var com;
                 };
                 UpdateUtility.prototype.constructItemSelectionWindow = function () {
                     var _this = this;
-                    this.SelectedItemNameList = [];
-                    var ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Select Items", 535, 500);
+                    var ItemWindow = null;
+                    ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Select Items", 535, 500);
                     ItemWindow.progressOn();
                     var ItemGrid = ItemWindow.attachGrid();
-                    ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR"));
+                    var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
+                    ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO);
                     ItemGrid.setNoHeader(true);
                     ItemGrid.attachEvent("onXLE", function () {
                         ItemWindow.progressOff();
@@ -107,6 +109,7 @@ var com;
                     ToolBar.setAlign("right");
                     ToolBar.attachEvent("onClick", function (id) {
                         if (id === "OK") {
+                            _this.SelectedItemNameList = [];
                             ItemGrid.forEachRow(function (id) {
                                 if (ItemGrid.cells(id, 2).getValue() != "") {
                                     _this.SelectedItemNameList.push(ItemGrid.getUserData(id, "ITEM_NAME"));
@@ -164,10 +167,12 @@ var com;
                                 }
                             }
                         });
+                        //this.FormObject.attachEvent("onXLE", () => {
                         this.FormObject.attachEvent("onButtonClick", function (name) {
                             if (name === "ITEM_BUTTON=BUTTON")
                                 var Value = _this.constructItemSelectionWindow();
                         });
+                        //  });
                         this.FormObject.attachEvent("onChange", function (name, value) {
                             if (name == "ORDER_STATUS=STR") {
                                 _this.ModifiedLayoutObject.progressOn();

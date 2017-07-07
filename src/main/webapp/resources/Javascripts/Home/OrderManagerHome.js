@@ -22,14 +22,13 @@ var com;
             CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
             CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
             CommandHandler.CODE_UPLOAD = "UIMG";
-            //----------------------------------------
             CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
             CommandHandler.CODE_REPORT_PROUCTION_REPORT = "RDP";
             CommandHandler.CODE_WAGE_PAYMENT_SYSTEM = "WPS";
-            //----------------------------------------
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
+            CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
             CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
             CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
             home.CommandHandler = CommandHandler;
@@ -94,6 +93,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT) {
+                            _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_SINGLE, 100);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
@@ -290,14 +292,13 @@ var com;
             OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
             OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
             OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
-            //---------------------------------------------------
             OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
             OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
-            //---------------------------------------------------
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
             OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
+            OrderManagerHome.UPDATE_BULK_SINGLE = "updateBulkToSingle";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));
