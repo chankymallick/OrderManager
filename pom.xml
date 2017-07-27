@@ -12,11 +12,15 @@
     </properties>      
     <dependencies>
         <dependency>
-            <groupId>SQLServer</groupId>
-            <artifactId>SQL</artifactId>
-            <version>4.3</version>
-            <type>jar</type>
-        </dependency>       
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>sqljdbc4</artifactId>
+    <version>4.0</version>
+    <scope>test</scope>
+</dependency>
+        
+        
+        
+        
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -87,11 +91,7 @@
             <artifactId>spring-jdbc</artifactId>
             <version>4.2.5.RELEASE</version>                                            
         </dependency>   
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.9.54</version>
-              </dependency>
+        
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
