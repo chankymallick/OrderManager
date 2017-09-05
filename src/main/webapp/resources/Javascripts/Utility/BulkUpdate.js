@@ -88,6 +88,12 @@ var com;
                     else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
                         Removeindex = 8;
                     }
+                    else if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        Removeindex = 10;
+                        this.AssignmentGrid.attachEvent("onCellChanged", function (rId, cInd, val) {
+                            _this.calculateStatistics();
+                        });
+                    }
                     this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
                         if (index === Removeindex && _this.AssigmentStatus == "START") {
                             dhtmlx.confirm({
@@ -180,7 +186,13 @@ var com;
                     return status;
                 };
                 BulkUpdate.prototype.statisticCounterConstruction = function () {
-                    var StatFields = ["TOTAL PIECE", "URGENT PIECES", "EXTRA ITEMS", "STAT1", "STAT2"];
+                    var StatFields;
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        StatFields = ["TOTAL AMOUNT", "ADVANCE", "DISCOUNT", "DUE", "TOTAL PIECE"];
+                    }
+                    else {
+                        StatFields = ["TOTAL PIECE", "URGENT PIECES", "EXTRA ITEMS", "STAT1", "STAT2"];
+                    }
                     this.StatisticsGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
                     this.StatisticsGrid.setHeader("Stats");
                     this.StatisticsGrid.setNoHeader(true);
@@ -207,6 +219,9 @@ var com;
                     this.StatisticsGrid.setRowTextStyle("STAT_KEY3_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
                     this.StatisticsGrid.setRowTextStyle("STAT_KEY4_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
                     this.StatisticsGrid.setRowTextStyle("STAT_KEY5_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        this.StatisticsGrid.setRowTextStyle("STAT_KEY4_VALUE", "background-color:green; color:white;font-weight:bold;font-size:24px;;");
+                    }
                 };
                 BulkUpdate.prototype.calculateStatistics = function () {
                     var _this = this;
@@ -224,13 +239,34 @@ var com;
                         });
                         this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalPiece);
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        var TotalAmount = 0;
+                        var TotalAdvance = 0;
+                        var TotalDue = 0;
+                        var TotalPiece = 0;
+                        var TotalDiscount = 0;
+                        this.AssignmentGrid.forEachRow(function (id) {
+                            TotalAmount += parseInt(_this.AssignmentGrid.cells(id, 3).getValue());
+                            TotalAdvance += parseInt(_this.AssignmentGrid.cells(id, 4).getValue());
+                            TotalDue += parseInt(_this.AssignmentGrid.cells(id, 6).getValue());
+                            TotalPiece += parseInt(_this.AssignmentGrid.cells(id, 2).getValue());
+                            TotalDiscount += parseInt(_this.AssignmentGrid.cells(id, 5).getValue());
+                        });
+                        this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalAmount);
+                        this.StatisticsGrid.cells("STAT_KEY2_VALUE", 0).setValue(TotalAdvance);
+                        this.StatisticsGrid.cells("STAT_KEY3_VALUE", 0).setValue(TotalDiscount);
+                        this.StatisticsGrid.cells("STAT_KEY4_VALUE", 0).setValue(TotalDue);
+                        this.StatisticsGrid.cells("STAT_KEY5_VALUE", 0).setValue(TotalPiece);
+                    }
                 };
                 BulkUpdate.prototype.setSpecificBeforeSave = function () {
                     var _this = this;
                     var AllBillNos = [];
+                    var DiscountList = {};
                     this.AssignmentGrid.forEachRow(function (id) {
                         var BillNo = _this.AssignmentGrid.cells(id, 1).getValue();
                         AllBillNos.push(BillNo);
+                        DiscountList[BillNo] = _this.AssignmentGrid.cells(id, 5).getValue();
                     });
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                         this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
@@ -253,6 +289,13 @@ var com;
                         this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
                         this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                        this.ParameterJSON["DELIVERY_DATE=DATE"] = this.QueryForm.getItemValue("DELIVERY_DATE=DATE", true);
+                        this.ParameterJSON["NAME=STR"] = this.QueryForm.getItemValue("NAME=STR");
+                        this.ParameterJSON["ONLY_READY_TO_DELIVER=NUM"] = this.QueryForm.getItemValue("ONLY_READY_TO_DELIVER=NUM");
+                        this.ParameterJSON["DISCOUNT_LIST"] = DiscountList;
+                    }
                 };
                 BulkUpdate.prototype.setSpecificOnLoad = function () {
                     var _this = this;
@@ -272,6 +315,9 @@ var com;
                             }
                         });
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        this.QueryForm.setItemValue("DELIVERY_DATE=DATE", getCurrentDate());
+                    }
                 };
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
                     var _this = this;
@@ -289,7 +335,12 @@ var com;
                         HelpCell = 10;
                         IconCell = 11;
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                        HelpCell = 10;
+                        IconCell = 11;
+                    }
                     this.AssigmentStatus = "END";
+                    console.log("");
                     this.AssignmentGrid.forEachRow(function (id) {
                         var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
                         _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);

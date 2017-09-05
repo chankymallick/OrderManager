@@ -167,12 +167,6 @@ var com;
                                 }
                             }
                         });
-                        //this.FormObject.attachEvent("onXLE", () => {
-                        this.FormObject.attachEvent("onButtonClick", function (name) {
-                            if (name === "ITEM_BUTTON=BUTTON")
-                                var Value = _this.constructItemSelectionWindow();
-                        });
-                        //  });
                         this.FormObject.attachEvent("onChange", function (name, value) {
                             if (name == "ORDER_STATUS=STR") {
                                 _this.ModifiedLayoutObject.progressOn();

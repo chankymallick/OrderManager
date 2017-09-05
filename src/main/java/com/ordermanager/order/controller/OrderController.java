@@ -115,6 +115,10 @@ public class OrderController {
     public ModelAndView updateBulkToSingle(@RequestParam("ParamData") JSONObject paramJson){ 
      return new ModelAndView("MakeResponse", "responseValue", orderDAO.orderSingleAssignment(paramJson, "Administrator"));
     }   
+   @RequestMapping("/updateDeliveryCompleted_BulkUpdate")      
+    public ModelAndView updateBulkDeliveryCompleted(@RequestParam("ParamData") JSONObject paramJson){ 
+     return new ModelAndView("MakeResponse", "responseValue", orderDAO.updateDeliveryCompletedBulk(paramJson, "Administrator"));
+    }   
    @RequestMapping("/updateBulkReadyToDeliver_Query")
     public ModelAndView getOrderDetailsReadyToDeliver(Model map, @RequestParam("ParamData") JSONObject Params) {
     return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForReadyToDeliver(Params));    
@@ -122,6 +126,10 @@ public class OrderController {
    @RequestMapping("/updateBulkToSingle_Query")
     public ModelAndView getOrderDetailsSingleAssignment(Model map, @RequestParam("ParamData") JSONObject Params) {
     return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsSingleAssignment(Params));    
+    }  
+   @RequestMapping("/updateDeliveryCompleted_Query")
+    public ModelAndView getOrderDetailsForDelivery(Model map, @RequestParam("ParamData") JSONObject Params) {
+    return new ModelAndView("MakeResponse", "responseValue",orderDAO.getOrderDetailsForDelivery(Params));    
     }  
    @RequestMapping("/LoadScheduleOrderData")
     public ModelAndView orderScheduler(Model map, @RequestParam("from")String  fromDate,@RequestParam("to")String toDate) {

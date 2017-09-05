@@ -571,6 +571,65 @@ public class OrderDAO extends DAOHelper {
 
         return response.getJSONResponse();
     }
+    public String getOrderDetailsForDelivery(JSONObject params) {
+
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        ResultSet rst2 = null;
+        try {
+            String OrderBillNo = params.getString("BILL_NO=STR");
+            String SQL = "SELECT BILL_NO,QUANTITY,PRICE, (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE')) AS ADVANCE, ISNULL(DISCOUNT,0) AS DISCOUNT,PRICE-(ISNULL(DISCOUNT,0)+( SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO=? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE'))) AS DUE,ORDER_TYPE,CURRENT_STATUS,NOTE FROM ORDERS WHERE BILL_NO = ?";
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            pst.setString(1, OrderBillNo);
+            pst.setString(2, OrderBillNo);
+            pst.setString(3, OrderBillNo);
+            rst = pst.executeQuery();
+            if (rst.next()) {              
+                StringBuilder data = new StringBuilder();
+                data.append(rst.getString("BILL_NO")).
+                        append(",").
+                        append(rst.getString("QUANTITY")).
+                        append(",").
+                        append(rst.getString("PRICE")).
+                        append(",").
+                        append(rst.getString("ADVANCE")).
+                        append(",").
+                        append(rst.getString("DISCOUNT")).
+                        append(",").
+                        append(rst.getString("DUE")).
+                        append(",").
+                        append(rst.getString("ORDER_TYPE")).
+                        append(",").
+                        append(rst.getString("CURRENT_STATUS")).
+                        append(",").
+                        append(rst.getString("NOTE")).               
+                        append(",").
+                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
+                        append(",").
+                        append("<img height='20px' width='20px' src='resources/Images/task.png'/>");
+                response.addResponseValue("DATA", data.toString());
+                this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
+            } else {
+                this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
+            }
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
+        } finally {
+            try {
+                rst.close();
+                rst2.close();
+                pst.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+        return response.getJSONResponse();
+    }
 
     public String orderAssignmentMasterTailor(JSONObject jsonParams, String UserName) {
         ResponseJSONHandler response = new ResponseJSONHandler();
@@ -651,6 +710,36 @@ public class OrderDAO extends DAOHelper {
         return response.getJSONResponse();
 
     }
+    public String updateDeliveryCompletedBulk(JSONObject jsonParams, String UserName) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        try {          
+            int ONLY_READY_TO_DELIVER = jsonParams.getInt("ONLY_READY_TO_DELIVER=NUM");
+            String Date = getParsedTimeStamp(jsonParams.getString("DELIVERY_DATE=DATE")).toString();
+             
+            JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
+            JSONObject List_Of_Discount = jsonParams.getJSONObject("DISCOUNT_LIST");           
+            Map<String, String> assignmentStatusMap = new HashMap();
+            int SuccessCount = 0;
+            int TotalBills = List_Of_Orders.length();            
+           
+                for (int i = 0; i < TotalBills; i++) {
+                    String BillNo = List_Of_Orders.getString(i);
+                     int Discount = Integer.parseInt(List_Of_Discount.get(BillNo).toString());  
+                    String AssignmentStatus = this.updateDeliveryTransaction(BillNo, Discount,Date);
+                    SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
+                    assignmentStatusMap.put(BillNo, AssignmentStatus);
+                }            
+            
+
+            response.setResponse_Value(new JSONObject(assignmentStatusMap));
+            generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully delivered.");
+        } catch (Exception e) {
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+
+        return response.getJSONResponse();
+
+    }
 
     public String addMasterAssignment(String BillNo, String MasterName, String Date, String CurrentLocation) throws Exception {
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -682,6 +771,30 @@ public class OrderDAO extends DAOHelper {
                         });
                 this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString(), ConstantContainer.ORDER_SUB_STATUS.CUTTING_IN_PROGRESS.toString(), CurrentLocation, "Assigned with BulkMasterEntry to : " + MasterName);
                 mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ORDER_ASSIGNMENTS, AsssignMentUID, "Assigned with BulkMasterTailorEntry to " + MasterName);
+                this.getTransactionManager().commit(txStatus);
+                return "SUCCES,DATAUPDATED";
+            }
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            return "FAILED," + e.getMessage();
+        }
+    }
+    public String updateDeliveryTransaction(String BillNo, int Discount , String Date) throws Exception {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            if (false) {
+                return "FAILED,Order already assigned to Master";
+            } else {
+                
+                
+                int PaymentTransactionUid = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
+                int PaymentDue = this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE')))",new Object[]{BillNo,BillNo},Integer.class);
+                this.getJdbcTemplate().update("UPDATE ORDERS SET CURRENT_STATUS = 'DELIVERY_COMPLETED' , DISCOUNT=? WHERE BILL_NO = ?",new Object[]{Discount,BillNo});
+                this.getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID , ORDER_BILL_NO ,PAYMENT_TYPE , AMOUNT) VALUES (?,?,'DELIVERY_PAYMENT',?)",new Object[]{PaymentTransactionUid,BillNo,PaymentDue});
+                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString(), "" , "" , "Delivery Completed , Discount - "+Discount);
+                mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ACCOUNTS.PAYMENT_TRANSACTION, PaymentTransactionUid, "Delivery Completed ");
+                mainAuditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDERS, PaymentTransactionUid, "Delivery Completed ");
                 this.getTransactionManager().commit(txStatus);
                 return "SUCCES,DATAUPDATED";
             }

@@ -27,9 +27,13 @@ var com;
             CommandHandler.CODE_WAGE_PAYMENT_SYSTEM = "WPS";
             CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
+            CommandHandler.CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
+            CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
             CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
             CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
+            CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
+            CommandHandler.CODE_CANCEL_ORDER = "COD";
             CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
             home.CommandHandler = CommandHandler;
             var OrderManagerHome = (function () {
@@ -90,6 +94,12 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                            _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT) {
+                            _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT, 170);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                             _this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);
@@ -296,6 +306,8 @@ var com;
             OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
+            OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
+            OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
             OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
             OrderManagerHome.UPDATE_BULK_SINGLE = "updateBulkToSingle";

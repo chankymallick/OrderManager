@@ -18,10 +18,10 @@ module com.ordermanager.UpdateUtility {
         public ModifiedLayoutObject: any;
         public OperationToolbar: any;
         public QueryForm: any;
-        public FormObject:any;
-        public SelectedItemNameList:any;
-        public CustomRate:any;
-        public GlobalFormJSONValues:any;
+        public FormObject: any;
+        public SelectedItemNameList: any;
+        public CustomRate: any;
+        public GlobalFormJSONValues: any;
 
         constructor(UpdateModuleName: any, LayoutCell: any, NotificationCell: any, QueryFormHeight: any) {
             this.UpdateModuleName = UpdateModuleName;
@@ -36,8 +36,8 @@ module com.ordermanager.UpdateUtility {
             this.ModifiedLayoutObject = this.LayoutCell.attachLayout({
                 pattern: "2E",
                 cells: [
-                    { id: "a", text: "Query", header: false, height: this.QueryFormHeight },
-                    { id: "b", text: "UpdateForm", header: false, }
+                    {id: "a", text: "Query", header: false, height: this.QueryFormHeight},
+                    {id: "b", text: "UpdateForm", header: false, }
                 ]
             });
             this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
@@ -56,21 +56,21 @@ module com.ordermanager.UpdateUtility {
             shortcut.add("F4", () => {
                 this.FormObject.lock();
                 this.QueryForm.setFocusOnFirstActive();
-                this.QueryForm.setItemValue("BILL_NO=STR","");
+                this.QueryForm.setItemValue("BILL_NO=STR", "");
             }, {
                     'type': 'keyup',
                     'disable_in_input': false,
                     'target': document,
                     'propagate': true
                 });
-                shortcut.add("F8", () => {
-                    this.validateAndSaveFormData();
-                }, {
-                        'type': 'keyup',
-                        'disable_in_input': false,
-                        'target': document,
-                        'propagate': true
-                    });
+            shortcut.add("F8", () => {
+                this.validateAndSaveFormData();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
         }
 
         public constructQueryForm() {
@@ -80,45 +80,45 @@ module com.ordermanager.UpdateUtility {
             this.QueryForm = this.ModifiedLayoutObject.cells("a").attachForm();
             this.QueryForm.load(this.UpdateModuleName + "_QueryForm");
             this.QueryForm.attachEvent("onEnter", () => {
-            this.constructUpdateForm();
+                this.constructUpdateForm();
             });
             this.QueryForm.attachEvent("onXLE", () => {
-            this.QueryForm.setFocusOnFirstActive();
+                this.QueryForm.setFocusOnFirstActive();
             });
 
         }
 
         public constructUpdateForm() {
-              this.ModifiedLayoutObject.cells("b").progressOn();
-              if (this.FormObject != null || this.FormObject != undefined) {
-                  this.FormObject.unload();
-              }
-              var ParameterValue = this.QueryForm.getValues();
-              this.FormObject =this.ModifiedLayoutObject.cells("b").attachForm();
-              this.FormObject.load(this.UpdateModuleName + "_Form?ParamJson="+JSON.stringify(ParameterValue));
-              this.FormObject.enableLiveValidation(true);
-              this.FormObject.attachEvent("onXLE", () => {
-                  this.FormObject.setFocusOnFirstActive();
-                  this.FormObject.keyPlus();
-                  progressOffCustom(this.ModifiedLayoutObject.cells("b"));
-                  this.setSpecificFormSettingsoNLoad();
-              });
-             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
-              this.FormObject.attachEvent("onButtonClick", (name) => {
-                  if (name === "ITEM_BUTTON=BUTTON")
-                      var Value = this.constructItemSelectionWindow();
-              });
-            }
-        }
+            this.ModifiedLayoutObject.cells("b").progressOn();
+            if (this.FormObject != null || this.FormObject != undefined) {
+                this.FormObject.unload();
+            }            
+                var ParameterValue = this.QueryForm.getValues();
+                this.FormObject = this.ModifiedLayoutObject.cells("b").attachForm();
+                this.FormObject.load(this.UpdateModuleName + "_Form?ParamJson=" + JSON.stringify(ParameterValue));
+                this.FormObject.enableLiveValidation(true);
+                this.FormObject.attachEvent("onXLE", () => {
+                    this.FormObject.setFocusOnFirstActive();
+                    this.FormObject.keyPlus();
+                    progressOffCustom(this.ModifiedLayoutObject.cells("b"));
+                    this.setSpecificFormSettingsoNLoad();
+                });
+                if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
+                    this.FormObject.attachEvent("onButtonClick", (name) => {
+                        if (name === "ITEM_BUTTON=BUTTON")
+                            var Value = this.constructItemSelectionWindow();
+                    });
+                }
+            }      
 
         public constructItemSelectionWindow() {
-           
+
             var ItemWindow = null;
             ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Select Items", 535, 500);
             ItemWindow.progressOn();
             var ItemGrid = ItemWindow.attachGrid();
-            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR"); 
-            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO); 
+            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
+            ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO);
             ItemGrid.setNoHeader(true)
             ItemGrid.attachEvent("onXLE", () => {
                 ItemWindow.progressOff();
@@ -129,7 +129,7 @@ module com.ordermanager.UpdateUtility {
             ToolBar.attachEvent("onClick", (id) => {
                 if (id === "OK") {
                     this.SelectedItemNameList = [];
-                    ItemGrid.forEachRow((id) => {                      
+                    ItemGrid.forEachRow((id) => {
                         if (ItemGrid.cells(id, 2).getValue() != "") {
                             this.SelectedItemNameList.push(ItemGrid.getUserData(id, "ITEM_NAME"));
                         }
@@ -156,11 +156,11 @@ module com.ordermanager.UpdateUtility {
         }
         public customRateWindow() {
             var FormObj = [
-                { type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130 },
-                { type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label" },
-                { type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
-                { type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
-                { type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok" }
+                {type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130},
+                {type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
+                {type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
+                {type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
+                {type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok"}
             ];
             var ItemWindow = new com.ordermanager.utilty.MainUtility().getModelWindow("Enter Custom Rates", 290, 300);
             var RateForm = ItemWindow.attachForm(FormObj);
@@ -182,15 +182,8 @@ module com.ordermanager.UpdateUtility {
                         else {
                             this.FormObject.enableItem("ITEM_BUTTON=BUTTON");
                         }
-
                     }
-                });
-                //this.FormObject.attachEvent("onXLE", () => {
-                this.FormObject.attachEvent("onButtonClick", (name) => {
-                    if (name === "ITEM_BUTTON=BUTTON")
-                        var Value = this.constructItemSelectionWindow();
-                });
-                //  });
+                });                
                 this.FormObject.attachEvent("onChange", (name, value) => {
                     if (name == "ORDER_STATUS=STR") {
                         this.ModifiedLayoutObject.progressOn();
@@ -201,14 +194,14 @@ module com.ordermanager.UpdateUtility {
                 });
             }
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
-              this.FormObject.attachEvent("onChange", (name, value) => {
-                  if (name == "ORDER_STATUS=STR") {
-                      this.ModifiedLayoutObject.progressOn();
-                      com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
-                      com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
-                      progressOffCustom(this.ModifiedLayoutObject);
-                  }
-              });
+                this.FormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "ORDER_STATUS=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("CURRENT_LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("ORDER_SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
 
             }
 
@@ -219,7 +212,7 @@ module com.ordermanager.UpdateUtility {
             if (this.FormObject.validate()) {
                 if (this.customValidation()) {
                     this.FormObject.updateValues();
-                  this.ModifiedLayoutObject.progressOn();
+                    this.ModifiedLayoutObject.progressOn();
                     var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                     if (Response.RESPONSE_STATUS === "SUCCESS") {
                         showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -240,7 +233,7 @@ module com.ordermanager.UpdateUtility {
                 showFailedNotification("Data Validation Error")
             }
         }
-        public setSpecificAfterSave(){
+        public setSpecificAfterSave() {
             this.OperationToolbar.disableItem("update");
             shortcut.remove("F8");
         }
@@ -255,8 +248,8 @@ module com.ordermanager.UpdateUtility {
                 this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
             }
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
-              var TempJSON = [];
-            
+                var TempJSON = [];
+
             }
         }
         public customValidation() {
@@ -265,13 +258,13 @@ module com.ordermanager.UpdateUtility {
                     showFailedNotification("Delivery date must be after or equal of order date");
                     return false;
                 }
-                if(parseInt(this.FormObject.getItemValue("ADVANCE=NUM")) > parseInt(this.FormObject.getItemValue("PRICE=NUM"))){
-                  showFailedNotification("Advance must be less or equal than price.");
-                  return false;
+                if (parseInt(this.FormObject.getItemValue("ADVANCE=NUM")) > parseInt(this.FormObject.getItemValue("PRICE=NUM"))) {
+                    showFailedNotification("Advance must be less or equal than price.");
+                    return false;
                 }
             }
             return true;
 
         }
-    }    
+    }
 }

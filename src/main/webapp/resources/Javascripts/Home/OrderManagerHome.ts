@@ -24,10 +24,14 @@ module com.ordermanager.home {
         public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";     
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
+        public static CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
+        public static CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
         public static CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";       
         public static CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
-        public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
+        public static CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
+        public static CODE_CANCEL_ORDER = "COD";                
+        public static CODE_REPORT_ORDER_SCHEDULER = "ROS";          
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -41,6 +45,8 @@ module com.ordermanager.home {
         public static REPORT_ORDER_SCHEDULER = "orderScheduler"     
         public static UPDATE_NEW_ORDER = "updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
+        public static UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";        
+        public static UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";        
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
         public static UPDATE_BULK_SINGLE = "updateBulkToSingle";        
@@ -107,6 +113,12 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                    this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT) {
+                    this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT, 170);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT) {
                     this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_MASTER_TAILOR, 100);

@@ -102,6 +102,13 @@ module com.ordermanager.bulkupdate {
             else if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER) {
                 Removeindex = 8;
             }
+            else if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                Removeindex = 10;
+                this.AssignmentGrid.attachEvent("onCellChanged",(rId,cInd,val)=>{
+                    this.calculateStatistics();
+                });
+            }
+
             this.AssignmentGrid.attachEvent("onRowSelect", (id, index) => {
                 if (index === Removeindex && this.AssigmentStatus == "START") {
                     dhtmlx.confirm({
@@ -195,7 +202,14 @@ module com.ordermanager.bulkupdate {
             return status;
         }
         public statisticCounterConstruction() {
-            var StatFields = ["TOTAL PIECE", "URGENT PIECES", "EXTRA ITEMS", "STAT1", "STAT2"];
+            var StatFields;
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                StatFields = ["TOTAL AMOUNT", "ADVANCE", "DISCOUNT", "DUE", "TOTAL PIECE"];
+            }
+            else {
+                StatFields = ["TOTAL PIECE", "URGENT PIECES", "EXTRA ITEMS", "STAT1", "STAT2"];
+            }
+
             this.StatisticsGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
             this.StatisticsGrid.setHeader("Stats");
             this.StatisticsGrid.setNoHeader(true);
@@ -225,6 +239,12 @@ module com.ordermanager.bulkupdate {
             this.StatisticsGrid.setRowTextStyle("STAT_KEY4_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
             this.StatisticsGrid.setRowTextStyle("STAT_KEY5_VALUE", "background-color:#ebffbc; font-weight:bold;font-size:18px;font-family:Impact;");
 
+
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                this.StatisticsGrid.setRowTextStyle("STAT_KEY4_VALUE", "background-color:green; color:white;font-weight:bold;font-size:24px;;");
+            }
+
+
         }
         public calculateStatistics() {
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
@@ -241,12 +261,36 @@ module com.ordermanager.bulkupdate {
                 });
                 this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalPiece);
             }
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+
+                var TotalAmount = 0;
+                var TotalAdvance = 0;
+                var TotalDue = 0;
+                var TotalPiece = 0;
+                var TotalDiscount = 0 ;
+                this.AssignmentGrid.forEachRow((id) => {
+                    TotalAmount += parseInt(this.AssignmentGrid.cells(id, 3).getValue());
+                    TotalAdvance += parseInt(this.AssignmentGrid.cells(id, 4).getValue());
+                    TotalDue += parseInt(this.AssignmentGrid.cells(id, 6).getValue());
+                    TotalPiece += parseInt(this.AssignmentGrid.cells(id, 2).getValue());
+                    TotalDiscount += parseInt(this.AssignmentGrid.cells(id, 5).getValue());
+                });
+                this.StatisticsGrid.cells("STAT_KEY1_VALUE", 0).setValue(TotalAmount);
+                this.StatisticsGrid.cells("STAT_KEY2_VALUE", 0).setValue(TotalAdvance);
+                this.StatisticsGrid.cells("STAT_KEY3_VALUE", 0).setValue(TotalDiscount);
+                this.StatisticsGrid.cells("STAT_KEY4_VALUE", 0).setValue(TotalDue);
+                this.StatisticsGrid.cells("STAT_KEY5_VALUE", 0).setValue(TotalPiece);
+
+            }
+
         }
         public setSpecificBeforeSave() {
             var AllBillNos = [];
+            var DiscountList = {};
             this.AssignmentGrid.forEachRow((id) => {
                 var BillNo = this.AssignmentGrid.cells(id, 1).getValue();
                 AllBillNos.push(BillNo);
+                DiscountList[BillNo] =  this.AssignmentGrid.cells(id, 5).getValue();
             });
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
                 this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
@@ -264,11 +308,19 @@ module com.ordermanager.bulkupdate {
             }
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_SINGLE) {
                 this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
-                this.ParameterJSON["TYPE=STR"] = "TO_"+this.QueryForm.getItemValue("TYPE=STR");
+                this.ParameterJSON["TYPE=STR"] = "TO_" + this.QueryForm.getItemValue("TYPE=STR");
                 this.ParameterJSON["NAME=STR"] = this.QueryForm.getItemValue("NAME=STR");
                 this.ParameterJSON["ASSIGNMENT_DATE=DATE"] = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
                 this.ParameterJSON["LOCATION=STR"] = this.QueryForm.getItemValue("LOCATION=STR");
             }
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                this.ParameterJSON["DELIVERY_DATE=DATE"] = this.QueryForm.getItemValue("DELIVERY_DATE=DATE", true);
+                this.ParameterJSON["NAME=STR"] = this.QueryForm.getItemValue("NAME=STR");
+                this.ParameterJSON["ONLY_READY_TO_DELIVER=NUM"] = this.QueryForm.getItemValue("ONLY_READY_TO_DELIVER=NUM");
+                this.ParameterJSON["DISCOUNT_LIST"] = DiscountList;
+            }
+
         }
         public setSpecificOnLoad() {
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {
@@ -288,6 +340,13 @@ module com.ordermanager.bulkupdate {
                 });
 
             }
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                this.QueryForm.setItemValue("DELIVERY_DATE=DATE", getCurrentDate());
+
+
+
+            }
+
         }
         public setFormStateAfterSave(Response: any) {
             var HelpCell;
@@ -304,7 +363,13 @@ module com.ordermanager.bulkupdate {
                 HelpCell = 10;
                 IconCell = 11;
             }
-            this.AssigmentStatus = "END";
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+                
+                HelpCell = 10 ;
+                IconCell = 11 ; 
+
+            }
+            this.AssigmentStatus = "END" ;         
             this.AssignmentGrid.forEachRow((id) => {
                 var BILLNO = this.AssignmentGrid.cells(id, 1).getValue()
                 this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);

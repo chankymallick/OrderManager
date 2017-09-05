@@ -135,7 +135,7 @@
                         <userdata name="ITEM_NAME">${ITEM_NAME}</userdata> 
                         <cell></cell>  
                         <cell><![CDATA[<a href="#" class="ITEM_BUTTON${CSSID}">${ITEM_NAME}</a> ]]></cell>
-                         <c:set var="contains" value="false" />
+                            <c:set var="contains" value="false" />
                             <c:forEach var="SavedItem" items="${SavedList}">
                                 <c:if test="${SavedItem eq ITEM_NAME}">
                                     <c:set var="contains" value="true" />
@@ -508,6 +508,24 @@
         <column width="100" type="ro" align="center" color="white" >ITEM</column>
         <column width="300" type="ro" align="center" color="white" >EXTRAS</column> 
         <column width="80" type="ro" align="center" color="white" >REMOVE</column>      
+    </head> 
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('updateDeliveryCompleted')}">
+    <rows>
+        <head>            
+        <column width="40" type="ro" align="center" color="white" >NO</column>       
+        <column width="100" type="ro" align="center" color="white" >BILL NO</column>        
+        <column width="40" type="ro" align="center" color="white" >QTY</column>
+        <column width="80" type="ro" align="center" color="white" >PRICE</column>
+        <column width="100" type="ro" align="center" color="white" >ADVANCE</column>
+        <column width="70" type="ed" align="center" color="white" >DISCOUNT</column>        
+        <column width="60" type="ro" align="center" color="white" >DUE</column>
+        <column width="150" type="ro" align="center" color="white" >ORDER TYPE</column>
+        <column width="150" type="ro" align="center" color="white" >STATUS</column> 
+        <column type="ro" align="center" color="white" >NOTE</column>     
+        <column type="ro" align="center" color="white" >REMOVE</column>
+        <column  type="ro" align="center" color="white" >RESULT</column> 
     </head> 
 </rows>
 </c:if>
