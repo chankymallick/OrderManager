@@ -1,5 +1,6 @@
 package com.ordermanager.order.dao;
 
+import com.google.gson.JsonArray;
 import com.ordermanager.messanger.sendSMS;
 import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
@@ -223,7 +224,7 @@ public class OrderDAO extends DAOHelper {
             String CurrentLocation = paramData.get("CURRENT_LOCATION=STR").toString();
             String MainItemName = paramData.get("ORDER_TYPE=STR").toString();
             int MasterPrice = 0;
-            int TailorPrice = 0;            
+            int TailorPrice = 0;
             if (paramData.has("ITEM_DATA")) { //Review - Custom Rate On/Off without Clicking Ok button in Custom/Item window leads to incocistency               
                 if (!(isOrderCuttingInProgress(BillNo) || isOrderStichingInProgress(BillNo))) {
                     JSONObject NEW_ITEM_DATA = (JSONObject) paramData.get("ITEM_DATA");
@@ -273,7 +274,7 @@ public class OrderDAO extends DAOHelper {
                         paramData.get("PIECE_VENDOR=STR"),
                         BillNo
                     });
-            int OrderStatusLocationInsert = orderMobiltyUpdate( 
+            int OrderStatusLocationInsert = orderMobiltyUpdate(
                     paramData.get("BILL_NO=STR").toString(),
                     paramData.get("ORDER_DATE=DATE").toString(),
                     OrderStatus,
@@ -571,6 +572,7 @@ public class OrderDAO extends DAOHelper {
 
         return response.getJSONResponse();
     }
+
     public String getOrderDetailsForDelivery(JSONObject params) {
 
         ResponseJSONHandler response = new ResponseJSONHandler();
@@ -587,7 +589,7 @@ public class OrderDAO extends DAOHelper {
             pst.setString(2, OrderBillNo);
             pst.setString(3, OrderBillNo);
             rst = pst.executeQuery();
-            if (rst.next()) {              
+            if (rst.next()) {
                 StringBuilder data = new StringBuilder();
                 data.append(rst.getString("BILL_NO")).
                         append(",").
@@ -605,7 +607,7 @@ public class OrderDAO extends DAOHelper {
                         append(",").
                         append(rst.getString("CURRENT_STATUS")).
                         append(",").
-                        append(rst.getString("NOTE")).               
+                        append(rst.getString("NOTE")).
                         append(",").
                         append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
                         append(",").
@@ -710,26 +712,65 @@ public class OrderDAO extends DAOHelper {
         return response.getJSONResponse();
 
     }
+
     public String updateDeliveryCompletedBulk(JSONObject jsonParams, String UserName) {
         ResponseJSONHandler response = new ResponseJSONHandler();
-        try {          
+        try {
             int ONLY_READY_TO_DELIVER = jsonParams.getInt("ONLY_READY_TO_DELIVER=NUM");
             String Date = getParsedTimeStamp(jsonParams.getString("DELIVERY_DATE=DATE")).toString();
-             
+
             JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
-            JSONObject List_Of_Discount = jsonParams.getJSONObject("DISCOUNT_LIST");           
+            JSONObject List_Of_Discount = jsonParams.getJSONObject("DISCOUNT_LIST");
             Map<String, String> assignmentStatusMap = new HashMap();
             int SuccessCount = 0;
-            int TotalBills = List_Of_Orders.length();            
-           
-                for (int i = 0; i < TotalBills; i++) {
-                    String BillNo = List_Of_Orders.getString(i);
-                     int Discount = Integer.parseInt(List_Of_Discount.get(BillNo).toString());  
-                    String AssignmentStatus = this.updateDeliveryTransaction(BillNo, Discount,Date);
-                    SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
-                    assignmentStatusMap.put(BillNo, AssignmentStatus);
-                }            
-            
+            int TotalBills = List_Of_Orders.length();
+
+            for (int i = 0; i < TotalBills; i++) {
+                String BillNo = List_Of_Orders.getString(i);
+                int Discount = Integer.parseInt(List_Of_Discount.get(BillNo).toString());
+                String AssignmentStatus = this.updateDeliveryTransaction(BillNo, Discount, Date);
+                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
+                assignmentStatusMap.put(BillNo, AssignmentStatus);
+            }
+
+            response.setResponse_Value(new JSONObject(assignmentStatusMap));
+            generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully delivered.");
+        } catch (Exception e) {
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+
+        return response.getJSONResponse();
+
+    }
+
+    public String assignmentStatusChangeUpdate(JSONObject jsonParams, String UserName) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        try {
+            JSONObject Form_Values = jsonParams.getJSONObject("PARAMETER_VALUES");
+            JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
+            String Modification_Type = Form_Values.getString("TASK=STR");
+            if (Modification_Type == "CANCEL") {
+                
+              
+            }
+            String AssignmentType  = Form_Values.getString("TYPE=STR");
+            String Name = Form_Values.getString("NAME=STR");
+            String MainStatus = Form_Values.getString("MAIN_STATUS=STR");
+            String SubStatus = Form_Values.getString("SUB_STATUS=STR");
+            String AssignmentDate = Form_Values.getString("ASSIGNMENT_DATE=DATE");
+            String Location = Form_Values.getString("LOCATION=STR");
+
+            Map<String, String> assignmentStatusMap = new HashMap();
+            int SuccessCount = 0;
+            int TotalBills = List_Of_Orders.length();
+
+            for (int i = 0; i < TotalBills; i++) {
+                String BillNo = List_Of_Orders.getString(i);
+
+//                String AssignmentStatus = this.updateDeliveryTransaction(BillNo, Discount, Date);
+//                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
+//                assignmentStatusMap.put(BillNo, AssignmentStatus);
+            }
 
             response.setResponse_Value(new JSONObject(assignmentStatusMap));
             generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully delivered.");
@@ -779,25 +820,40 @@ public class OrderDAO extends DAOHelper {
             return "FAILED," + e.getMessage();
         }
     }
-    public String updateDeliveryTransaction(String BillNo, int Discount , String Date) throws Exception {
+
+    public String updateDeliveryTransaction(String BillNo, int Discount, String Date) throws Exception {
         TransactionDefinition txDef = new DefaultTransactionDefinition();
         TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
         try {
             if (false) {
                 return "FAILED,Order already assigned to Master";
             } else {
-                
-                
+
                 int PaymentTransactionUid = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
-                int PaymentDue = this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE')))",new Object[]{BillNo,BillNo},Integer.class);
-                this.getJdbcTemplate().update("UPDATE ORDERS SET CURRENT_STATUS = 'DELIVERY_COMPLETED' , DISCOUNT=? WHERE BILL_NO = ?",new Object[]{Discount,BillNo});
-                this.getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID , ORDER_BILL_NO ,PAYMENT_TYPE , AMOUNT) VALUES (?,?,'DELIVERY_PAYMENT',?)",new Object[]{PaymentTransactionUid,BillNo,PaymentDue});
-                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString(), "" , "" , "Delivery Completed , Discount - "+Discount);
+                this.getJdbcTemplate().update("UPDATE ORDERS SET CURRENT_STATUS = 'DELIVERY_COMPLETED' , DISCOUNT=? WHERE BILL_NO = ?", new Object[]{Discount, BillNo});
+                this.getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID , ORDER_BILL_NO ,PAYMENT_TYPE , AMOUNT) VALUES (?,?,'DELIVERY_PAYMENT',?)", new Object[]{PaymentTransactionUid, BillNo, this.getOrderDue(BillNo)});
+                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString(), "", "", "Delivery Completed , Discount - " + Discount);
                 mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.ACCOUNTS.PAYMENT_TRANSACTION, PaymentTransactionUid, "Delivery Completed ");
                 mainAuditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDERS, PaymentTransactionUid, "Delivery Completed ");
                 this.getTransactionManager().commit(txStatus);
                 return "SUCCES,DATAUPDATED";
             }
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            return "FAILED," + e.getMessage();
+        }
+    }
+
+    public String cancelAssignment(String BillNo, String Type, ConstantContainer.ORDER_MAIN_STATUS MainStatus, ConstantContainer.ORDER_SUB_STATUS SubStatus, String Date) throws Exception {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+
+//                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString(), "", "", "Delivery Completed , Discount - " + Discount);
+//                mainAuditor(AUDIT_TYPE.DELETED, APP_MODULE.ORDERS.ORDER_ASSIGNMENTS, PaymentTransactionUid, "Delivery Completed ");
+            this.getTransactionManager().commit(txStatus);
+            return "SUCCES,DATAUPDATED";
+
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             return "FAILED," + e.getMessage();
@@ -947,6 +1003,76 @@ public class OrderDAO extends DAOHelper {
             }
         } catch (Exception e) {
             this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
+        } finally {
+            try {
+                pst.close();
+                rst.close();
+                rst2.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+        return response.getJSONResponse();
+    }
+
+    public String getOrderDetailsForAssignmentChange(JSONObject params) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        PreparedStatement pst = null;
+        ResultSet rst = null;
+        Connection con = null;
+        ResultSet rst2 = null;
+        try {
+            String OrderBillNo = params.getString("BILL_NO=STR");
+            if (!isBillExist(OrderBillNo)) {
+                this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
+            } else {
+                String assignmentType = "TO_" + params.getString("TYPE=STR");
+                String SQL = "SELECT OD.BILL_NO,LOCATION,DELIVERY_DATE,QUANTITY,( SELECT TOP 1 MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = ? ORDER BY MOBILITY_UID DESC) AS MAIN_STATUS, (SELECT TOP 1 SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = ? ORDER BY MOBILITY_UID DESC) AS SUB_STATUS,(SELECT TOP 1 CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO = ? ORDER BY MOBILITY_UID DESC) AS CURRENT_LOCATION ,ORDER_TYPE, ASSIGNMENT_DATE,EMPLOYEE_NAME,WAGE_AMOUNT,WAGE_STATUS FROM ORDERS OD INNER JOIN ORDER_ASSIGNMENTS OA ON OD.BILL_NO=OA.BILL_NO WHERE OD.BILL_NO=? AND OA.ASSIGNMENT_TYPE=?";
+                con = this.getJDBCConnection();
+                pst = con.prepareStatement(SQL);
+                pst.setString(1, OrderBillNo);
+                pst.setString(2, OrderBillNo);
+                pst.setString(3, OrderBillNo);
+                pst.setString(4, OrderBillNo);
+                pst.setString(5, assignmentType);
+                rst = pst.executeQuery();
+                if (rst.next()) {
+                    StringBuilder data = new StringBuilder();
+                    data.append(rst.getString("BILL_NO")).
+                            append(",").
+                            append(rst.getString("QUANTITY")).
+                            append(",").
+                            append(this.getCustomFormatDate(rst.getTimestamp("DELIVERY_DATE"))).
+                            append(",").
+                            append(rst.getString("EMPLOYEE_NAME")).
+                            append(",").
+                            append(this.getCustomFormatDate(rst.getTimestamp("ASSIGNMENT_DATE"))).
+                            append(",").
+                            append(rst.getString("MAIN_STATUS")).
+                            append(",").
+                            append(rst.getString("SUB_STATUS")).
+                            append(",").
+                            append(rst.getString("CURRENT_LOCATION")).
+                            append(",").
+                            append(rst.getString("WAGE_STATUS")).
+                            append(",").
+                            append(rst.getString("WAGE_AMOUNT")).
+                            append(",").
+                            append(rst.getString("ORDER_TYPE")).
+                            append(",").
+                            append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
+                            append(",").
+                            append("<img height='20px' width='20px' src='resources/Images/task.png'/>");
+                    response.addResponseValue("DATA", data.toString());
+                    this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
+                } else {
+                    this.generateSQLExceptionResponse(response, new Exception("Bll not Assigned or query mismatched"), "Bll not Assigned or query mismatched");
+                }
+            }
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getOrderDetailsForAssignmentChange Details");
         } finally {
             try {
                 pst.close();

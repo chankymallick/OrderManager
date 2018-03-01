@@ -94,6 +94,8 @@ var com;
                             _this.calculateStatistics();
                         });
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                    }
                     this.AssignmentGrid.attachEvent("onRowSelect", function (id, index) {
                         if (index === Removeindex && _this.AssigmentStatus == "START") {
                             dhtmlx.confirm({
@@ -258,6 +260,8 @@ var com;
                         this.StatisticsGrid.cells("STAT_KEY4_VALUE", 0).setValue(TotalDue);
                         this.StatisticsGrid.cells("STAT_KEY5_VALUE", 0).setValue(TotalPiece);
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                    }
                 };
                 BulkUpdate.prototype.setSpecificBeforeSave = function () {
                     var _this = this;
@@ -296,6 +300,13 @@ var com;
                         this.ParameterJSON["ONLY_READY_TO_DELIVER=NUM"] = this.QueryForm.getItemValue("ONLY_READY_TO_DELIVER=NUM");
                         this.ParameterJSON["DISCOUNT_LIST"] = DiscountList;
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                        this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
+                        var ParameterValue = this.QueryForm.getValues();
+                        var AssignmentDate = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
+                        ParameterValue["ASSIGNMENT_DATE=DATE"] = AssignmentDate;
+                        this.ParameterJSON["PARAMETER_VALUES"] = ParameterValue;
+                    }
                 };
                 BulkUpdate.prototype.setSpecificOnLoad = function () {
                     var _this = this;
@@ -318,6 +329,31 @@ var com;
                     if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
                         this.QueryForm.setItemValue("DELIVERY_DATE=DATE", getCurrentDate());
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                        this.QueryForm.attachEvent("onChange", function (name, value) {
+                            if (name == "MAIN_STATUS=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.QueryForm.getOptions("LOCATION=STR"), "CURRENT_LOCATIONS", "LOCATION_NAME", "PARENT_STATUS", value);
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.QueryForm.getOptions("SUB_STATUS=STR"), "ORDER_STATUS_TYPES", "STATUS_NAME", "STATUS_PARENT_NAME", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                            if (name == "TYPE=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.QueryForm.getOptions("NAME=STR"), "EMPLOYEES", "EMP_NAME", "EMP_ROLE", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                            if (name == "TASK=STR") {
+                                if (value === "CANCEL") {
+                                    _this.QueryForm.disableItem("NAME=STR");
+                                    _this.QueryForm.disableItem("ASSIGNMENT_DATE=DATE");
+                                }
+                                else {
+                                    _this.QueryForm.enableItem("NAME=STR");
+                                    _this.QueryForm.enableItem("ASSIGNMENT_DATE=DATE");
+                                }
+                            }
+                        });
+                    }
                 };
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
                     var _this = this;
@@ -339,8 +375,11 @@ var com;
                         HelpCell = 10;
                         IconCell = 11;
                     }
+                    if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                        HelpCell = 11;
+                        IconCell = 12;
+                    }
                     this.AssigmentStatus = "END";
-                    console.log("");
                     this.AssignmentGrid.forEachRow(function (id) {
                         var BILLNO = _this.AssignmentGrid.cells(id, 1).getValue();
                         _this.AssignmentGrid.setUserData(id, "SERVER_DATA", Response.RESPONSE_VALUE[BILLNO]);

@@ -183,6 +183,7 @@ public class UtilityDAO extends DAOHelper {
                 billData.add(rows);
             }
             orderData.put("PAYMENT_DATA", billData);
+            int Due = this.getOrderDue(BILL_NO);
             pstOrderData = con.prepareStatement("SELECT TOP 1 OD.ORDER_DATE, OD.DELIVERY_DATE,OD.PRICE,OM.MAIN_STATUS,OM.SUB_STATUS,CURRENT_LOCATION FROM ORDERS OD INNER JOIN ORDER_MOBILITY OM ON OD.BILL_NO=OM.BILL_NO WHERE OD.BILL_NO=? ORDER BY OM.MOBILITY_UID DESC");
             pstOrderData.setString(1, BILL_NO);
             rstOrderData = pstOrderData.executeQuery();
@@ -193,6 +194,7 @@ public class UtilityDAO extends DAOHelper {
                 orderData.put("MAIN_STATUS", rstOrderData.getString("MAIN_STATUS"));
                 orderData.put("SUB_STATUS", rstOrderData.getString("SUB_STATUS"));
                 orderData.put("CURRENT_LOCATION", rstOrderData.getString("CURRENT_LOCATION"));
+                orderData.put("DUE",Due);
             }
             orderData.put("TOTAL_ADVANCE", Integer.toString(TotalAdvance));
             return orderData;

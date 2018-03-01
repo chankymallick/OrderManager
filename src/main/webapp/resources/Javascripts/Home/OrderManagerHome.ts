@@ -3,6 +3,7 @@
 /// <reference path="../Utility/BulkUpdate.ts"/>
 /// <reference path="../Utility/ReportingUtility.ts"/>
 /// <reference path="../Utility/OrderScheduler.ts"/>
+declare var Commands: any;
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 declare var Language: any;
@@ -18,20 +19,21 @@ module com.ordermanager.home {
         public static CODE_QUICK_NEW_ORDER = "AQA"
         public static CODE_QUICK_NEW_LOCATION = "ANL";
         public static CODE_ADD_NEW_EMPLOYEE = "ANE";
-        public static CODE_UPLOAD = "UIMG";      
+        public static CODE_UPLOAD = "UIMG";
         public static CODE_REPORT_DAILY_ADVANCE = "RDA";
         public static CODE_REPORT_PROUCTION_REPORT = "RDP";
-        public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";     
+        public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";
         public static CODE_UPDATE_NEW_ORDER = "UNO";
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
         public static CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
+        public static CODE_UPDATE_LABOUR_WAGE = "CLW";
         public static CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
-        public static CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";       
+        public static CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
         public static CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
         public static CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
-        public static CODE_CANCEL_ORDER = "COD";                
-        public static CODE_REPORT_ORDER_SCHEDULER = "ROS";          
+        public static CODE_CANCEL_ORDER = "COD";
+        public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -40,16 +42,17 @@ module com.ordermanager.home {
         public static FORM_QUICK_NEW_ORDER = "quickNewOrder";
         public static FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
-        public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";      
+        public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         public static REPORT_DAILY_ADVANCE = "advanceReport";
-        public static REPORT_ORDER_SCHEDULER = "orderScheduler"     
+        public static REPORT_ORDER_SCHEDULER = "orderScheduler"
         public static UPDATE_NEW_ORDER = "updateNewOrder";
         public static UPDATE_ADVANCE = "addadvance";
-        public static UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";        
-        public static UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";        
+        public static UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
+        public static UPDATE_LABOUR_WAGE = "updateLabourWage";
+        public static UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
-        public static UPDATE_BULK_SINGLE = "updateBulkToSingle";        
+        public static UPDATE_BULK_SINGLE = "updateBulkToSingle";
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -58,19 +61,54 @@ module com.ordermanager.home {
         public ReportViewManagerObject: any;
         public UpdateManagerObject: any;
         public DBConnection: any;
-        constructor() {
+
+        public AutoCompleteCommandMenu() {
+            Commands = [
+                {"label": "ANI   [Add New Item]", "value":"ANI"},
+                {"label": "ANST [Add New Status Type]", "value":"ANST"},
+                {"label": "ANO  [Add New Order]", "value":"ANO"},
+                {"label": "ANU  [Add New User]", "value":"ANU"},
+                {"label": "ANE  [Add New Employee]", "value":"ANE"},
+                {"label": "AQA  [Add Quick Advance]", "value":"AQA"},
+                {"label": "UIMG [Upload Order Image]", "value":"UIMG"},
+                {"label": "ANL   [Add New Location]", "value":"ANL"},
+                {"label": "DP    [Delivery Payment]", "value":"DP"},
+                {"label": "RDA  [Report Daily Advance]", "value":"RDA"},
+                {"label": "RDP  [Report Daily Production]", "value":"RDP"},   
+                {"label": "CLW  [Change Labour Wage]", "value":"CLW"},
+                {"label": "UAW  [Update Assignment Wage]", "value":"UAW"},
+                {"label": "UAD  [Update Advance]", "value":"UAD"},
+                {"label": "UNO  [Update New Order]", "value":"UNO"},                
+                {"label": "ROS  [Report Order Scheduler]", "value":"ROS"},
+                {"label": "COD  [Cancel Order]", "value":"COD"},
+                {"label": "UBCA [Update Bulk Change Assignment]", "value":"UBCA"},
+                {"label": "UBRD [Update Bulk Ready to Delivery]", "value":"UBRD"},
+                {"label": "UBS   [Update Bulk Single Assignment]", "value":"UBS"},
+                {"label": "UBMT [Update Bulk Master Tailor Assignment]", "value":"UBMT"},
+                {"label": "WPS   [Wage Payment System]", "value":"WPS"}
+            ];
+              $("#searchCode").autocomplete({
+              source: Commands,
+                    select: function (event, ui) {
+                    }
+                });
+        }
+        constructor() {            
             this.initLayout();
             this.commandRegister();
             this.HomeLayoutObject.attachEvent("onCollapse", (name) => {
                 if (name === "a") {
                     this.commandRegister();
+                    this.AutoCompleteCommandMenu();
                 }
             });
             this.HomeLayoutObject.attachEvent("onExpand", (name) => {
                 if (name === "a") {
                     this.commandRegister();
+                    this.AutoCompleteCommandMenu();
                 }
             });
+          this.AutoCompleteCommandMenu();
         }
         public commandRegister() {
             shortcut.add("Home", () => {
@@ -130,12 +168,12 @@ module com.ordermanager.home {
                     this.menuBulkUpdateActionInitializer(OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_PROUCTION_REPORT) {
-                          this.HomeLayoutObject.cells("a").collapse();
-                          new com.ordermanager.reportingutility.DayWiseProductionReport(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
+                    this.HomeLayoutObject.cells("a").collapse();
+                    new com.ordermanager.reportingutility.DayWiseProductionReport(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_WAGE_PAYMENT_SYSTEM) {
-                          this.HomeLayoutObject.cells("a").collapse();
-                          new com.ordermanager.reportingutility.WagePaymentSystem(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
+                    this.HomeLayoutObject.cells("a").collapse();
+                    new com.ordermanager.reportingutility.WagePaymentSystem(this.HomeLayoutObject.cells("b"), this.HomeLayoutObject.cells("c"));
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                     this.webcamImageManager();
@@ -189,39 +227,39 @@ module com.ordermanager.home {
                 this.loadMenuItems(id)
             });
         }
-          public dbStatusLoader() {
-//            var intervalVar = setInterval(() => {
-//                try {
-//                    var currentRequest = null;
-//                    currentRequest = jQuery.ajax({
-//                        type: 'POST',
-//                        data: '',
-//                        url: 'getdBStatus',
-//                        beforeSend:  ()=> {
-//                            if (currentRequest != null) {
-//                                currentRequest.abort();
-//                                this.HomeToolbar.disableItem("dbState");
-//                                this.HomeToolbar.setItemText("dbState", "Disconnected");
-//                            }
-//                        },
-//                        success:  (data)=> {
-//                            if (data == true) {
-//                                this.HomeToolbar.enableItem("dbState");
-//                                this.HomeToolbar.setItemText("dbState", "Connected");
-//                            }
-//                            else {
-//                                this.HomeToolbar.disableItem("dbState");
-//                                this.HomeToolbar.setItemText("dbState", "Disconnected");
-//                            }
-//                        },
-//                        error:  (e)=> {
-//                            this.HomeToolbar.disableItem("dbState");
-//                            this.HomeToolbar.setItemText("dbState", "Disconnected");
-//                        }
-//                    });
-//                } catch (e) {
-//                }
-//            }, 30*1000);
+        public dbStatusLoader() {
+            //            var intervalVar = setInterval(() => {
+            //                try {
+            //                    var currentRequest = null;
+            //                    currentRequest = jQuery.ajax({
+            //                        type: 'POST',
+            //                        data: '',
+            //                        url: 'getdBStatus',
+            //                        beforeSend:  ()=> {
+            //                            if (currentRequest != null) {
+            //                                currentRequest.abort();
+            //                                this.HomeToolbar.disableItem("dbState");
+            //                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+            //                            }
+            //                        },
+            //                        success:  (data)=> {
+            //                            if (data == true) {
+            //                                this.HomeToolbar.enableItem("dbState");
+            //                                this.HomeToolbar.setItemText("dbState", "Connected");
+            //                            }
+            //                            else {
+            //                                this.HomeToolbar.disableItem("dbState");
+            //                                this.HomeToolbar.setItemText("dbState", "Disconnected");
+            //                            }
+            //                        },
+            //                        error:  (e)=> {
+            //                            this.HomeToolbar.disableItem("dbState");
+            //                            this.HomeToolbar.setItemText("dbState", "Disconnected");
+            //                        }
+            //                    });
+            //                } catch (e) {
+            //                }
+            //            }, 30*1000);
         }
         public skinChanger(dhtmlxObject: any, skinType: any) {
             if (skinType === "white") {

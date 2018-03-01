@@ -33,44 +33,44 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author Maliick
  */
 public class DAOHelper extends ConstantContainer {
-    
+
     private JdbcTemplate jdbcTemplate;
     private PlatformTransactionManager transactionManager;
-    
+
     public PlatformTransactionManager getTransactionManager() {
         return transactionManager;
     }
-    
+
     public void setTransactionManager(PlatformTransactionManager txManager) {
         this.transactionManager = txManager;
     }
-    
+
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
-    
+
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-    
+
     public int getColumnAutoIncrementValue(String tableName, String ColumnName) {
         int maxNumber = jdbcTemplate.queryForObject("SELECT ISNULL(MAX(" + ColumnName + "),0) FROM " + tableName, Integer.class);
         return ++maxNumber;
     }
-    
+
     public Connection getJDBCConnection() {
         try {
             return this.jdbcTemplate.getDataSource().getConnection();
         } catch (Exception e) {
             return null;
         }
-        
+
     }
-    
+
     public String isValueExistInTable(String Value, String TableName, String ColumnName) {
         ResponseJSONHandler rspJSON = new ResponseJSONHandler();
         try {
-            
+
             String SQL = new StringBuilder("SELECT COUNT(").append(ColumnName).append(") FROM ").append(TableName).append(" WHERE ").append(ColumnName).append("=?").toString();
             int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value}, Integer.class);
             if (dataCount > 0) {
@@ -80,18 +80,32 @@ public class DAOHelper extends ConstantContainer {
                 this.generateSQLSuccessResponse(rspJSON, Value + " : Value is Unique");
                 rspJSON.addResponseValue("UNIQUE", "TRUE");
             }
-            
+
         } catch (DataAccessException e) {
             this.generateSQLExceptionResponse(rspJSON, e, "Operation Failed , Check Logs");
         }
         return rspJSON.getJSONResponse();
-        
+
     }
-    
+
+    public boolean isBillExist(String BILLNo) {
+        try {
+            int dataCount = this.jdbcTemplate.queryForObject("SELECT COUNT(BILL_NO) FROM ORDERS WHERE BILL_NO =? ", new Object[]{BILLNo}, Integer.class);
+            if(dataCount>0){
+            return true;
+            }
+            else{
+            return false;
+            }
+        } catch (DataAccessException e) {
+            return false;        
+        }     
+    }
+
     public String isCompositeValueExistInTable(String TableName, String ColumnName1, String ColumnName2, String Value1, String Value2) {
         ResponseJSONHandler rspJSON = new ResponseJSONHandler();
         try {
-            
+
             String SQL = new StringBuilder("SELECT COUNT(").append(ColumnName1).append(") FROM ").append(TableName).append(" WHERE ").append(ColumnName1).append("=? AND ").append(ColumnName2).append("=?").toString();
             int dataCount = this.jdbcTemplate.queryForObject(SQL, new Object[]{Value1, Value2}, Integer.class);
             if (dataCount > 0) {
@@ -101,27 +115,27 @@ public class DAOHelper extends ConstantContainer {
                 this.generateSQLSuccessResponse(rspJSON, Value1 + " : Value is Unique");
                 rspJSON.addResponseValue("UNIQUE", "TRUE");
             }
-            
+
         } catch (Exception e) {
             this.generateSQLExceptionResponse(rspJSON, e, "Operation Failed , Check Logs");
         }
         return rspJSON.getJSONResponse();
-        
+
     }
-    
+
     public ResponseJSONHandler generateSQLExceptionResponse(ResponseJSONHandler responseJSON, Exception ex, String Message) {
         responseJSON.setResponse_Status(ConstantContainer.ResponseJSONStatus.FAILED.toString());
         responseJSON.setResponse_Message(Message);
         responseJSON.addResponseValue("EXCEPTION_MESSAGE", ex.getMessage());
         return responseJSON;
     }
-    
+
     public ResponseJSONHandler generateSQLSuccessResponse(ResponseJSONHandler responseJSON, String Message) {
         responseJSON.setResponse_Status(ConstantContainer.ResponseJSONStatus.SUCCESS.toString());
         responseJSON.setResponse_Message(Message);
         return responseJSON;
     }
-    
+
     public String getSimpleSQLInsert(JSONObject jsonParam, String tableName) throws Exception {
         StringBuffer InsertQuery = new StringBuffer();
         StringBuffer ColumnNames = new StringBuffer();
@@ -159,7 +173,7 @@ public class DAOHelper extends ConstantContainer {
         InsertQuery.append(ColumnNames).append(" ").append("VALUES").append(" ").append(ColumnValues);
         return InsertQuery.toString();
     }
-    
+
     public List<Object> getJSONDataForGrid(String SQLQuery) {
         List<Object> allRows = new ArrayList();
         List<String> columnNames = new ArrayList();
@@ -192,7 +206,7 @@ public class DAOHelper extends ConstantContainer {
             returnValues.add(columnNames);
             rst.close();
             pst.close();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -203,10 +217,10 @@ public class DAOHelper extends ConstantContainer {
             } catch (Exception e) {
             }
         }
-        
+
         return returnValues;
     }
-    
+
     public String saveAndUpdateAppData(String Module, String Key, String Value) {
         ResponseJSONHandler rsph = new ResponseJSONHandler();
         try {
@@ -223,7 +237,7 @@ public class DAOHelper extends ConstantContainer {
         }
         return rsph.getJSONResponse();
     }
-    
+
     public String getAppData(String Module, String Key) {
         ResponseJSONHandler rsph = new ResponseJSONHandler();
         try {
@@ -236,13 +250,13 @@ public class DAOHelper extends ConstantContainer {
             return "";
         }
     }
-    
+
     public Timestamp getCurrentTimeStamp() {
         Calendar cal = Calendar.getInstance();
         Timestamp timestamp = new Timestamp(cal.getTimeInMillis());
         return timestamp;
     }
-    
+
     public String getDatePartOfTimestamp(String valueFromDB) {
         try {
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
@@ -254,21 +268,21 @@ public class DAOHelper extends ConstantContainer {
             return null;
         }
     }
-    
+
     public Timestamp getParsedTimeStamp(String Date) throws Exception {
         SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
         Date lFromDate1 = datetimeFormatter1.parse(Date);
         Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
         return fromTS1;
     }
-    
+
     public Timestamp getParsedTimeStampDash(String Date) throws Exception {
         SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("yyyy-MM-dd");
         Date lFromDate1 = datetimeFormatter1.parse(Date);
         Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
         return fromTS1;
     }
-    
+
     public String getCustomFormatDate(Timestamp Date) throws Exception {
         if (Date == null) {
             return "";
@@ -279,7 +293,7 @@ public class DAOHelper extends ConstantContainer {
         String text = df.format(dateObj);
         return text;
     }
-    
+
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
@@ -290,7 +304,7 @@ public class DAOHelper extends ConstantContainer {
             return false;
         }
     }
-    
+
     public boolean mainAuditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
@@ -301,7 +315,7 @@ public class DAOHelper extends ConstantContainer {
             return false;
         }
     }
-    
+
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
@@ -312,7 +326,7 @@ public class DAOHelper extends ConstantContainer {
             return false;
         }
     }
-    
+
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
@@ -379,16 +393,16 @@ public class DAOHelper extends ConstantContainer {
     public String getDistinctStringtDataFromDatabase(String SQL, Object[] placeHolderParams) {
         return this.getJdbcTemplate().queryForObject(SQL, placeHolderParams, String.class);
     }
-    
+
     public int orderMobiltyUpdate(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note) throws Exception {
         int isOrderMovedBefore = getDistinctIntDataFromDatabase("SELECT COUNT(BILL_NO) FROM ORDER_MOBILITY WHERE BILL_NO=?", new Object[]{BillNo});
         if (isOrderMovedBefore > 0) {
-            
+
             double MainActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='MAIN_STATUS' AND STATUS_NAME = ?", new Object[]{MainStatus}));
             double SubActualStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM  ORDER_STATUS_TYPES  WHERE STATUS_TYPE='SUB_STATUS' AND STATUS_NAME = ? AND STATUS_PARENT_NAME=?", new Object[]{SubStatus, MainStatus}));
             double MainlastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?)) AND STATUS_TYPE='MAIN_STATUS'", new Object[]{BillNo, BillNo}));
             double SubLastStatusOrder = Double.parseDouble(getDistinctStringtDataFromDatabase(" SELECT DISTINCT ISNULL(SUM(STATUS_ORDER),0) FROM ORDER_STATUS_TYPES WHERE STATUS_NAME=(SELECT DISTINCT SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? AND MOBILITY_UID IN (SELECT MAX(MOBILITY_UID) FROM ORDER_MOBILITY WHERE BILL_NO = ?)) AND STATUS_TYPE='SUB_STATUS'", new Object[]{BillNo, BillNo}));
-            
+
             if (MainActualStatusOrder > MainlastStatusOrder) {
                 int OrderStatusLocationInsert = addOrderMobility(BillNo, Date, MainStatus, SubStatus, CurrentLocation, Note);
                 return OrderStatusLocationInsert;
@@ -410,7 +424,7 @@ public class DAOHelper extends ConstantContainer {
             return OrderStatusLocationInsert;
         }
     }
-    
+
     public int addOrderMobility(String BillNo, String Date, String MainStatus, String SubStatus, String CurrentLocation, String Note) {
         int OrderStatusLocationInsert = getJdbcTemplate().update("INSERT INTO ORDER_MOBILITY VALUES (?,?,?,?,?,?,?)", new Object[]{
             this.getColumnAutoIncrementValue("ORDER_MOBILITY", "MOBILITY_UID"),
@@ -426,51 +440,55 @@ public class DAOHelper extends ConstantContainer {
         }
         return OrderStatusLocationInsert;
     }
-    
+
+    public int getOrderDue(String BillNo) {
+        return this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ?))", new Object[]{BillNo, BillNo}, Integer.class);
+    }
+
     public boolean isOrderFinishingCompleted(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderIronCompleted(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderCuttingInProgress(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderStichingInProgress(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR'", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderMasterWagePaid(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_MASTER' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderTailorWagePaid(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_TAILOR' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderFinisherWagePaid(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_FINISHER' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderIronWagePaid(String BillNumber) {
         return (this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) AS EXIST FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE = 'TO_IRON' AND WAGE_STATUS='PAID' ", new Object[]{BillNumber}, Integer.class) == 1) ? true : false;
     }
-    
+
     public boolean isOrderCustomPriceActive(String BillNo) {
         return (this.getJdbcTemplate().queryForObject("SELECT CUSTOM_PRICE_ENABLED FROM ORDERS WHERE BILL_NO=?", new Object[]{BillNo}, Integer.class) == 1) ? true : false;
     }
-    
+
     public int getMasterCustomRate(String BillNo) {
         return this.getJdbcTemplate().queryForObject("SELECT CUSTOM_PRICE_MASTER*QUANTITY FROM ORDERS WHERE BILL_NO=?", new Object[]{BillNo}, Integer.class);
     }
-    
+
     public int getTailorCustomRate(String BillNo) {
         return this.getJdbcTemplate().queryForObject("SELECT CUSTOM_PRICE_TAILOR*QUANTITY FROM ORDERS WHERE BILL_NO=?", new Object[]{BillNo}, Integer.class);
     }
-    
+
     public int getWageAmount(String Bill_NO, ConstantContainer.ASSIGNMENTS_TYPES Type) {
         int WageAmount = 0;
         if (Type.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_MASTER)) {
@@ -492,7 +510,7 @@ public class DAOHelper extends ConstantContainer {
         }
         return WageAmount;
     }
-    
+
     public String[] payMasterWage(String BillNo, String MasterName) {
         try {
             if (!isOrderMasterWagePaid(BillNo)) {
@@ -506,7 +524,7 @@ public class DAOHelper extends ConstantContainer {
             return new String[]{"FAIL", e.getMessage()};
         }
     }
-    
+
     public String[] payTailorWage(String BillNo, String TailorName) {
         try {
             if (!isOrderTailorWagePaid(BillNo)) {
@@ -520,7 +538,7 @@ public class DAOHelper extends ConstantContainer {
             return new String[]{"FAIL", e.getMessage()};
         }
     }
-    
+
     public String[] payFinisherWage(String BillNo, String FinisherName) {
         try {
             if (!isOrderFinisherWagePaid(BillNo)) {
@@ -534,7 +552,7 @@ public class DAOHelper extends ConstantContainer {
             return new String[]{"FAIL", e.getMessage()};
         }
     }
-    
+
     public String[] payIronWage(String BillNo, String IronName) {
         try {
             if (!isOrderIronWagePaid(BillNo)) {
@@ -548,7 +566,7 @@ public class DAOHelper extends ConstantContainer {
             return new String[]{"FAIL", e.getMessage()};
         }
     }
-    
+
     public static void main(String[] args) {
         try {
 //            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
@@ -566,7 +584,7 @@ public class DAOHelper extends ConstantContainer {
             Date endDate = formatter.parse("01/05/17");
             LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            
+
             for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
                 // Do your job here with `date`.
 

@@ -29,6 +29,7 @@ var com;
             CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
             CommandHandler.CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
             CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
+            CommandHandler.CODE_UPDATE_LABOUR_WAGE = "CLW";
             CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
             CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
             CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
@@ -44,14 +45,48 @@ var com;
                     this.HomeLayoutObject.attachEvent("onCollapse", function (name) {
                         if (name === "a") {
                             _this.commandRegister();
+                            _this.AutoCompleteCommandMenu();
                         }
                     });
                     this.HomeLayoutObject.attachEvent("onExpand", function (name) {
                         if (name === "a") {
                             _this.commandRegister();
+                            _this.AutoCompleteCommandMenu();
                         }
                     });
+                    this.AutoCompleteCommandMenu();
                 }
+                OrderManagerHome.prototype.AutoCompleteCommandMenu = function () {
+                    Commands = [
+                        { "label": "ANI   [Add New Item]", "value": "ANI" },
+                        { "label": "ANST [Add New Status Type]", "value": "ANST" },
+                        { "label": "ANO  [Add New Order]", "value": "ANO" },
+                        { "label": "ANU  [Add New User]", "value": "ANU" },
+                        { "label": "ANE  [Add New Employee]", "value": "ANE" },
+                        { "label": "AQA  [Add Quick Advance]", "value": "AQA" },
+                        { "label": "UIMG [Upload Order Image]", "value": "UIMG" },
+                        { "label": "ANL   [Add New Location]", "value": "ANL" },
+                        { "label": "DP    [Delivery Payment]", "value": "DP" },
+                        { "label": "RDA  [Report Daily Advance]", "value": "RDA" },
+                        { "label": "RDP  [Report Daily Production]", "value": "RDP" },
+                        { "label": "CLW  [Change Labour Wage]", "value": "CLW" },
+                        { "label": "UAW  [Update Assignment Wage]", "value": "UAW" },
+                        { "label": "UAD  [Update Advance]", "value": "UAD" },
+                        { "label": "UNO  [Update New Order]", "value": "UNO" },
+                        { "label": "ROS  [Report Order Scheduler]", "value": "ROS" },
+                        { "label": "COD  [Cancel Order]", "value": "COD" },
+                        { "label": "UBCA [Update Bulk Change Assignment]", "value": "UBCA" },
+                        { "label": "UBRD [Update Bulk Ready to Delivery]", "value": "UBRD" },
+                        { "label": "UBS   [Update Bulk Single Assignment]", "value": "UBS" },
+                        { "label": "UBMT [Update Bulk Master Tailor Assignment]", "value": "UBMT" },
+                        { "label": "WPS   [Wage Payment System]", "value": "WPS" }
+                    ];
+                    $("#searchCode").autocomplete({
+                        source: Commands,
+                        select: function (event, ui) {
+                        }
+                    });
+                };
                 OrderManagerHome.prototype.commandRegister = function () {
                     var _this = this;
                     shortcut.add("Home", function () {
@@ -307,6 +342,7 @@ var com;
             OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
             OrderManagerHome.UPDATE_ADVANCE = "addadvance";
             OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
+            OrderManagerHome.UPDATE_LABOUR_WAGE = "updateLabourWage";
             OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
             OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
             OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";

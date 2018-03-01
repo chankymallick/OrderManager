@@ -478,6 +478,26 @@
     </head> 
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('assignmentStatusChange')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="center" color="white" >NO</column>       
+        <column width="60" type="ro" align="center" color="white" >BILL NO</column>       
+        <column width="30" type="ro" align="center" color="white" >QTY</column>
+        <column width="70" type="ro" align="center" color="white" >DELIVERY DATE</column>
+        <column width="80" type="ro" align="center" color="white" >NAME</column>
+        <column width="70" type="ro" align="center" color="white" >ASSIGNED DATE</column>
+        <column width="130" type="ro" align="center" color="white" >MAIN STATUS</column>  
+        <column width="130" type="ro" align="center" color="white" >SUB STATUS</column>
+        <column width="80" type="ro" align="center" color="white" >CURRENT LOCATION</column>        
+        <column width="70" type="ro" align="center" color="white" >WAGE STATUS</column>        
+        <column width="60" type="ro" align="center" color="white" >WAGE AMOUNT</column>        
+        <column width="70" type="ro" align="center" color="white" >ORDER TYPE</column>        
+        <column width="60" type="ro" align="center" color="white" >REMOVE</column>      
+        <column width="60" type="ro" align="center" color="white" >RESULT</column>     
+        </head> 
+</rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('updateBulkToSingle')}">
     <rows>
         <head>            
