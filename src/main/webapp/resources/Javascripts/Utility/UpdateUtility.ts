@@ -78,10 +78,17 @@ module com.ordermanager.UpdateUtility {
                 this.QueryForm.unload();
             }
             this.QueryForm = this.ModifiedLayoutObject.cells("a").attachForm();
-            this.QueryForm.load(this.UpdateModuleName + "_QueryForm");
-            this.QueryForm.attachEvent("onEnter", () => {
-                this.constructUpdateForm();
-            });
+            this.QueryForm.load(this.UpdateModuleName + "_QueryForm");            
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ITEM) {             
+            this.QueryForm.attachEvent("onChange", (name, value) => {              
+                    this.constructUpdateForm();
+                });
+            }
+            else {
+                this.QueryForm.attachEvent("onEnter", () => {
+                    this.constructUpdateForm();
+                });
+            }
             this.QueryForm.attachEvent("onXLE", () => {
                 this.QueryForm.setFocusOnFirstActive();
             });
@@ -92,24 +99,24 @@ module com.ordermanager.UpdateUtility {
             this.ModifiedLayoutObject.cells("b").progressOn();
             if (this.FormObject != null || this.FormObject != undefined) {
                 this.FormObject.unload();
-            }            
-                var ParameterValue = this.QueryForm.getValues();
-                this.FormObject = this.ModifiedLayoutObject.cells("b").attachForm();
-                this.FormObject.load(this.UpdateModuleName + "_Form?ParamJson=" + JSON.stringify(ParameterValue));
-                this.FormObject.enableLiveValidation(true);
-                this.FormObject.attachEvent("onXLE", () => {
-                    this.FormObject.setFocusOnFirstActive();
-                    this.FormObject.keyPlus();
-                    progressOffCustom(this.ModifiedLayoutObject.cells("b"));
-                    this.setSpecificFormSettingsoNLoad();
+            }
+            var ParameterValue = this.QueryForm.getValues();
+            this.FormObject = this.ModifiedLayoutObject.cells("b").attachForm();
+            this.FormObject.load(this.UpdateModuleName + "_Form?ParamJson=" + JSON.stringify(ParameterValue));
+            this.FormObject.enableLiveValidation(true);
+            this.FormObject.attachEvent("onXLE", () => {
+                this.FormObject.setFocusOnFirstActive();
+                this.FormObject.keyPlus();
+                progressOffCustom(this.ModifiedLayoutObject.cells("b"));
+                this.setSpecificFormSettingsoNLoad();
+            });
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
+                this.FormObject.attachEvent("onButtonClick", (name) => {
+                    if (name === "ITEM_BUTTON=BUTTON")
+                        var Value = this.constructItemSelectionWindow();
                 });
-                if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_NEW_ORDER) {
-                    this.FormObject.attachEvent("onButtonClick", (name) => {
-                        if (name === "ITEM_BUTTON=BUTTON")
-                            var Value = this.constructItemSelectionWindow();
-                    });
-                }
-            }      
+            }
+        }
 
         public constructItemSelectionWindow() {
 
@@ -183,7 +190,7 @@ module com.ordermanager.UpdateUtility {
                             this.FormObject.enableItem("ITEM_BUTTON=BUTTON");
                         }
                     }
-                });                
+                });
                 this.FormObject.attachEvent("onChange", (name, value) => {
                     if (name == "ORDER_STATUS=STR") {
                         this.ModifiedLayoutObject.progressOn();
@@ -249,6 +256,10 @@ module com.ordermanager.UpdateUtility {
             }
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
                 var TempJSON = [];
+
+            }
+            if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ITEM) {
+                this.GlobalFormJSONValues["OLD_ITEM_NAME=STR"] = this.QueryForm.getItemValue("ITEM_NAME=STR");// For Updating the Name we need Original Name
 
             }
         }

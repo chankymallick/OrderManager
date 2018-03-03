@@ -168,6 +168,7 @@ public class OrderDAO extends DAOHelper {
                 paramData.put("CUSTOM_PRICE_TAILOR=NUM", TailorPrice);
             } else {
                 ItemNameArray = (JSONArray) paramData.get("ITEM_DATA");
+                paramData.put("CUSTOM_PRICE_ENABLED=NUM", 0);
             }
             paramData.remove("CUSTOM_RATE=NUM");
             paramData.remove("ITEM_DATA");
@@ -204,6 +205,47 @@ public class OrderDAO extends DAOHelper {
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
             //       new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+
+    public String updateItem(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            String ItemNewName = paramData.get("ITEM_NAME=STR").toString();
+            String OldItemName = paramData.get("OLD_ITEM_NAME=STR").toString();
+            if (!OldItemName.equalsIgnoreCase(ItemNewName)) {
+                int isItemAlreadyAssignedtoOrder = this.getJdbcTemplate().queryForObject("SELECT COUNT(ITEM_NAME) FROM ORDER_ITEMS WHERE ITEM_NAME = ?", new Object[]{OldItemName}, Integer.class);
+                if (isItemAlreadyAssignedtoOrder > 0) {
+                    throw new Exception("Item Already used  in existing Orders ,  Cannot Modify the Name");
+                }
+            }
+
+            String OLD_Value = getJdbcTemplate().queryForObject("SELECT CONCAT('[ITEM_UID]= ',ITEM_UID,', [ITEM_NAME]= ',ITEM_NAME,', [PARENT_ITEM]=',PARENT_ITEM,', [ITEM_SUB_TYPE]=',ITEM_SUB_TYPE,', [MASTER_PRICE]=',MASTER_PRICE,', [TAILOR_PRICE]=',TAILOR_PRICE,', [TAILOR_PRICE]=',TAILOR_PRICE,', [FINISHER_PRICE]=',FINISHER_PRICE,', [ITEM_ORDER]=',ITEM_ORDER,', [ACTIVE]=',ACTIVE,', [NOTE]=',NOTE) FROM ITEMS WHERE ITEM_NAME = ? ", new Object[]{OldItemName}, String.class);
+            int UpdateStatus = getJdbcTemplate().update("UPDATE ITEMS SET ITEM_NAME=?, ITEM_TYPE=?,PARENT_ITEM=?,ITEM_SUB_TYPE=?,MASTER_PRICE=?,TAILOR_PRICE=?,FINISHER_PRICE=?,ACTIVE=?,NOTE=?  WHERE ITEM_NAME=?",
+                    new Object[]{
+                        ItemNewName,
+                        paramData.get("ITEM_TYPE=STR"),
+                        paramData.get("PARENT_ITEM=STR"),
+                        paramData.get("ITEM_SUB_TYPE=STR"),
+                        paramData.get("MASTER_PRICE=NUM"),
+                        paramData.get("TAILOR_PRICE=NUM"),
+                        paramData.get("FINISHER_PRICE=NUM"),
+                        paramData.get("ACTIVE=NUM"),
+                        paramData.get("NOTE=STR"),
+                        OldItemName
+                    }
+            );
+            if (UpdateStatus > 0) {
+                auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ITEMS, paramData.getInt("ITEM_UID=NUM"), OLD_Value, "Item price updated");
+                this.getTransactionManager().commit(txStatus);
+                generateSQLSuccessResponse(response, paramData.get("ITEM_NAME=STR") + " - Updated Succesfully. ");
+            }
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
@@ -745,41 +787,78 @@ public class OrderDAO extends DAOHelper {
 
     public String assignmentStatusChangeUpdate(JSONObject jsonParams, String UserName) {
         ResponseJSONHandler response = new ResponseJSONHandler();
+        Map<String, String> assignmentStatusMap = new HashMap();
+        int SuccessCount = 0;
+        int TotalBills = 0;
         try {
             JSONObject Form_Values = jsonParams.getJSONObject("PARAMETER_VALUES");
             JSONArray List_Of_Orders = jsonParams.getJSONArray("ALL_BILL_NO");
             String Modification_Type = Form_Values.getString("TASK=STR");
-            if (Modification_Type == "CANCEL") {
-                
-              
-            }
-            String AssignmentType  = Form_Values.getString("TYPE=STR");
-            String Name = Form_Values.getString("NAME=STR");
-            String MainStatus = Form_Values.getString("MAIN_STATUS=STR");
-            String SubStatus = Form_Values.getString("SUB_STATUS=STR");
+            String AssignmentType = "TO_" + Form_Values.getString("TYPE=STR");
+
             String AssignmentDate = Form_Values.getString("ASSIGNMENT_DATE=DATE");
-            String Location = Form_Values.getString("LOCATION=STR");
 
-            Map<String, String> assignmentStatusMap = new HashMap();
-            int SuccessCount = 0;
-            int TotalBills = List_Of_Orders.length();
-
-            for (int i = 0; i < TotalBills; i++) {
-                String BillNo = List_Of_Orders.getString(i);
-
-//                String AssignmentStatus = this.updateDeliveryTransaction(BillNo, Discount, Date);
-//                SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
-//                assignmentStatusMap.put(BillNo, AssignmentStatus);
+            if (Modification_Type.equals("CANCEL")) {
+                String MainStatus = Form_Values.getString("MAIN_STATUS=STR");
+                String SubStatus = Form_Values.getString("SUB_STATUS=STR");
+                String Location = Form_Values.getString("LOCATION=STR");
+                TotalBills = List_Of_Orders.length();
+                for (int i = 0; i < TotalBills; i++) {
+                    String BillNo = List_Of_Orders.getString(i);
+                    String AssignmentStatus = cancelAssignmentTransactions(BillNo, AssignmentType, AssignmentDate, MainStatus, SubStatus, Location, UserName);
+                    SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
+                    assignmentStatusMap.put(BillNo, AssignmentStatus);
+                }
             }
-
+            if (Modification_Type.equals("CHANGE")) {
+                TotalBills = List_Of_Orders.length();
+                for (int i = 0; i < TotalBills; i++) {
+                    String Name = Form_Values.getString("NAME=STR");
+                    String BillNo = List_Of_Orders.getString(i);
+                    String AssignmentStatus = this.changeAssignmentTransactions(BillNo, AssignmentType, getParsedTimeStamp(AssignmentDate).toString(), Name, "Administrator");
+                    SuccessCount = (AssignmentStatus.contains("SUCCES")) ? SuccessCount + 1 : SuccessCount;
+                    assignmentStatusMap.put(BillNo, AssignmentStatus);
+                }
+            }
             response.setResponse_Value(new JSONObject(assignmentStatusMap));
             generateSQLSuccessResponse(response, SuccessCount + " out of " + TotalBills + " Succesfully delivered.");
         } catch (Exception e) {
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
         }
-
         return response.getJSONResponse();
+    }
 
+    public String changeAssignmentTransactions(String BillNo, String AssignmentType, String AssignmentDate, String Name, String UserName) {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            String oldname = getAssignmentEmployeeName(BillNo, AssignmentType);
+            String ChangeStatus = this.changeAssignmentForUnpaidOrder(BillNo, AssignmentType, AssignmentDate, Name, UserName);
+            this.addOrderMobility(BillNo, AssignmentDate, getMainStatus(BillNo), getSubStatus(BillNo), getCurrentLocation(BillNo), "Assignment Changed From - " + oldname);
+            int auditKey = getDistinctIntDataFromDatabase("SELECT ASSIGNMENT_UID FROM ORDER_ASSIGNMENTS WHERE BILL_NO = ? AND ASSIGNMENT_TYPE=?", new Object[]{BillNo, AssignmentType});
+            this.auditor(AUDIT_TYPE.UPDATE, APP_MODULE.ORDER_ASSIGNMENTS, auditKey, BillNo, Name);
+            this.getTransactionManager().commit(txStatus);
+            return ChangeStatus;
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            return "FAILED," + e.getMessage();
+        }
+    }
+
+    public String cancelAssignmentTransactions(String BillNo, String AssignmentType, String AssignmentDate, String MainStatus, String SubStatus, String Location, String UserName) {
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            String ParsedTime = getParsedTimeStamp(AssignmentDate).toString();
+            String oldname = getAssignmentEmployeeName(BillNo, AssignmentType);
+            String CancelStatus = this.cancelAssignment(BillNo, AssignmentType, UserName);
+            this.addOrderMobility(BillNo, ParsedTime, MainStatus, SubStatus, Location, AssignmentType + " - Assignment Cancelled From- " + oldname);
+            this.getTransactionManager().commit(txStatus);
+            return CancelStatus;
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            return "FAILED," + e.getMessage();
+        }
     }
 
     public String addMasterAssignment(String BillNo, String MasterName, String Date, String CurrentLocation) throws Exception {
@@ -838,22 +917,6 @@ public class OrderDAO extends DAOHelper {
                 this.getTransactionManager().commit(txStatus);
                 return "SUCCES,DATAUPDATED";
             }
-        } catch (Exception e) {
-            this.getTransactionManager().rollback(txStatus);
-            return "FAILED," + e.getMessage();
-        }
-    }
-
-    public String cancelAssignment(String BillNo, String Type, ConstantContainer.ORDER_MAIN_STATUS MainStatus, ConstantContainer.ORDER_SUB_STATUS SubStatus, String Date) throws Exception {
-        TransactionDefinition txDef = new DefaultTransactionDefinition();
-        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
-        try {
-
-//                this.orderMobiltyUpdate(BillNo, Date, ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString(), "", "", "Delivery Completed , Discount - " + Discount);
-//                mainAuditor(AUDIT_TYPE.DELETED, APP_MODULE.ORDERS.ORDER_ASSIGNMENTS, PaymentTransactionUid, "Delivery Completed ");
-            this.getTransactionManager().commit(txStatus);
-            return "SUCCES,DATAUPDATED";
-
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             return "FAILED," + e.getMessage();
@@ -1666,6 +1729,10 @@ public class OrderDAO extends DAOHelper {
 
     public String getNextBillNo() {
         try {
+            int isFirstBill = getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) FROM ORDERS", Integer.class);
+            if (isFirstBill == 0) {
+                return "1";
+            }
             int lastBillNo = getJdbcTemplate().queryForObject("SELECT TOP 1 CAST(BILL_NO AS INT) AS BILL_NO FROM orders order by  CAST(BILL_NO AS INT) DESC", Integer.class);
             lastBillNo++;
             return Integer.toString(lastBillNo);

@@ -9,35 +9,36 @@ var com;
     (function (ordermanager) {
         var home;
         (function (home) {
-            var CommandHandler = (function () {
+            var CommandHandler = /** @class */ (function () {
                 function CommandHandler() {
                 }
+                CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
+                CommandHandler.CODE_FORM_NEW_USER = "ANU";
+                CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
+                CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
+                CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
+                CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
+                CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
+                CommandHandler.CODE_UPLOAD = "UIMG";
+                CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
+                CommandHandler.CODE_REPORT_PROUCTION_REPORT = "RDP";
+                CommandHandler.CODE_WAGE_PAYMENT_SYSTEM = "WPS";
+                CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
+                CommandHandler.CODE_UPDATE_ITEM = "UI";
+                CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
+                CommandHandler.CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
+                CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
+                CommandHandler.CODE_UPDATE_LABOUR_WAGE = "CLW";
+                CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
+                CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
+                CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
+                CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
+                CommandHandler.CODE_CANCEL_ORDER = "COD";
+                CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
                 return CommandHandler;
             }());
-            CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
-            CommandHandler.CODE_FORM_NEW_USER = "ANU";
-            CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
-            CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
-            CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
-            CommandHandler.CODE_QUICK_NEW_LOCATION = "ANL";
-            CommandHandler.CODE_ADD_NEW_EMPLOYEE = "ANE";
-            CommandHandler.CODE_UPLOAD = "UIMG";
-            CommandHandler.CODE_REPORT_DAILY_ADVANCE = "RDA";
-            CommandHandler.CODE_REPORT_PROUCTION_REPORT = "RDP";
-            CommandHandler.CODE_WAGE_PAYMENT_SYSTEM = "WPS";
-            CommandHandler.CODE_UPDATE_NEW_ORDER = "UNO";
-            CommandHandler.CODE_UPDATE_ADVANCE = "UAD";
-            CommandHandler.CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
-            CommandHandler.CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
-            CommandHandler.CODE_UPDATE_LABOUR_WAGE = "CLW";
-            CommandHandler.CODE_BULK_UPDATE_MASTER_TAILOR_ASSIGNMENT = "UBMT";
-            CommandHandler.CODE_BULK_UPDATE_SINGLE_ASSIGNMENT = "UBS";
-            CommandHandler.CODE_BULK_UPDATE_READY_TO_DELIVER = "UBRD";
-            CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
-            CommandHandler.CODE_CANCEL_ORDER = "COD";
-            CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
             home.CommandHandler = CommandHandler;
-            var OrderManagerHome = (function () {
+            var OrderManagerHome = /** @class */ (function () {
                 function OrderManagerHome() {
                     var _this = this;
                     this.initLayout();
@@ -126,6 +127,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ITEM) {
+                            _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ITEM, 100);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
@@ -316,7 +320,7 @@ var com;
                 };
                 OrderManagerHome.prototype.webcamImageManager = function () {
                     var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-                    WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=9988");
+                    WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=60005");
                 };
                 OrderManagerHome.prototype.getModelWindow = function (HeaderText, Height, Width) {
                     var myWins = new dhtmlXWindows();
@@ -328,25 +332,26 @@ var com;
                     myWins.window("win1").setText(HeaderText);
                     return myWins.window("win1");
                 };
+                OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
+                OrderManagerHome.FORM_NEW_USER = "addNewUser";
+                OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
+                OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
+                OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
+                OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
+                OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+                OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
+                OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
+                OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
+                OrderManagerHome.UPDATE_ITEM = "updateItem";
+                OrderManagerHome.UPDATE_ADVANCE = "addadvance";
+                OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
+                OrderManagerHome.UPDATE_LABOUR_WAGE = "updateLabourWage";
+                OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
+                OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
+                OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
+                OrderManagerHome.UPDATE_BULK_SINGLE = "updateBulkToSingle";
                 return OrderManagerHome;
             }());
-            OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
-            OrderManagerHome.FORM_NEW_USER = "addNewUser";
-            OrderManagerHome.FORM_NEW_ORDER = "addNewOrder";
-            OrderManagerHome.FORM_QUICK_NEW_ORDER = "quickNewOrder";
-            OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
-            OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
-            OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
-            OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
-            OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
-            OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
-            OrderManagerHome.UPDATE_ADVANCE = "addadvance";
-            OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
-            OrderManagerHome.UPDATE_LABOUR_WAGE = "updateLabourWage";
-            OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
-            OrderManagerHome.UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
-            OrderManagerHome.UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
-            OrderManagerHome.UPDATE_BULK_SINGLE = "updateBulkToSingle";
             home.OrderManagerHome = OrderManagerHome;
         })(home = ordermanager.home || (ordermanager.home = {}));
     })(ordermanager = com.ordermanager || (com.ordermanager = {}));

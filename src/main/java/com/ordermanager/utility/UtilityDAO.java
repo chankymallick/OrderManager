@@ -158,6 +158,44 @@ public class UtilityDAO extends DAOHelper {
         }
     }
 
+    public JSONObject getItemDetails(String ItemName) {
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rstItemData = null;
+
+        try {
+            con = getJDBCConnection();
+            pst = con.prepareStatement("SELECT  ITEM_UID,ITEM_NAME, ITEM_TYPE,PARENT_ITEM,ITEM_SUB_TYPE,MASTER_PRICE,TAILOR_PRICE,FINISHER_PRICE,ISNULL(ITEM_ORDER,'')AS ITEM_ORDER,ACTIVE,NOTE FROM ITEMS WHERE ITEM_NAME=?");
+            pst.setString(1, ItemName);
+            rstItemData = pst.executeQuery();
+            JSONObject itemData = new JSONObject();
+            if (rstItemData.next()) {
+                itemData.put("ITEM_UID=NUM", rstItemData.getInt("ITEM_UID"));
+                itemData.put("ITEM_NAME=STR", rstItemData.getString("ITEM_NAME"));
+                itemData.put("ITEM_TYPE=STR", rstItemData.getString("ITEM_TYPE"));
+                itemData.put("ITEM_SUB_TYPE=STR", rstItemData.getString("ITEM_SUB_TYPE"));
+                itemData.put("PARENT_ITEM=STR", rstItemData.getString("PARENT_ITEM"));
+                itemData.put("MASTER_PRICE=NUM", rstItemData.getInt("MASTER_PRICE"));
+                itemData.put("TAILOR_PRICE=NUM", rstItemData.getInt("TAILOR_PRICE"));
+                itemData.put("FINISHER_PRICE=NUM", rstItemData.getInt("FINISHER_PRICE"));
+                itemData.put("ACTIVE=NUM", rstItemData.getString("ACTIVE"));
+                itemData.put("NOTE=STR", rstItemData.getString("NOTE"));
+            }
+            return itemData;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                pst.close();
+                rstItemData.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+    }
+
     public Map<String, Object> getOrderPaymentData(String BILL_NO) {
         Connection con = null;
         PreparedStatement pstAdvance = null;
@@ -194,7 +232,7 @@ public class UtilityDAO extends DAOHelper {
                 orderData.put("MAIN_STATUS", rstOrderData.getString("MAIN_STATUS"));
                 orderData.put("SUB_STATUS", rstOrderData.getString("SUB_STATUS"));
                 orderData.put("CURRENT_LOCATION", rstOrderData.getString("CURRENT_LOCATION"));
-                orderData.put("DUE",Due);
+                orderData.put("DUE", Due);
             }
             orderData.put("TOTAL_ADVANCE", Integer.toString(TotalAdvance));
             return orderData;
@@ -348,22 +386,22 @@ public class UtilityDAO extends DAOHelper {
     public String createAndUploadDatabaseBackUp() {
         ResponseJSONHandler rsp = new ResponseJSONHandler();
         Map<String, String> stepResults = new LinkedHashMap<>();
-        String FilePath =null;
+        String FilePath = null;
         String FileName = "";
         String DatabseName = PropertyFileReader.getPropertiesFileValue("DB_DATABASE_NAME");
         try {
             if (System.getProperty("os.name").startsWith("Windows")) {
-              FilePath = PropertyFileReader.getPropertiesFileValue("DB_FILE_PATH");
-             }
-             FileName =  DatabseName.concat("_").concat(this.getCustomFormatDate(this.getCurrentTimeStamp()).replace("/", "_").concat("_").concat(Long.toString(this.getCurrentTimeStamp().getTime()))).concat("_").concat(PropertyFileReader.getPropertiesFileValue("DB_SCHEMA_VERSION")).concat(".bak");
-             String status =  BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName,this.getJdbcTemplate());
-             stepResults.put("CREATING BACKUP FILE",status);            
-             this.generateSQLSuccessResponse(rsp, "BACK UP EVENT COMPLETED");             
-             rsp.addResponseValue("STEPS", new JSONObject(stepResults));
-             return rsp.getJSONResponse();
-        } catch (Exception e) {      
+                FilePath = PropertyFileReader.getPropertiesFileValue("DB_FILE_PATH");
+            }
+            FileName = DatabseName.concat("_").concat(this.getCustomFormatDate(this.getCurrentTimeStamp()).replace("/", "_").concat("_").concat(Long.toString(this.getCurrentTimeStamp().getTime()))).concat("_").concat(PropertyFileReader.getPropertiesFileValue("DB_SCHEMA_VERSION")).concat(".bak");
+            String status = BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName, this.getJdbcTemplate());
+            stepResults.put("CREATING BACKUP FILE", status);
+            this.generateSQLSuccessResponse(rsp, "BACK UP EVENT COMPLETED");
+            rsp.addResponseValue("STEPS", new JSONObject(stepResults));
+            return rsp.getJSONResponse();
+        } catch (Exception e) {
             generateSQLExceptionResponse(rsp, e, "BACK UP FAILED");
-            return rsp.getJSONResponse();     
-        }        
+            return rsp.getJSONResponse();
+        }
     }
 }

@@ -1,5 +1,5 @@
 declare var progressOffCustom: any;
-declare var dhtmlXLayoutObject;
+declare var dhtmlXLayoutObject: any;
 declare var Language: any;
 declare var showFailedNotificationWithICON: any;
 declare var dhtmlx: any;
@@ -330,7 +330,7 @@ module com.ordermanager.bulkupdate {
                 this.ParameterJSON["ALL_BILL_NO"] = AllBillNos;
                 var ParameterValue = this.QueryForm.getValues();
                 var AssignmentDate = this.QueryForm.getItemValue("ASSIGNMENT_DATE=DATE", true);
-                ParameterValue["ASSIGNMENT_DATE=DATE"]=AssignmentDate;
+                ParameterValue["ASSIGNMENT_DATE=DATE"] = AssignmentDate;
                 this.ParameterJSON["PARAMETER_VALUES"] = ParameterValue;
             }
 
@@ -357,6 +357,7 @@ module com.ordermanager.bulkupdate {
                 this.QueryForm.setItemValue("DELIVERY_DATE=DATE", getCurrentDate());
             }
             if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
                 this.QueryForm.attachEvent("onChange", (name, value) => {
                     if (name == "MAIN_STATUS=STR") {
                         this.ModifiedLayoutObject.progressOn();
@@ -372,11 +373,17 @@ module com.ordermanager.bulkupdate {
                     if (name == "TASK=STR") {
                         if (value === "CANCEL") {
                             this.QueryForm.disableItem("NAME=STR");
-                            this.QueryForm.disableItem("ASSIGNMENT_DATE=DATE");
+                            this.QueryForm.enableItem("MAIN_STATUS=STR");
+                            this.QueryForm.enableItem("SUB_STATUS=STR");
+                            this.QueryForm.enableItem("LOCATION=STR");
+                            //this.QueryForm.disableItem("ASSIGNMENT_DATE=DATE"); -- We need this to provide date of cancellation
                         }
                         else {
                             this.QueryForm.enableItem("NAME=STR");
                             this.QueryForm.enableItem("ASSIGNMENT_DATE=DATE");
+                            this.QueryForm.disableItem("MAIN_STATUS=STR");
+                            this.QueryForm.disableItem("SUB_STATUS=STR");
+                            this.QueryForm.disableItem("LOCATION=STR");
 
                         }
                     }

@@ -5,7 +5,7 @@ var com;
     (function (ordermanager) {
         var UpdateUtility;
         (function (UpdateUtility_1) {
-            var UpdateUtility = (function () {
+            var UpdateUtility = /** @class */ (function () {
                 function UpdateUtility(UpdateModuleName, LayoutCell, NotificationCell, QueryFormHeight) {
                     this.UpdateModuleName = UpdateModuleName;
                     this.LayoutCell = LayoutCell;
@@ -62,9 +62,16 @@ var com;
                     }
                     this.QueryForm = this.ModifiedLayoutObject.cells("a").attachForm();
                     this.QueryForm.load(this.UpdateModuleName + "_QueryForm");
-                    this.QueryForm.attachEvent("onEnter", function () {
-                        _this.constructUpdateForm();
-                    });
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ITEM) {
+                        this.QueryForm.attachEvent("onChange", function (name, value) {
+                            _this.constructUpdateForm();
+                        });
+                    }
+                    else {
+                        this.QueryForm.attachEvent("onEnter", function () {
+                            _this.constructUpdateForm();
+                        });
+                    }
                     this.QueryForm.attachEvent("onXLE", function () {
                         _this.QueryForm.setFocusOnFirstActive();
                     });
@@ -230,6 +237,9 @@ var com;
                     }
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ADVANCE) {
                         var TempJSON = [];
+                    }
+                    if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_ITEM) {
+                        this.GlobalFormJSONValues["OLD_ITEM_NAME=STR"] = this.QueryForm.getItemValue("ITEM_NAME=STR"); // For Updating the Name we need Original Name
                     }
                 };
                 UpdateUtility.prototype.customValidation = function () {

@@ -1,0 +1,10 @@
+{"ALL_BILL_NO":["1"],
+    "PARAMETER_VALUES":
+            {"NAME=STR":"AJIJUL",
+        "LOCATION=STR":"WORKSHOP",
+        "TYPE=STR":"MASTER", 
+        "ASSIGNMENT_DATE=DATE":"02/03/18", 
+        "BILL_NO=STR":"", "MAIN_STATUS=STR":"IN_PROCESS", 
+        "TASK=STR":"CHANGE", 
+        "SUB_STATUS=STR":"CUTTING_IN_PROGRESS"}
+}

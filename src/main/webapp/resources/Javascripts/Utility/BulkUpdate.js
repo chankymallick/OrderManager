@@ -4,7 +4,7 @@ var com;
     (function (ordermanager) {
         var bulkupdate;
         (function (bulkupdate) {
-            var BulkUpdate = (function () {
+            var BulkUpdate = /** @class */ (function () {
                 function BulkUpdate(UpdateModuleName, LayoutCell, NotificationCell, QueryFormHeight, AssignmentGridColumns) {
                     this.ParameterJSON = {};
                     this.AssigmentStatus = "START";
@@ -330,6 +330,7 @@ var com;
                         this.QueryForm.setItemValue("DELIVERY_DATE=DATE", getCurrentDate());
                     }
                     if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {
+                        this.QueryForm.setItemValue("ASSIGNMENT_DATE=DATE", getCurrentDate());
                         this.QueryForm.attachEvent("onChange", function (name, value) {
                             if (name == "MAIN_STATUS=STR") {
                                 _this.ModifiedLayoutObject.progressOn();
@@ -345,11 +346,17 @@ var com;
                             if (name == "TASK=STR") {
                                 if (value === "CANCEL") {
                                     _this.QueryForm.disableItem("NAME=STR");
-                                    _this.QueryForm.disableItem("ASSIGNMENT_DATE=DATE");
+                                    _this.QueryForm.enableItem("MAIN_STATUS=STR");
+                                    _this.QueryForm.enableItem("SUB_STATUS=STR");
+                                    _this.QueryForm.enableItem("LOCATION=STR");
+                                    //this.QueryForm.disableItem("ASSIGNMENT_DATE=DATE"); -- We need this to provide date of cancellation
                                 }
                                 else {
                                     _this.QueryForm.enableItem("NAME=STR");
                                     _this.QueryForm.enableItem("ASSIGNMENT_DATE=DATE");
+                                    _this.QueryForm.disableItem("MAIN_STATUS=STR");
+                                    _this.QueryForm.disableItem("SUB_STATUS=STR");
+                                    _this.QueryForm.disableItem("LOCATION=STR");
                                 }
                             }
                         });

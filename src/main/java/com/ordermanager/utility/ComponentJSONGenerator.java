@@ -162,6 +162,10 @@ public class ComponentJSONGenerator {
     public ModelAndView updateOrderQueryForm() {
         return new ModelAndView("LoadJSON", "FormType", "updateNewOrder_QueryForm");
     }
+    @RequestMapping("/updateItem_QueryForm")
+    public ModelAndView updateItem() {
+        return new ModelAndView("LoadJSON", "FormType", "updateItem_QueryForm");
+    }
 
     @RequestMapping("/addadvance_QueryForm")
     public ModelAndView updateAdvanceQueryForm() {
@@ -194,6 +198,15 @@ public class ComponentJSONGenerator {
         Boolean isDefaultOn = true;
         JSONObject defaultData = UtilityDAO.getdefaultDataOrderFormWithExistingData(paramJson.getString("BILL_NO=STR"));
         requestMap.put("FormType", "updateNewOrder_Form");
+        requestMap.put("FormData", defaultData);
+        return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+    }
+    @RequestMapping("/updateItem_Form")
+    public ModelAndView updateItemForm(@RequestParam("ParamJson") JSONObject paramJson) {
+        Map<String, Object> requestMap = new HashMap();
+        Boolean isDefaultOn = true;
+        JSONObject defaultData = UtilityDAO.getItemDetails(paramJson.getString("ITEM_NAME=STR"));
+        requestMap.put("FormType", "updateItem_Form");
         requestMap.put("FormData", defaultData);
         return new ModelAndView("LoadJSON", "ReqObject", requestMap);
     }

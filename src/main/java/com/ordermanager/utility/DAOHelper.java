@@ -5,6 +5,7 @@
  */
 package com.ordermanager.utility;
 
+import com.sun.javafx.PlatformUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -91,15 +92,14 @@ public class DAOHelper extends ConstantContainer {
     public boolean isBillExist(String BILLNo) {
         try {
             int dataCount = this.jdbcTemplate.queryForObject("SELECT COUNT(BILL_NO) FROM ORDERS WHERE BILL_NO =? ", new Object[]{BILLNo}, Integer.class);
-            if(dataCount>0){
-            return true;
-            }
-            else{
-            return false;
+            if (dataCount > 0) {
+                return true;
+            } else {
+                return false;
             }
         } catch (DataAccessException e) {
-            return false;        
-        }     
+            return false;
+        }
     }
 
     public String isCompositeValueExistInTable(String TableName, String ColumnName1, String ColumnName2, String Value1, String Value2) {
@@ -441,6 +441,30 @@ public class DAOHelper extends ConstantContainer {
         return OrderStatusLocationInsert;
     }
 
+    public String getMainStatus(String BillNo) {
+        try {
+            return getDistinctStringtDataFromDatabase("SELECT TOP 1 MAIN_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC ", new Object[]{BillNo});
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String getSubStatus(String BillNo) {
+        try {
+            return getDistinctStringtDataFromDatabase("SELECT TOP 1 SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC ", new Object[]{BillNo});
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String getCurrentLocation(String BillNo) {
+        try {
+            return getDistinctStringtDataFromDatabase("SELECT TOP 1 CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO=? ORDER BY MOBILITY_UID DESC ", new Object[]{BillNo});
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public int getOrderDue(String BillNo) {
         return this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ?))", new Object[]{BillNo, BillNo}, Integer.class);
     }
@@ -565,6 +589,55 @@ public class DAOHelper extends ConstantContainer {
         } catch (Exception e) {
             return new String[]{"FAIL", e.getMessage()};
         }
+    }
+
+    public boolean isWagePaid(String BillNo, String AssignmentType) {
+        if (AssignmentType.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_MASTER.toString())) {
+            if (this.isOrderMasterWagePaid(BillNo)) {
+                return true;
+            }
+        } else if (AssignmentType.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_TAILOR.toString())) {
+            if (this.isOrderTailorWagePaid(BillNo)) {
+                return true;
+            }
+        } else if (AssignmentType.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_FINISHER.toString())) {
+            if (this.isOrderFinisherWagePaid(BillNo)) {
+                return true;
+            }
+        } else if (AssignmentType.equals(ConstantContainer.ASSIGNMENTS_TYPES.TO_IRON.toString())) {
+            if (this.isOrderIronWagePaid(BillNo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String cancelAssignment(String BillNo, String AssignmentType, String UserName) {
+       
+            if (isWagePaid(BillNo, AssignmentType)) {
+                return "FAILED,WAGE ALREADY PAID";
+            }
+            int UpdateStatus = getJdbcTemplate().update("UPDATE  ORDER_ASSIGNMENTS SET ASSIGNMENT_TYPE=? ,NOTE = ? ,WAGE_AMOUNT=?   WHERE BILL_NO=? AND WAGE_STATUS='UNPAID' AND ASSIGNMENT_TYPE=?", new Object[]{ConstantContainer.ASSIGNMENTS_TYPES.TO_CANCEL.toString(),"Assignment Cancelled by - "+UserName,0,BillNo, AssignmentType});
+            return "SUCCES,DATAUPDATED";    
+
+    }
+
+    public String getAssignmentEmployeeName(String BillNo, String AssignmentType) {
+        try {
+            return getJdbcTemplate().queryForObject("SELECT EMPLOYEE_NAME FROM ORDER_ASSIGNMENTS WHERE BILL_NO=? AND ASSIGNMENT_TYPE=?", new Object[]{BillNo, AssignmentType}, String.class);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public String changeAssignmentForUnpaidOrder(String BillNo, String AssignmentType, String NewDate, String EmployeeName, String UserName) {
+      
+            if (isWagePaid(BillNo, AssignmentType)) {
+                return "FAILED,WAGE ALREADY PAID";
+            }
+            int UpdateStatus = getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET ASSIGNMENT_DATE=? ,EMPLOYEE_NAME = ?,NOTE =? WHERE BILL_NO=? AND ASSIGNMENT_TYPE=?", new Object[]{NewDate, EmployeeName, "Assignment Change from - " + getAssignmentEmployeeName(BillNo, AssignmentType), BillNo, AssignmentType});
+            return "SUCCES,DATAUPDATED";
+        
     }
 
     public static void main(String[] args) {

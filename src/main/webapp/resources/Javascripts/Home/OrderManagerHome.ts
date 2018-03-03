@@ -24,6 +24,7 @@ module com.ordermanager.home {
         public static CODE_REPORT_PROUCTION_REPORT = "RDP";
         public static CODE_WAGE_PAYMENT_SYSTEM = "WPS";
         public static CODE_UPDATE_NEW_ORDER = "UNO";
+        public static CODE_UPDATE_ITEM = "UI"
         public static CODE_UPDATE_ADVANCE = "UAD";
         public static CODE_UPDATE_ASSIGNEMENT_WAGE = "UAW";
         public static CODE_UPDATE_DELIVERY_COMPLETED_TRANSACTION = "DP";
@@ -46,6 +47,7 @@ module com.ordermanager.home {
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         public static REPORT_ORDER_SCHEDULER = "orderScheduler"
         public static UPDATE_NEW_ORDER = "updateNewOrder";
+        public static UPDATE_ITEM = "updateItem";
         public static UPDATE_ADVANCE = "addadvance";
         public static UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
         public static UPDATE_LABOUR_WAGE = "updateLabourWage";
@@ -148,6 +150,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ITEM) {
+                    this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ITEM, 100);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_ADVANCE) {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_ADVANCE, 100);
@@ -338,8 +343,9 @@ module com.ordermanager.home {
             });
         }
         public webcamImageManager() {
-            var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-            WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=9988");
+            var WindowObject = this.getModelWindow("Take Product Image", 800, 550); 
+            WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=60005");
+            
         }
         public getModelWindow(HeaderText: any, Height: any, Width: any) {
             var myWins = new dhtmlXWindows();

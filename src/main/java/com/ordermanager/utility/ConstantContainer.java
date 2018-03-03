@@ -50,7 +50,7 @@ public class ConstantContainer {
     EXPENSE_ADVANCE,PAYMENT,LOAN_ISSUE,LOAN_REPAID,ALTERS,OTHERS
     }
     public enum ASSIGNMENTS_TYPES{
-    TO_MASTER,TO_TAILOR,TO_FINISHER,TO_IRON
+    TO_MASTER,TO_TAILOR,TO_FINISHER,TO_IRON,TO_CANCEL
     }
     public static String Property_File_Path_Language_English; 
     public static String Property_File_Path_Language_Bengali; 

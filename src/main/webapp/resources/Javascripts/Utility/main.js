@@ -68,6 +68,25 @@ function ItemNameValidation(data) {
         }
     }
 }
+function UpdatedItemNameValidation(data) {
+    if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
+        return false;
+    } else {
+        var Response = SynchronousGetAjaxRequest("isValueUnique?VALUE=" + data.trim() + "&TABLE_NAME=ORDER_ITEMS&COLUMN_NAME=ITEM_NAME", "", null);
+        if (Response.RESPONSE_STATUS === "SUCCESS") {
+            if (Response.RESPONSE_VALUE.UNIQUE === "TRUE") {
+                showSuccessNotification(Response.RESPONSE_MESSAGE);
+                return true;
+            } else {
+                showFailedNotification(Response.RESPONSE_MESSAGE);
+                return false;
+            }
+
+        } else {
+            showFailedNotification("Request Error, Check Database Connection");
+        }
+    }
+}
 function UserNameValidation(data) {
     if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
         return false;
