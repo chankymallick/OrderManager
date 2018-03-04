@@ -6,7 +6,7 @@ var com;
     (function (ordermanager) {
         var reportingutility;
         (function (reportingutility) {
-            var TransactionReports = (function () {
+            var TransactionReports = /** @class */ (function () {
                 function TransactionReports(layoutCell, notificationCell, reportName) {
                     this.MainLayout = layoutCell;
                     this.ReportName = reportName;
@@ -77,7 +77,7 @@ var com;
                 return TransactionReports;
             }());
             reportingutility.TransactionReports = TransactionReports;
-            var DayWiseProductionReport = (function () {
+            var DayWiseProductionReport = /** @class */ (function () {
                 function DayWiseProductionReport(layoutCell, notificationCell) {
                     this.MainLayout = layoutCell;
                     this.NotificationCell = notificationCell;
@@ -210,7 +210,7 @@ var com;
                 return DayWiseProductionReport;
             }());
             reportingutility.DayWiseProductionReport = DayWiseProductionReport;
-            var WagePaymentSystem = (function () {
+            var WagePaymentSystem = /** @class */ (function () {
                 function WagePaymentSystem(layoutCell, notificationCell) {
                     this.removedBills = [];
                     this.ParameterJSON = {};
@@ -219,6 +219,7 @@ var com;
                     this.initProductionReportLayout();
                 }
                 WagePaymentSystem.prototype.initProductionReportLayout = function () {
+                    var _this = this;
                     this.ModifiedLayoutObject = this.MainLayout.attachLayout({
                         pattern: "3T",
                         cells: [
@@ -229,6 +230,33 @@ var com;
                     });
                     this.constructQueryForm();
                     this.constructToolBar();
+                    shortcut.add("F8", function () {
+                        _this.initiateWagePaymentProcess();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("F4", function () {
+                        _this.refreshPaymentModule();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("F9", function () {
+                        _this.openPaymentPrintingModule("MANUAL");
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                };
+                WagePaymentSystem.prototype.openPaymentPrintingModule = function (type) {
+                    new com.ordermanager.reportingutility.PaymentPrintView(type, "", "", getCurrentDate());
                 };
                 WagePaymentSystem.prototype.constructToolBar = function () {
                     var _this = this;
@@ -280,6 +308,22 @@ var com;
                     this.QueryForm.attachEvent("onButtonClick", function (name) {
                         _this.reportEventActions(name);
                     });
+                };
+                WagePaymentSystem.prototype.refreshPaymentModule = function () {
+                    this.ReportName = "";
+                    this.StatisticsCell = null;
+                    this.StatisticsGrid = null;
+                    this.QueryForm = null;
+                    this.ReportGrid = null;
+                    this.ReportGridParams = null;
+                    this.MainStatsForPrint = null;
+                    this.ExtraStatsForPrint = null;
+                    this.DataTabber = null;
+                    this.DeletedOrderGrid = null;
+                    this.removedBills = [];
+                    this.ParameterJSON = {};
+                    this.initProductionReportLayout();
+                    this.NotificationCell.collapse();
                 };
                 WagePaymentSystem.prototype.reportEventActions = function (name) {
                     var _this = this;
@@ -436,6 +480,7 @@ var com;
                                 }
                             }
                         });
+                        this.OperationToolbar.enableItem("new");
                         progressOffCustom(this.ModifiedLayoutObject);
                         showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                         this.NotificationCell.attachHTMLString(" <b style='color:red'>" + Response.RESPONSE_MESSAGE + "</b><br>" + JSON.stringify(Response.RESPONSE_VALUE));
@@ -452,10 +497,11 @@ var com;
                 return WagePaymentSystem;
             }());
             reportingutility.WagePaymentSystem = WagePaymentSystem;
-            var PaymentPrintView = (function () {
+            var PaymentPrintView = /** @class */ (function () {
                 function PaymentPrintView(PrintType, ProductionType, Name, paymentDate) {
                     var _this = this;
                     var height = $(window).height();
+                    this.PRINT_TYPE = PrintType;
                     this.MainWindow = com.ordermanager.utilty.MainUtility.getModelWindow("Payment Printing Module", 1200, height - 50);
                     this.MainWindow.show();
                     this.ModifiedLayoutObject = this.MainWindow.attachLayout({
@@ -469,9 +515,12 @@ var com;
                     this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
                     this.OperationToolbar.loadStruct("printModuleToolbar?formname=printModule", "json");
                     this.OperationToolbar.attachEvent("onClick", function (id) {
-                        if (id === "pay") {
+                        if (id === "new_search") {
+                            _this.refreshPrintingmodule();
                         }
-                        if (id === "print") {
+                        if (id === "close") {
+                            _this.MainWindow.close();
+                            _this.MainWindow.unload();
                         }
                     });
                     this.constructQueryForm();
@@ -483,7 +532,32 @@ var com;
                             _this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + _this.TOTAL_WAGE + "/-</div> " + _this.MainStatsForPrint + " </div> </div>", "<div></div>");
                         });
                     }
+                    shortcut.add("F2", function () {
+                        _this.refreshPrintingmodule();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("ESC", function () {
+                        _this.MainWindow.close();
+                        _this.MainWindow.unload();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
                 }
+                PaymentPrintView.prototype.refreshPrintingmodule = function () {
+                    this.constructQueryForm();
+                    this.ReportGrid.destructor();
+                    this.StatisticsGrid.destructor();
+                    this.TOTAL_WAGE = 0;
+                    this.MainStatsForPrint = "";
+                    this.PRINT_TYPE = "";
+                };
                 PaymentPrintView.prototype.constructQueryForm = function () {
                     var _this = this;
                     this.ModifiedLayoutObject.progressOn();
@@ -512,9 +586,11 @@ var com;
                         _this.MainStatsForPrint = "NAME : " + Name + "<br>";
                         _this.counstructProductionGrid(ProductionType, Name, paymentDate);
                         _this.statisticCounterConstruction(ProductionType, Name, paymentDate);
-                        _this.ReportGrid.attachEvent("onXLE", function () {
-                            _this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + _this.TOTAL_WAGE + "/-</div> " + _this.MainStatsForPrint + " </div> </div>", "<div></div>");
-                        });
+                        if (name == "printReport" || _this.PRINT_TYPE === "DIRECT") {
+                            _this.ReportGrid.attachEvent("onXLE", function () {
+                                _this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + _this.TOTAL_WAGE + "/-</div> " + _this.MainStatsForPrint + " </div> </div>", "<div></div>");
+                            });
+                        }
                     });
                 };
                 PaymentPrintView.prototype.counstructProductionGrid = function (ProductionType, Name, PaymentDate) {

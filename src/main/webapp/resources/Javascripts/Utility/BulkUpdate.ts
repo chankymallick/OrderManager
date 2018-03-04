@@ -40,29 +40,54 @@ module com.ordermanager.bulkupdate {
                     'target': document,
                     'propagate': true
                 });
+
+
+
+            shortcut.add("F2", () => {
+                this.forwardToPrintModule();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+
+
+            shortcut.add("F4", () => {
+                this.refreshBulkUpdatePage();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
         }
 
         public constructLayout() {
             this.ModifiedLayoutObject = this.LayoutCell.attachLayout({
                 pattern: "3T",
                 cells: [
-                    {id: "a", text: "Query", header: false, height: this.QueryFormHeight},
-                    {id: "b", text: "Assigned Orders", header: true, width: 1000},
-                    {id: "c", text: "Statistics", header: true}
+                    { id: "a", text: "Query", header: false, height: this.QueryFormHeight },
+                    { id: "b", text: "Assigned Orders", header: true, width: 1000 },
+                    { id: "c", text: "Statistics", header: true }
                 ]
             });
             this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
             this.OperationToolbar.loadStruct("operationToolbarBulkUpdate?formname=" + this.UpdateModuleName, "json");
             this.OperationToolbar.attachEvent("onClick", (id) => {
                 if (id === "update") {
+                    this.sendBulkQueryForUpdate();
                 }
-                if (id === "clear") {
+                if (id === "new_search") {
+                    this.refreshBulkUpdatePage();
                 }
-                if (id === "save_default") {
+                if (id === "print") {
+                    this.forwardToPrintModule();
                 }
 
             });
         }
+
         public constructQueryForm() {
             this.ModifiedLayoutObject.progressOn();
             if (this.QueryForm != null || this.QueryForm != undefined) {
@@ -79,6 +104,26 @@ module com.ordermanager.bulkupdate {
                 this.setSpecificOnLoad();
                 progressOffCustom(this.ModifiedLayoutObject);
             });
+
+        }
+        public refreshBulkUpdatePage() {
+
+            if (this.QueryForm != null || this.QueryForm != undefined) {
+                this.QueryForm = null;
+            }
+            this.AssignmentGrid = null;
+            this.StatisticsGrid = null;
+            this.ParameterJSON = {};
+            this.AssigmentStatus = "START";
+            this.constructAssignmentGrid();
+            this.constructQueryForm();
+            shortcut.remove("F4");
+            shortcut.remove("F2");
+            this.OperationToolbar.disableItem("new_search");
+            this.OperationToolbar.disableItem("print");
+        }
+        public forwardToPrintModule() {
+
 
         }
         public showAlertBox(Message) {
@@ -178,7 +223,12 @@ module com.ordermanager.bulkupdate {
             }
         }
         public sendBulkQueryForUpdate() {
+
             this.setSpecificBeforeSave();
+            if (this.AssignmentGrid.getRowsNum() === 0) {
+                showFailedNotificationWithICON("Empty records,cannot update !!");
+                return;
+            }
             if (this.QueryForm.validate()) {
                 this.ModifiedLayoutObject.progressOn();
                 var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" + JSON.stringify(this.ParameterJSON), "", null);
@@ -391,6 +441,27 @@ module com.ordermanager.bulkupdate {
             }
         }
         public setFormStateAfterSave(Response: any) {
+            this.OperationToolbar.enableItem("new_search");
+            this.OperationToolbar.enableItem("print");
+            shortcut.add("F2", () => {
+                this.forwardToPrintModule();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+
+
+            shortcut.add("F4", () => {
+                this.refreshBulkUpdatePage();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+
             var HelpCell;
             var IconCell;
             if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {

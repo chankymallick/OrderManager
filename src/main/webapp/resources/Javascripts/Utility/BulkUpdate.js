@@ -27,8 +27,25 @@ var com;
                         'target': document,
                         'propagate': true
                     });
+                    shortcut.add("F2", function () {
+                        _this.forwardToPrintModule();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("F4", function () {
+                        _this.refreshBulkUpdatePage();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
                 };
                 BulkUpdate.prototype.constructLayout = function () {
+                    var _this = this;
                     this.ModifiedLayoutObject = this.LayoutCell.attachLayout({
                         pattern: "3T",
                         cells: [
@@ -41,10 +58,13 @@ var com;
                     this.OperationToolbar.loadStruct("operationToolbarBulkUpdate?formname=" + this.UpdateModuleName, "json");
                     this.OperationToolbar.attachEvent("onClick", function (id) {
                         if (id === "update") {
+                            _this.sendBulkQueryForUpdate();
                         }
-                        if (id === "clear") {
+                        if (id === "new_search") {
+                            _this.refreshBulkUpdatePage();
                         }
-                        if (id === "save_default") {
+                        if (id === "print") {
+                            _this.forwardToPrintModule();
                         }
                     });
                 };
@@ -65,6 +85,23 @@ var com;
                         _this.setSpecificOnLoad();
                         progressOffCustom(_this.ModifiedLayoutObject);
                     });
+                };
+                BulkUpdate.prototype.refreshBulkUpdatePage = function () {
+                    if (this.QueryForm != null || this.QueryForm != undefined) {
+                        this.QueryForm = null;
+                    }
+                    this.AssignmentGrid = null;
+                    this.StatisticsGrid = null;
+                    this.ParameterJSON = {};
+                    this.AssigmentStatus = "START";
+                    this.constructAssignmentGrid();
+                    this.constructQueryForm();
+                    shortcut.remove("F4");
+                    shortcut.remove("F2");
+                    this.OperationToolbar.disableItem("new_search");
+                    this.OperationToolbar.disableItem("print");
+                };
+                BulkUpdate.prototype.forwardToPrintModule = function () {
                 };
                 BulkUpdate.prototype.showAlertBox = function (Message) {
                     dhtmlx.message({
@@ -162,6 +199,10 @@ var com;
                 };
                 BulkUpdate.prototype.sendBulkQueryForUpdate = function () {
                     this.setSpecificBeforeSave();
+                    if (this.AssignmentGrid.getRowsNum() === 0) {
+                        showFailedNotificationWithICON("Empty records,cannot update !!");
+                        return;
+                    }
                     if (this.QueryForm.validate()) {
                         this.ModifiedLayoutObject.progressOn();
                         var Response = SynchronousGetAjaxRequest(this.UpdateModuleName + "_BulkUpdate" + "?ParamData=" + JSON.stringify(this.ParameterJSON), "", null);
@@ -364,6 +405,24 @@ var com;
                 };
                 BulkUpdate.prototype.setFormStateAfterSave = function (Response) {
                     var _this = this;
+                    this.OperationToolbar.enableItem("new_search");
+                    this.OperationToolbar.enableItem("print");
+                    shortcut.add("F2", function () {
+                        _this.forwardToPrintModule();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("F4", function () {
+                        _this.refreshBulkUpdatePage();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
                     var HelpCell;
                     var IconCell;
                     if (this.UpdateModuleName === com.ordermanager.home.OrderManagerHome.UPDATE_BULK_MASTER_TAILOR) {

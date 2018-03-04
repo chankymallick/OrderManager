@@ -32,9 +32,9 @@ module com.ordermanager.reportingutility {
             this.ModifiedLayoutObject = this.MainLayout.attachLayout({
                 pattern: "3U",
                 cells: [
-                    {id: "a", text: "Statistics", height: 170, width: 775, header: false},
-                    {id: "b", text: "Inputs", height: 170, header: false},
-                    {id: "c", text: "Details", header: false}
+                    { id: "a", text: "Statistics", height: 170, width: 775, header: false },
+                    { id: "b", text: "Inputs", height: 170, header: false },
+                    { id: "c", text: "Details", header: false }
                 ]
             });
             //this.contructStatisticsLayout();
@@ -114,9 +114,9 @@ module com.ordermanager.reportingutility {
             this.ModifiedLayoutObject = this.MainLayout.attachLayout({
                 pattern: "3T",
                 cells: [
-                    {id: "a", text: "Query", header: false, height: 100},
-                    {id: "b", text: "All Production", header: true, width: 1000},
-                    {id: "c", text: "Statistics", header: true}
+                    { id: "a", text: "Query", header: false, height: 100 },
+                    { id: "b", text: "All Production", header: true, width: 1000 },
+                    { id: "c", text: "Statistics", header: true }
                 ]
             });
             this.constructQueryForm();
@@ -271,13 +271,41 @@ module com.ordermanager.reportingutility {
             this.ModifiedLayoutObject = this.MainLayout.attachLayout({
                 pattern: "3T",
                 cells: [
-                    {id: "a", text: "Query", header: false, height: 100},
-                    {id: "b", text: "All Production", header: true, width: 1000},
-                    {id: "c", text: "Statistics", header: true}
+                    { id: "a", text: "Query", header: false, height: 100 },
+                    { id: "b", text: "All Production", header: true, width: 1000 },
+                    { id: "c", text: "Statistics", header: true }
                 ]
             });
             this.constructQueryForm();
             this.constructToolBar();
+            shortcut.add("F8", () => {
+                this.initiateWagePaymentProcess();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+            shortcut.add("F4", () => {
+                this.refreshPaymentModule();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+            shortcut.add("F9", () => {
+                this.openPaymentPrintingModule("MANUAL");
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+
+        }
+        public openPaymentPrintingModule(type: string) {
+            new com.ordermanager.reportingutility.PaymentPrintView(type, "", "", getCurrentDate());
         }
         public constructToolBar() {
             this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
@@ -287,7 +315,7 @@ module com.ordermanager.reportingutility {
                     this.initiateWagePaymentProcess();
                 }
                 if (id === "print") {
-                    new com.ordermanager.reportingutility.PaymentPrintView("MANUAL","","","");
+                    new com.ordermanager.reportingutility.PaymentPrintView("MANUAL", "", "", "");
                 }
             });
         }
@@ -329,6 +357,22 @@ module com.ordermanager.reportingutility {
                 this.reportEventActions(name);
             });
 
+        }
+        public refreshPaymentModule() {
+            this.ReportName = "";
+            this.StatisticsCell = null;
+            this.StatisticsGrid = null;
+            this.QueryForm = null;
+            this.ReportGrid = null;
+            this.ReportGridParams = null;
+            this.MainStatsForPrint = null;
+            this.ExtraStatsForPrint = null;
+            this.DataTabber = null;
+            this.DeletedOrderGrid = null;
+            this.removedBills = [];
+            this.ParameterJSON = {};
+            this.initProductionReportLayout();
+            this.NotificationCell.collapse();
         }
         public reportEventActions(name) {
             var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
@@ -461,7 +505,7 @@ module com.ordermanager.reportingutility {
             progressOffCustom(this.ModifiedLayoutObject.cells("c"))
         }
 
-        public initiateWagePaymentProcess() {
+        public initiateWagePaymentProcess() {            
             this.ModifiedLayoutObject.progressOn();
             var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
             var Name = this.QueryForm.getItemValue("NAME=STR", true);
@@ -483,17 +527,19 @@ module com.ordermanager.reportingutility {
                             this.ReportGrid.cells(id, 10).setValue("");
                             this.ReportGrid.setRowTextStyle(id, "color:#0026ff;background-color: #cccccc; font-weight:bold; ");
                             this.ReportGrid.cells(id, 10).setValue("<img height='23px' width='20px' src='resources/Images/success.png'/>");
+
                         }
                         else {
                             this.ReportGrid.cells(id, 10).setValue("<a><img height='20px' width='20px' src='resources/Images/failed.png'/></a>");
                         }
                     }
                 });
+                this.OperationToolbar.enableItem("new");
                 progressOffCustom(this.ModifiedLayoutObject);
                 showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                 this.NotificationCell.attachHTMLString(" <b style='color:red'>" + Response.RESPONSE_MESSAGE + "</b><br>" + JSON.stringify(Response.RESPONSE_VALUE));
                 this.NotificationCell.expand();
-                new com.ordermanager.reportingutility.PaymentPrintView("DIRECT",ProductionType,Name,getCurrentDate());
+                new com.ordermanager.reportingutility.PaymentPrintView("DIRECT", ProductionType, Name, getCurrentDate());
             }
             else {
 
@@ -515,39 +561,66 @@ module com.ordermanager.reportingutility {
         public ReportGrid: any;
         public MainStatsForPrint: any;
         public StatisticsGrid: any;
-        public TOTAL_WAGE:any;
-        constructor(PrintType: any,ProductionType:any,Name:any,paymentDate:any) {
+        public TOTAL_WAGE: any;
+        public PRINT_TYPE :any;
+        constructor(PrintType: any, ProductionType: any, Name: any, paymentDate: any) {
             var height = $(window).height();
+            this.PRINT_TYPE=PrintType;
             this.MainWindow = com.ordermanager.utilty.MainUtility.getModelWindow("Payment Printing Module", 1200, height - 50);
             this.MainWindow.show();
-
             this.ModifiedLayoutObject = this.MainWindow.attachLayout({
                 pattern: "3T",
                 cells: [
-                    {id: "a", text: "Query", header: false, width: 900, height: 80},
-                    {id: "b", text: "All Production", header: false, width: 900},
-                    {id: "c", text: "Stats", header: false},
+                    { id: "a", text: "Query", header: false, width: 900, height: 80 },
+                    { id: "b", text: "All Production", header: false, width: 900 },
+                    { id: "c", text: "Stats", header: false },
                 ]
             });
             this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
             this.OperationToolbar.loadStruct("printModuleToolbar?formname=printModule", "json");
             this.OperationToolbar.attachEvent("onClick", (id) => {
-                if (id === "pay") {
-
+                if (id === "new_search") {
+                    this.refreshPrintingmodule();
                 }
-                if (id === "print") {
-
+                if (id === "close") {
+                    this.MainWindow.close();
+                    this.MainWindow.unload();
                 }
             });
             this.constructQueryForm();
-            if (PrintType == "DIRECT"){  
-                this.MainStatsForPrint = "NAME : " + Name + "<br>";           
+            if (PrintType == "DIRECT") {
+                this.MainStatsForPrint = "NAME : " + Name + "<br>";
                 this.counstructProductionGrid(ProductionType, Name, paymentDate);
-                this.statisticCounterConstruction(ProductionType, Name, paymentDate);               
+                this.statisticCounterConstruction(ProductionType, Name, paymentDate);
                 this.ReportGrid.attachEvent("onXLE", () => {
-                    this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + this.TOTAL_WAGE+"/-</div> " + this.MainStatsForPrint + " </div> </div>", "<div></div>");
-                });            
+                    this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + this.TOTAL_WAGE + "/-</div> " + this.MainStatsForPrint + " </div> </div>", "<div></div>");
+                });
             }
+            shortcut.add("F2", () => {
+                this.refreshPrintingmodule();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+            shortcut.add("ESC", () => {
+                this.MainWindow.close();
+                this.MainWindow.unload();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+        }
+        public refreshPrintingmodule() {
+            this.constructQueryForm();
+            this.ReportGrid.destructor();
+            this.StatisticsGrid.destructor();
+            this.TOTAL_WAGE = 0;
+            this.MainStatsForPrint = "";
+            this.PRINT_TYPE="";
         }
         public constructQueryForm() {
             this.ModifiedLayoutObject.progressOn();
@@ -573,12 +646,14 @@ module com.ordermanager.reportingutility {
                 var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
                 var Name = this.QueryForm.getItemValue("NAME=STR", true);
                 var paymentDate = this.QueryForm.getItemValue("PAY_DATE=DATE", true);
-                this.MainStatsForPrint = "NAME : " + Name + "<br>";           
+                this.MainStatsForPrint = "NAME : " + Name + "<br>";
                 this.counstructProductionGrid(ProductionType, Name, paymentDate);
-                this.statisticCounterConstruction(ProductionType, Name, paymentDate);               
+                this.statisticCounterConstruction(ProductionType, Name, paymentDate);
+                if(name=="printReport" || this.PRINT_TYPE==="DIRECT"){
                 this.ReportGrid.attachEvent("onXLE", () => {
-                    this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + this.TOTAL_WAGE+"/-</div> " + this.MainStatsForPrint + " </div> </div>", "<div></div>");
+                    this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + this.TOTAL_WAGE + "/-</div> " + this.MainStatsForPrint + " </div> </div>", "<div></div>");
                 });
+                }
             });
 
         }
@@ -589,7 +664,7 @@ module com.ordermanager.reportingutility {
             this.ReportGrid.enableColSpan(true);
             this.ReportGrid.enableMultiline(true);
             this.ReportGrid.load('getDayWisePaidWagePaymentOrders?ProductionType=' + ProductionType + '&Name=' + Name + '&PaymentDate=' + PaymentDate);
-            this.ReportGrid.attachEvent("onXLE", () => {              
+            this.ReportGrid.attachEvent("onXLE", () => {
                 progressOffCustom(this.ModifiedLayoutObject);
             });
         }
@@ -597,9 +672,9 @@ module com.ordermanager.reportingutility {
             this.ModifiedLayoutObject.cells("c").progressOn();
             var statsData = SynchronousGetAjaxRequest('getDayWisePaidWagePaymentStats?ProductionType=' + ProductionType + '&Name=' + Name + '&PaymentDate=' + PaymentDate);
             var AllExtraItem = statsData.RESPONSE_VALUE.ALL_ITEMS;
-            delete statsData.RESPONSE_VALUE.ALL_ITEMS;            
+            delete statsData.RESPONSE_VALUE.ALL_ITEMS;
             var AllValues = statsData.RESPONSE_VALUE;
-            this.TOTAL_WAGE = AllValues.TOTAL_WAGE;            
+            this.TOTAL_WAGE = AllValues.TOTAL_WAGE;
             var StatFields = AllValues;
             this.StatisticsGrid = this.ModifiedLayoutObject.cells("c").attachGrid();
             this.StatisticsGrid.setHeader("Stats");
@@ -624,7 +699,6 @@ module com.ordermanager.reportingutility {
                 this.MainStatsForPrint += SingleField.replace("_", " ") + " : " + StatFields[SingleField] + " ,"
             }
             progressOffCustom(this.ModifiedLayoutObject.cells("c"));
-            console.log("sddsd");
         }
     }
 

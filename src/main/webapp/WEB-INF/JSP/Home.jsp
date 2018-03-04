@@ -242,12 +242,12 @@
 
         </style>   
         <link rel="shortcut icon"  href="<c:url value='/resources/Images/favicon.ico' />" type="image/x-icon"/>
-        <script src="<c:url value='http://code.jquery.com/jquery-1.9.1.js' />" ></script>
-        <script src="<c:url value='http://code.jquery.com/ui/1.10.3/jquery-ui.js' />" ></script>
-        <link href="<c:url value='http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css' />" type="text/css" rel="stylesheet" /> 
+        <script src="<c:url value='/resources/Javascripts/Jquery/jquery_min.js' />" ></script>
+        <script src="<c:url value='/resources/Javascripts/Jquery/jquery_ui.js' />" ></script>
+        <link href="<c:url value='/resources/Javascripts/Jquery/jquery_css.css' />" type="text/css" rel="stylesheet" />    
         <script src="<c:url value='/resources/Javascripts/Utility/main.js' />" ></script>       
         <script src="<c:url value='/resources/Javascripts/Utility/shortcut.js' />" ></script>
-        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.css' />" type="text/css" rel="stylesheet" />           
+        <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.css' />" type="text/css" rel="stylesheet" />  
         <link href="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.css' />" type="text/css" rel="stylesheet" />          
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlx.js' />" ></script>
         <script src="<c:url value='/resources/Javascripts/Dhtmlx/codebase/dhtmlxscheduler.js' />" ></script>

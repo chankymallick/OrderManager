@@ -80,7 +80,8 @@ module com.ordermanager.home {
                 {"label": "CLW  [Change Labour Wage]", "value":"CLW"},
                 {"label": "UAW  [Update Assignment Wage]", "value":"UAW"},
                 {"label": "UAD  [Update Advance]", "value":"UAD"},
-                {"label": "UNO  [Update New Order]", "value":"UNO"},                
+                {"label": "UNO  [Update New Order]", "value":"UNO"},
+                {"label": "UNO  [Update Item]", "value":"UI"},                
                 {"label": "ROS  [Report Order Scheduler]", "value":"ROS"},
                 {"label": "COD  [Cancel Order]", "value":"COD"},
                 {"label": "UBCA [Update Bulk Change Assignment]", "value":"UBCA"},
@@ -114,8 +115,9 @@ module com.ordermanager.home {
         }
         public commandRegister() {
             shortcut.add("Home", () => {
+                
                 (<HTMLInputElement> document.getElementById("searchCode")).value = "";
-                document.getElementById("searchCode").focus();
+                document.getElementById("searchCode").focus();               
             }, {
                     'type': 'keyup',
                     'disable_in_input': false,
