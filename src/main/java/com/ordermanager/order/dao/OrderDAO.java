@@ -382,6 +382,23 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
+    public String addNewAccount(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("ACCOUNT_REGISTER", "TRANSACTION_UID");
+            paramData.put("TRANSACTION_UID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ACCOUNT_REGISTER"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ACCOUNT_REGISTER, UID, "New Account Created");
+            generateSQLSuccessResponse(response, paramData.get("ACCOUNT_NAME=STR") + " - added Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
 
     public String addNewLocation(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();

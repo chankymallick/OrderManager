@@ -15,6 +15,7 @@ module com.ordermanager.home {
 
         public static CODE_FORM_NEW_ITEM = "ANI";
         public static CODE_FORM_NEW_USER = "ANU";
+        public static CODE_FORM_NEW_ACCOUNT = "ANA";
         public static CODE_FORM_NEW_ORDER = "ANO";
         public static CODE_ADD_NEW_STATUS_TYPE = "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
@@ -46,6 +47,7 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+        public static FORM_ADD_NEW_ACCOUNT = "addNewAccount";
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         public static REPORT_ORDER_SCHEDULER = "orderScheduler";
         public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
@@ -74,6 +76,7 @@ module com.ordermanager.home {
             Commands = [
                 { "label": "ANI   [Add New Item]", "value": "ANI" },
                 { "label": "ANST [Add New Status Type]", "value": "ANST" },
+                { "label": "ANA [Add New Account]", "value": "ANA" },
                 { "label": "ANO  [Add New Order]", "value": "ANO" },
                 { "label": "ANU  [Add New User]", "value": "ANU" },
                 { "label": "ANE  [Add New Employee]", "value": "ANE" },
@@ -147,6 +150,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_ORDER) {
                     this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);

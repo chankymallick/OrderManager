@@ -247,6 +247,44 @@
     </c:forEach>
 </rows>
 </c:if>
+
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewAccount')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="center" color="white" sort="str">UID</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">MODULE</column>   
+        <column width="250" type="ro" align="center" color="white" sort="str">ACCOUNT NAME</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">MOBILE</column>   
+        <column width="250" type="ro" align="center" color="white" sort="str">ADDRES</column>   
+        <column width="250" type="ro" align="center" color="white" sort="str">BANK DETAILS</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">DATE OF CREATION</column>   
+        <column width="100" type="ro" align="center" color="white" sort="int">VIEW ORDER</column>   
+        <column width="50" type="ro" align="center" color="white" sort="int">ACTIVE</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+
 <c:if test="${OBJECT_MAP.get('Type').equals('getItemSelectionList')}">
     <rows>
         <head>            

@@ -14,6 +14,7 @@ var com;
                 }
                 CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
                 CommandHandler.CODE_FORM_NEW_USER = "ANU";
+                CommandHandler.CODE_FORM_NEW_ACCOUNT = "ANA";
                 CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
                 CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
                 CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
@@ -62,6 +63,7 @@ var com;
                     Commands = [
                         { "label": "ANI   [Add New Item]", "value": "ANI" },
                         { "label": "ANST [Add New Status Type]", "value": "ANST" },
+                        { "label": "ANA [Add New Account]", "value": "ANA" },
                         { "label": "ANO  [Add New Order]", "value": "ANO" },
                         { "label": "ANU  [Add New User]", "value": "ANU" },
                         { "label": "ANE  [Add New Employee]", "value": "ANE" },
@@ -118,6 +120,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_QUICK_NEW_ORDER) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_QUICK_NEW_ORDER, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
@@ -363,6 +368,7 @@ var com;
                 OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
                 OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
                 OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+                OrderManagerHome.FORM_ADD_NEW_ACCOUNT = "addNewAccount";
                 OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
                 OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";

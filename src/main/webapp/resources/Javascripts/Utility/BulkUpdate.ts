@@ -243,6 +243,9 @@ module com.ordermanager.bulkupdate {
                     this.AssignmentGrid.setRowColor(RowNum, "#a7ff84");
                 }
             }
+            if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION) {
+
+            }
         }
         public sendBulkQueryForUpdate() {
 

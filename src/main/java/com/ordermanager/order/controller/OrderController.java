@@ -83,6 +83,10 @@ public class OrderController {
     public ModelAndView addNewStatusType(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewStatusType(paramJson));
     }
+    @RequestMapping("/addNewAccount")
+    public ModelAndView addNewAccount(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewAccount(paramJson));
+    }
 
     @RequestMapping("/addNewLocation")
     public ModelAndView addNewLocation(@RequestParam("ParamData") JSONObject paramJson) {
@@ -97,6 +101,7 @@ public class OrderController {
         map.addAttribute("SavedList", orderDAO.getSavedItemSelectionList(Bill_No));
         return "LoadXMLComponent";
     }
+
     @RequestMapping("/getStatisticsJSON")
     public ModelAndView getStatisticsJSON(@RequestParam("StatisticsName") String Statistics_Name, @RequestParam("ReportParams") JSONObject jsonParam) {
         Map<String, Object> requestMap = new HashMap();
@@ -112,9 +117,10 @@ public class OrderController {
             List<String[]> statList = orderDAO.getDeliveryPaymentStatistics(OrderDate, Location);
             requestMap.put("STAT_VALUES", statList);
         }
-        
-        return new ModelAndView("MakeResponse", "responseValue",  new JSONObject(requestMap).toString());
+
+        return new ModelAndView("MakeResponse", "responseValue", new JSONObject(requestMap).toString());
     }
+
     @RequestMapping("/getStatistics")
     public ModelAndView getStatistics(@RequestParam("StatisticsName") String Statistics_Name, @RequestParam("ReportParams") JSONObject jsonParam) {
         Map<String, Object> requestMap = new HashMap();
