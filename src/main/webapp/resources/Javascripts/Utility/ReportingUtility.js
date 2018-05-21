@@ -12,8 +12,10 @@ var com;
                     this.ReportName = reportName;
                     this.NotificationCell = notificationCell;
                     this.constructInnerLayoutForReport();
+                    ReportGrid = this.ReportGrid();
                 }
                 TransactionReports.prototype.constructInnerLayoutForReport = function () {
+                    var _this = this;
                     this.ModifiedLayoutObject = this.MainLayout.attachLayout({
                         pattern: "3U",
                         cells: [
@@ -22,19 +24,69 @@ var com;
                             { id: "c", text: "Details", header: false }
                         ]
                     });
+                    this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
+                    this.OperationToolbar.loadStruct("reportToolbar?formname=" + this.ReportName, "json");
+                    this.OperationToolbar.attachEvent("onClick", function (id) {
+                        if (id === "print") {
+                            _this.printReport();
+                        }
+                        if (id === "refresh") {
+                        }
+                    });
                     //this.contructStatisticsLayout();
                     this.constructParameterForm();
+                    shortcut.add("F2", function () {
+                        _this.printReport();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                    shortcut.add("F4", function () {
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
+                };
+                TransactionReports.prototype.printReport = function () {
+                    if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
+                        this.ReportDisplayName = "ORDER ADVANCE REPORT";
+                    }
+                    else if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS) {
+                        this.ReportDisplayName = "DELIVERY PAYMENTS REPORT";
+                    }
+                    this.ReportGrid.detachHeader(1);
+                    var StatsHtmlText = "<table>";
+                    for (var StatValue in this.StatsJSON) {
+                        StatsHtmlText += "<tr><td style='font-weight:bold;text-align:left;'>" + this.StatsJSON[StatValue][1] + "<td/><td style='font-weight:bold;text-align:left;'>: " + this.StatsJSON[StatValue][2] + "</td></tr>";
+                    }
+                    StatsHtmlText += "</table>";
+                    this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;font-weight:bold;'> " + this.ReportDisplayName + " <br>" + StatsHtmlText + " </div> </div>", "<div></div>");
+                };
+                TransactionReports.prototype.returnWhiteSpace = function (numberofspace) {
+                    var spaces = "";
+                    for (var i = 0; i <= 20 - numberofspace; i++) {
+                        spaces += "&nbsp;";
+                    }
+                    return spaces;
                 };
                 TransactionReports.prototype.setSpecificOnLoad = function () {
                     var _this = this;
                     this.ParameterForm.attachEvent("onXLE", function () {
-                        _this.ParameterForm.setItemValue("ORDER_DATE=DATE", getCurrentDate());
+                        _this.ParameterForm.setItemValue("REPORT_DATE=DATE", getCurrentDate());
                         _this.ReportGridParams = _this.getReportParameters();
                         _this.constructReportGrid();
                         _this.ParameterForm.attachEvent("onButtonClick", function (name) {
                             _this.ReportGridParams = _this.getReportParameters();
                             _this.ReportGrid.load("LoadReportViewGrid?gridname=" + _this.ReportName + "&ParamJson=" + _this.ReportGridParams);
                             _this.StatisticsCell.progressOn();
+                            var Response = SynchronousGetAjaxRequest("getStatisticsJSON?StatisticsName=" + _this.ReportName + "&ReportParams=" + _this.getReportParameters(), null);
+                            if (Response != null || Response != undefined) {
+                                _this.StatsJSON = Response.STAT_VALUES;
+                            }
                             _this.StatisticsCell.attachURL("getStatistics?StatisticsName=" + _this.ReportName + "&ReportParams=" + _this.ReportGridParams);
                             _this.StatisticsCell.progressOff();
                         });
@@ -45,16 +97,20 @@ var com;
                     this.StatisticsCell = this.ModifiedLayoutObject.cells("a");
                     this.StatisticsCell.fixSize(true, true);
                     this.ModifiedLayoutObject.cells("a").progressOn();
+                    var Response = SynchronousGetAjaxRequest("getStatisticsJSON?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters(), null);
+                    if (Response != null || Response != undefined) {
+                        this.StatsJSON = Response.STAT_VALUES;
+                    }
                     this.StatisticsCell.attachURL("getStatistics?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters());
                     progressOffCustom(this.ModifiedLayoutObject.cells("a"));
                 };
                 TransactionReports.prototype.getReportParameters = function () {
                     var params = this.ParameterForm.getValues();
-                    if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
-                        var date = this.ParameterForm.getItemValue("ORDER_DATE=DATE", true);
-                        params["ORDER_DATE=DATE"] = date;
-                        params["LOCATION=STR"] = "BAGNAN";
-                    }
+                    // if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
+                    // }
+                    var date = this.ParameterForm.getItemValue("REPORT_DATE=DATE", true);
+                    params["REPORT_DATE=DATE"] = date;
+                    params["LOCATION=STR"] = "BAGNAN";
                     return JSON.stringify(params);
                 };
                 TransactionReports.prototype.constructParameterForm = function () {
@@ -580,18 +636,22 @@ var com;
                         }
                     });
                     this.QueryForm.attachEvent("onButtonClick", function (name) {
-                        var ProductionType = "TO_" + _this.QueryForm.getItemValue("TYPE=STR", true);
-                        var Name = _this.QueryForm.getItemValue("NAME=STR", true);
-                        var paymentDate = _this.QueryForm.getItemValue("PAY_DATE=DATE", true);
-                        _this.MainStatsForPrint = "NAME : " + Name + "<br>";
-                        _this.counstructProductionGrid(ProductionType, Name, paymentDate);
-                        _this.statisticCounterConstruction(ProductionType, Name, paymentDate);
-                        if (name == "printReport" || _this.PRINT_TYPE === "DIRECT") {
-                            _this.ReportGrid.attachEvent("onXLE", function () {
-                                _this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + _this.TOTAL_WAGE + "/-</div> " + _this.MainStatsForPrint + " </div> </div>", "<div></div>");
-                            });
-                        }
+                        _this.printData();
                     });
+                };
+                PaymentPrintView.prototype.printData = function () {
+                    var _this = this;
+                    var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
+                    var Name = this.QueryForm.getItemValue("NAME=STR", true);
+                    var paymentDate = this.QueryForm.getItemValue("PAY_DATE=DATE", true);
+                    this.MainStatsForPrint = "NAME : " + Name + "<br>";
+                    this.counstructProductionGrid(ProductionType, Name, paymentDate);
+                    this.statisticCounterConstruction(ProductionType, Name, paymentDate);
+                    if (name == "printReport" || this.PRINT_TYPE === "DIRECT") {
+                        this.ReportGrid.attachEvent("onXLE", function () {
+                            _this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + _this.TOTAL_WAGE + "/-</div> " + _this.MainStatsForPrint + " </div> </div>", "<div></div>");
+                        });
+                    }
                 };
                 PaymentPrintView.prototype.counstructProductionGrid = function (ProductionType, Name, PaymentDate) {
                     var _this = this;

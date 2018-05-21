@@ -11,6 +11,7 @@ declare var Language: any;
 declare var dhtmlXWindows: any;
 declare var getCurrentDate: any;
 declare var $: any;
+declare var ReportGrid: any;
 module com.ordermanager.reportingutility {
     export class TransactionReports {
         public ModifiedLayoutObject: any;
@@ -22,11 +23,15 @@ module com.ordermanager.reportingutility {
         public ParameterForm: any;
         public ReportGrid: any;
         public ReportGridParams: any;
+        public OperationToolbar: any;
+        public StatsJSON: any;
+        public ReportDisplayName: any;
         constructor(layoutCell: any, notificationCell: any, reportName: any) {
             this.MainLayout = layoutCell;
             this.ReportName = reportName;
             this.NotificationCell = notificationCell;
             this.constructInnerLayoutForReport();
+            ReportGrid = this.ReportGrid();
         }
         public constructInnerLayoutForReport() {
             this.ModifiedLayoutObject = this.MainLayout.attachLayout({
@@ -37,19 +42,73 @@ module com.ordermanager.reportingutility {
                     { id: "c", text: "Details", header: false }
                 ]
             });
+            this.OperationToolbar = this.ModifiedLayoutObject.attachToolbar();
+            this.OperationToolbar.loadStruct("reportToolbar?formname=" + this.ReportName, "json");
+            this.OperationToolbar.attachEvent("onClick", (id) => {
+                if (id === "print") {
+                    this.printReport();
+                }
+                if (id === "refresh") {
+
+                }
+            });
             //this.contructStatisticsLayout();
             this.constructParameterForm();
+            shortcut.add("F2", () => {
+                this.printReport();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+            shortcut.add("F4", () => {
+
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
+
+        }
+        public printReport() {
+            if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
+                this.ReportDisplayName = "ORDER ADVANCE REPORT"
+            }
+            else if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS) {
+            this.ReportDisplayName = "DELIVERY PAYMENTS REPORT"
+            }
+            this.ReportGrid.detachHeader(1);
+            var StatsHtmlText = "<table>";
+            for (var StatValue in this.StatsJSON) {
+                StatsHtmlText +="<tr><td style='font-weight:bold;text-align:left;'>"+ this.StatsJSON[StatValue][1]  +"<td/><td style='font-weight:bold;text-align:left;'>: " + this.StatsJSON[StatValue][2] + "</td></tr>"
+            }
+            StatsHtmlText+="</table>";
+            this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;font-weight:bold;'> "+this.ReportDisplayName+" <br>" + StatsHtmlText + " </div> </div>", "<div></div>");
+        }
+        public returnWhiteSpace(numberofspace:number){
+            var spaces="";
+            for(var i=0;i<=20-numberofspace;i++){
+                spaces+="&nbsp;"
+            }
+            return spaces;
 
         }
         public setSpecificOnLoad() {
             this.ParameterForm.attachEvent("onXLE", () => {
-                this.ParameterForm.setItemValue("ORDER_DATE=DATE", getCurrentDate());
+
+                this.ParameterForm.setItemValue("REPORT_DATE=DATE", getCurrentDate());
                 this.ReportGridParams = this.getReportParameters();
                 this.constructReportGrid();
                 this.ParameterForm.attachEvent("onButtonClick", (name) => {
                     this.ReportGridParams = this.getReportParameters();
                     this.ReportGrid.load("LoadReportViewGrid?gridname=" + this.ReportName + "&ParamJson=" + this.ReportGridParams);
                     this.StatisticsCell.progressOn();
+                    var Response = SynchronousGetAjaxRequest("getStatisticsJSON?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters(), null);
+                    if (Response != null || Response != undefined) {
+                        this.StatsJSON = Response.STAT_VALUES;
+                    }
                     this.StatisticsCell.attachURL("getStatistics?StatisticsName=" + this.ReportName + "&ReportParams=" + this.ReportGridParams);
                     this.StatisticsCell.progressOff();
                 });
@@ -60,16 +119,21 @@ module com.ordermanager.reportingutility {
             this.StatisticsCell = this.ModifiedLayoutObject.cells("a");
             this.StatisticsCell.fixSize(true, true);
             this.ModifiedLayoutObject.cells("a").progressOn();
+            var Response = SynchronousGetAjaxRequest("getStatisticsJSON?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters(), null);
+            if (Response != null || Response != undefined) {
+                this.StatsJSON = Response.STAT_VALUES;
+            }
             this.StatisticsCell.attachURL("getStatistics?StatisticsName=" + this.ReportName + "&ReportParams=" + this.getReportParameters());
             progressOffCustom(this.ModifiedLayoutObject.cells("a"));
         }
         public getReportParameters() {
             var params = this.ParameterForm.getValues();
-            if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
-                var date = this.ParameterForm.getItemValue("ORDER_DATE=DATE", true);
-                params["ORDER_DATE=DATE"] = date;
-                params["LOCATION=STR"] = "BAGNAN";
-            }
+            // if (this.ReportName === com.ordermanager.home.OrderManagerHome.REPORT_DAILY_ADVANCE) {
+            // }
+            var date = this.ParameterForm.getItemValue("REPORT_DATE=DATE", true);
+            params["REPORT_DATE=DATE"] = date;
+            params["LOCATION=STR"] = "BAGNAN";
+
             return JSON.stringify(params);
 
         }
@@ -505,7 +569,7 @@ module com.ordermanager.reportingutility {
             progressOffCustom(this.ModifiedLayoutObject.cells("c"))
         }
 
-        public initiateWagePaymentProcess() {            
+        public initiateWagePaymentProcess() {
             this.ModifiedLayoutObject.progressOn();
             var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
             var Name = this.QueryForm.getItemValue("NAME=STR", true);
@@ -562,10 +626,10 @@ module com.ordermanager.reportingutility {
         public MainStatsForPrint: any;
         public StatisticsGrid: any;
         public TOTAL_WAGE: any;
-        public PRINT_TYPE :any;
+        public PRINT_TYPE: any;
         constructor(PrintType: any, ProductionType: any, Name: any, paymentDate: any) {
             var height = $(window).height();
-            this.PRINT_TYPE=PrintType;
+            this.PRINT_TYPE = PrintType;
             this.MainWindow = com.ordermanager.utilty.MainUtility.getModelWindow("Payment Printing Module", 1200, height - 50);
             this.MainWindow.show();
             this.ModifiedLayoutObject = this.MainWindow.attachLayout({
@@ -620,7 +684,7 @@ module com.ordermanager.reportingutility {
             this.StatisticsGrid.destructor();
             this.TOTAL_WAGE = 0;
             this.MainStatsForPrint = "";
-            this.PRINT_TYPE="";
+            this.PRINT_TYPE = "";
         }
         public constructQueryForm() {
             this.ModifiedLayoutObject.progressOn();
@@ -643,19 +707,22 @@ module com.ordermanager.reportingutility {
                 }
             });
             this.QueryForm.attachEvent("onButtonClick", (name) => {
-                var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
-                var Name = this.QueryForm.getItemValue("NAME=STR", true);
-                var paymentDate = this.QueryForm.getItemValue("PAY_DATE=DATE", true);
-                this.MainStatsForPrint = "NAME : " + Name + "<br>";
-                this.counstructProductionGrid(ProductionType, Name, paymentDate);
-                this.statisticCounterConstruction(ProductionType, Name, paymentDate);
-                if(name=="printReport" || this.PRINT_TYPE==="DIRECT"){
+                this.printData();
+            });
+
+        }
+        public printData() {
+            var ProductionType = "TO_" + this.QueryForm.getItemValue("TYPE=STR", true);
+            var Name = this.QueryForm.getItemValue("NAME=STR", true);
+            var paymentDate = this.QueryForm.getItemValue("PAY_DATE=DATE", true);
+            this.MainStatsForPrint = "NAME : " + Name + "<br>";
+            this.counstructProductionGrid(ProductionType, Name, paymentDate);
+            this.statisticCounterConstruction(ProductionType, Name, paymentDate);
+            if (name == "printReport" || this.PRINT_TYPE === "DIRECT") {
                 this.ReportGrid.attachEvent("onXLE", () => {
                     this.ReportGrid.printView("<div> <div style='background-color:#e5e5e5;font-size:24px;display:table;font-weight:bold;'> MALLICK DRESSES </div> <div style='font-size:18px;float:left;font-weight:bold;'> WAGE PAYMENT RECEIPT <br> <div style='font-size:24px;display:table;font-weight:bold;'>TOTAL PAYMENT : " + this.TOTAL_WAGE + "/-</div> " + this.MainStatsForPrint + " </div> </div>", "<div></div>");
                 });
-                }
-            });
-
+            }
         }
         public counstructProductionGrid(ProductionType: any, Name: any, PaymentDate: any) {
             this.ModifiedLayoutObject.progressOn();

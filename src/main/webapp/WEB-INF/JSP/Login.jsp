@@ -13,17 +13,17 @@
     <div id="headerTab">       
         
     </div>  
+<!--    <form action="j_spring_security_check" class="login" method="POST">
+        <h1>Login</h1>    
+        <input type="text" name="j_username" class="login-input" placeholder="Username">
+        <input type="password" name="j_password" class="login-input" placeholder="Password">
+        <input type="submit" value="Login" class="login-submit">
+        <p class="login-help"><a href="index.html">Forgot password?</a></p>
+    </form> 
+    <h1></h1>-->
     <form action="Login" class="login">
         <h1>Login</h1>
-        <div class="dropdown dropdown-dark">
-             <select name="two" class="dropdown-select">
-               <option value="">Select User</option>
-               <option value="1">Chanky</option>
-               <option value="2">skumarpal</option>
-               <option value="3">uttam</option>
-               <option value="3">Jackie</option>
-             </select>
-           </div>
+        <input type="input" name="username" class="login-input" placeholder="Password">
         <input type="password" name="password" class="login-input" placeholder="Password">
         <input type="submit" value="Login" class="login-submit">
         <p class="login-help"><a href="index.html">Forgot password?</a></p>

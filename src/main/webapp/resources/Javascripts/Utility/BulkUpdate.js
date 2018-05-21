@@ -129,6 +129,24 @@ var com;
                         Removeindex = 10;
                         this.AssignmentGrid.attachEvent("onCellChanged", function (rId, cInd, val) {
                             _this.calculateStatistics();
+                            if (cInd == 5) {
+                                if (isNaN(val)) {
+                                    showFailedNotification("Enter Proper Discount Amount");
+                                    _this.AssignmentGrid.cells(rId, cInd).setValue("0");
+                                }
+                                else {
+                                    var Amount = _this.AssignmentGrid.cells(rId, 3).getValue();
+                                    var Advance = _this.AssignmentGrid.cells(rId, 4).getValue();
+                                    var Due = Amount - Advance;
+                                    if (val > Due) {
+                                        showFailedNotification("Discount greater than due amount.");
+                                        _this.AssignmentGrid.cells(rId, cInd).setValue("0");
+                                    }
+                                    else {
+                                        _this.AssignmentGrid.cells(rId, 6).setValue(Due - val);
+                                    }
+                                }
+                            }
                         });
                     }
                     if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {

@@ -63,6 +63,6 @@
             <span class='Value'>${STAT_OBJECT[2]}</span>
         </div>         
         <c:set var="ID" value="${ID+1}"/>   
-    </c:forEach>
+    </c:forEach>    
     </body>
 </html>

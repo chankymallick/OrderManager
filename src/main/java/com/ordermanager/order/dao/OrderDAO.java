@@ -462,6 +462,18 @@ public class OrderDAO extends DAOHelper {
 
     }
 
+    public List<Object> getGridDataForDeliveryTransactions(String ReportDate) {
+        try {
+            Timestamp od = this.getParsedTimeStamp(ReportDate);
+            String SQL = "SELECT ROW_NUMBER() Over (Order by PT.TRANSACTION_DATE ) As [S.N.], ORDER_BILL_NO,CUSTOMER_NAME,PRICE,(SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO = OD.BILL_NO  AND PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='READVANCE' ) AS ADVANCE,DISCOUNT,AMOUNT AS PAID ,NOTE FROM PAYMENT_TRANSACTIONS PT INNER JOIN ORDERS OD ON PT.ORDER_BILL_NO=OD.BILL_NO  WHERE PT.PAYMENT_TYPE = 'DELIVERY_PAYMENT' AND PT.TRANSACTION_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND OD.ORDER_DATE <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1) ORDER BY PT.TRANSACTION_DATE ASC";
+//            String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO AND OD.ORDER_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND OD.ORDER_DATE <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1) ORDER BY PT.TRANSACTION_UID DESC";
+            return this.getJSONDataForGrid(SQL);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
     public List<String[]> getAdvanceStatistics(String orderDate, String StoreLocation) {
         ArrayList<String[]> statList = new ArrayList();
         try {
@@ -483,6 +495,50 @@ public class OrderDAO extends DAOHelper {
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "BILL FINISHED", TotalBill});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "SALE AMOUNT", TotalSale});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "EXPENSES", Expense});
+        } catch (Exception e) {
+            return statList;
+        }
+        return statList;
+    }
+
+    public List<String[]> getDeliveryPaymentStatistics(String orderDate, String StoreLocation) {
+        ArrayList<String[]> statList = new ArrayList();
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        try {
+
+            Timestamp od = this.getParsedTimeStamp(orderDate);
+            String SQL = "SELECT  COUNT(ORDER_BILL_NO) AS TOTAL_BILLS,SUM(OD.QUANTITY) AS TOTAL_PIECE,SUM(PRICE) AS TOTAL_PRICE,SUM(DISCOUNT)AS TOTAL_DISCOUNT,SUM(AMOUNT) AS TOTAL_PAID FROM PAYMENT_TRANSACTIONS PT INNER JOIN ORDERS OD ON PT.ORDER_BILL_NO=OD.BILL_NO  WHERE PT.PAYMENT_TYPE = 'DELIVERY_PAYMENT' AND PT.TRANSACTION_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND OD.ORDER_DATE <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1)";
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            rst = pst.executeQuery();
+            String Total = "0";
+            String TotalPiece = "0";
+            String TotalBills = "0";
+            String Discount = "0";
+            String FinalTotal = "0";
+
+            if (rst.next()) {
+                Total = rst.getString("TOTAL_PRICE");
+                TotalPiece = rst.getString("TOTAL_PIECE");
+                TotalBills = rst.getString("TOTAL_BILLS");
+                Discount = rst.getString("TOTAL_DISCOUNT");
+                FinalTotal = rst.getString("TOTAL_PAID");
+
+            }
+            Total = (Total == null) ? "0" : Total;
+            TotalPiece = (TotalPiece == null) ? "0" : TotalPiece;
+            TotalBills = (TotalBills == null) ? "0" : TotalBills;
+            Discount = (Discount == null) ? "0" : Discount;
+            FinalTotal = (FinalTotal == null) ? "0" : FinalTotal;
+
+            statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "DATE",orderDate.toString()});
+            statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "BILL AMOUNT", Total});
+            statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "NO OF PIECE", TotalPiece});
+            statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "NO OF BILLS", TotalBills});
+            statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "DISCOUNT", Discount});
+            statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "TOTAL PAYMENT", FinalTotal});
         } catch (Exception e) {
             return statList;
         }
@@ -623,6 +679,7 @@ public class OrderDAO extends DAOHelper {
         ResultSet rst = null;
         ResultSet rst2 = null;
         try {
+            int ONLY_READY_TO_DELIVER = params.getInt("ONLY_READY_TO_DELIVER=NUM");
             String OrderBillNo = params.getString("BILL_NO=STR");
             String SQL = "SELECT BILL_NO,QUANTITY,PRICE, (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE')) AS ADVANCE, ISNULL(DISCOUNT,0) AS DISCOUNT,PRICE-(ISNULL(DISCOUNT,0)+( SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO=? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE'))) AS DUE,ORDER_TYPE,CURRENT_STATUS,NOTE FROM ORDERS WHERE BILL_NO = ?";
             con = this.getJDBCConnection();
@@ -632,30 +689,36 @@ public class OrderDAO extends DAOHelper {
             pst.setString(3, OrderBillNo);
             rst = pst.executeQuery();
             if (rst.next()) {
-                StringBuilder data = new StringBuilder();
-                data.append(rst.getString("BILL_NO")).
-                        append(",").
-                        append(rst.getString("QUANTITY")).
-                        append(",").
-                        append(rst.getString("PRICE")).
-                        append(",").
-                        append(rst.getString("ADVANCE")).
-                        append(",").
-                        append(rst.getString("DISCOUNT")).
-                        append(",").
-                        append(rst.getString("DUE")).
-                        append(",").
-                        append(rst.getString("ORDER_TYPE")).
-                        append(",").
-                        append(rst.getString("CURRENT_STATUS")).
-                        append(",").
-                        append(rst.getString("NOTE")).
-                        append(",").
-                        append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
-                        append(",").
-                        append("<img height='20px' width='20px' src='resources/Images/task.png'/>");
-                response.addResponseValue("DATA", data.toString());
-                this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
+                if (rst.getString("CURRENT_STATUS").equalsIgnoreCase(ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString())) {
+                    this.generateSQLExceptionResponse(response, new Exception("Delivery Already Completed"), "Delivery Already Completed");
+                } else if (ONLY_READY_TO_DELIVER == 1 && !(rst.getString("CURRENT_STATUS").equalsIgnoreCase(ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString()))) {
+                    this.generateSQLExceptionResponse(response, new Exception("Order Not Ready for Delivery"), "Order Not Ready for Delivery");
+                } else {
+                    StringBuilder data = new StringBuilder();
+                    data.append(rst.getString("BILL_NO")).
+                            append(",").
+                            append(rst.getString("QUANTITY")).
+                            append(",").
+                            append(rst.getString("PRICE")).
+                            append(",").
+                            append(rst.getString("ADVANCE")).
+                            append(",").
+                            append(rst.getString("DISCOUNT")).
+                            append(",").
+                            append(rst.getString("DUE")).
+                            append(",").
+                            append(rst.getString("ORDER_TYPE")).
+                            append(",").
+                            append(rst.getString("CURRENT_STATUS")).
+                            append(",").
+                            append(rst.getString("NOTE")).
+                            append(",").
+                            append("<img height='20px' width='20px' src='resources/Images/cancel_order.png'/>").
+                            append(",").
+                            append("<img height='20px' width='20px' src='resources/Images/task.png'/>");
+                    response.addResponseValue("DATA", data.toString());
+                    this.generateSQLSuccessResponse(response, "Bill no sucesfully added to list");
+                }
             } else {
                 this.generateSQLExceptionResponse(response, new Exception("Bill not found"), "Bill no not Exist");
             }

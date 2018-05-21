@@ -9,6 +9,7 @@ declare var dhtmlXLayoutObject;
 declare var Language: any;
 declare var showFailedNotificationWithICON: any;
 declare var jQuery: any;
+declare var dhtmlXChart: any;
 module com.ordermanager.home {
     export class CommandHandler {
 
@@ -35,6 +36,7 @@ module com.ordermanager.home {
         public static CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
         public static CODE_CANCEL_ORDER = "COD";
         public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
+        public static CODE_REPORT_DELIVERY_TRANSACTIONS = "RDT";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -45,7 +47,8 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         public static REPORT_DAILY_ADVANCE = "advanceReport";
-        public static REPORT_ORDER_SCHEDULER = "orderScheduler"
+        public static REPORT_ORDER_SCHEDULER = "orderScheduler";
+        public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
         public static UPDATE_NEW_ORDER = "updateNewOrder";
         public static UPDATE_ITEM = "updateItem";
         public static UPDATE_ADVANCE = "addadvance";
@@ -55,6 +58,8 @@ module com.ordermanager.home {
         public static UPDATE_BULK_MASTER_TAILOR = "updateBulkMasterTailor";
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
         public static UPDATE_BULK_SINGLE = "updateBulkToSingle";
+
+        
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -63,40 +68,42 @@ module com.ordermanager.home {
         public ReportViewManagerObject: any;
         public UpdateManagerObject: any;
         public DBConnection: any;
+        public ChartLayout: any;
 
         public AutoCompleteCommandMenu() {
             Commands = [
-                {"label": "ANI   [Add New Item]", "value":"ANI"},
-                {"label": "ANST [Add New Status Type]", "value":"ANST"},
-                {"label": "ANO  [Add New Order]", "value":"ANO"},
-                {"label": "ANU  [Add New User]", "value":"ANU"},
-                {"label": "ANE  [Add New Employee]", "value":"ANE"},
-                {"label": "AQA  [Add Quick Advance]", "value":"AQA"},
-                {"label": "UIMG [Upload Order Image]", "value":"UIMG"},
-                {"label": "ANL   [Add New Location]", "value":"ANL"},
-                {"label": "DP    [Delivery Payment]", "value":"DP"},
-                {"label": "RDA  [Report Daily Advance]", "value":"RDA"},
-                {"label": "RDP  [Report Daily Production]", "value":"RDP"},   
-                {"label": "CLW  [Change Labour Wage]", "value":"CLW"},
-                {"label": "UAW  [Update Assignment Wage]", "value":"UAW"},
-                {"label": "UAD  [Update Advance]", "value":"UAD"},
-                {"label": "UNO  [Update New Order]", "value":"UNO"},
-                {"label": "UNO  [Update Item]", "value":"UI"},                
-                {"label": "ROS  [Report Order Scheduler]", "value":"ROS"},
-                {"label": "COD  [Cancel Order]", "value":"COD"},
-                {"label": "UBCA [Update Bulk Change Assignment]", "value":"UBCA"},
-                {"label": "UBRD [Update Bulk Ready to Delivery]", "value":"UBRD"},
-                {"label": "UBS   [Update Bulk Single Assignment]", "value":"UBS"},
-                {"label": "UBMT [Update Bulk Master Tailor Assignment]", "value":"UBMT"},
-                {"label": "WPS   [Wage Payment System]", "value":"WPS"}
+                { "label": "ANI   [Add New Item]", "value": "ANI" },
+                { "label": "ANST [Add New Status Type]", "value": "ANST" },
+                { "label": "ANO  [Add New Order]", "value": "ANO" },
+                { "label": "ANU  [Add New User]", "value": "ANU" },
+                { "label": "ANE  [Add New Employee]", "value": "ANE" },
+                { "label": "AQA  [Add Quick Advance]", "value": "AQA" },
+                { "label": "UIMG [Upload Order Image]", "value": "UIMG" },
+                { "label": "ANL  [Add New Location]", "value": "ANL" },
+                { "label": "DP   [Delivery Payment]", "value": "DP" },
+                { "label": "RDA  [Report Daily Advance]", "value": "RDA" },
+                { "label": "RDP  [Report Daily Production]", "value": "RDP" },
+                { "label": "RDT  [Report Delivery Transaction]", "value": "RDT" },
+                { "label": "CLW  [Change Labour Wage]", "value": "CLW" },
+                { "label": "UAW  [Update Assignment Wage]", "value": "UAW" },
+                { "label": "UAD  [Update Advance]", "value": "UAD" },
+                { "label": "UNO  [Update New Order]", "value": "UNO" },
+                { "label": "UNO  [Update Item]", "value": "UI" },
+                { "label": "ROS  [Report Order Scheduler]", "value": "ROS" },
+                { "label": "COD  [Cancel Order]", "value": "COD" },
+                { "label": "UBCA [Update Bulk Change Assignment]", "value": "UBCA" },
+                { "label": "UBRD [Update Bulk Ready to Delivery]", "value": "UBRD" },
+                { "label": "UBS  [Update Bulk Single Assignment]", "value": "UBS" },
+                { "label": "UBMT [Update Bulk Master Tailor Assignment]", "value": "UBMT" },
+                { "label": "WPS  [Wage Payment System]", "value": "WPS" }
             ];
-              $("#searchCode").autocomplete({
-              source: Commands,
-                    select: function (event, ui) {
-                    }
-                });
+            $("#searchCode").autocomplete({
+                source: Commands,
+                select: function (event, ui) {
+                }
+            });
         }
-        constructor() {            
+        constructor() {
             this.initLayout();
             this.commandRegister();
             this.HomeLayoutObject.attachEvent("onCollapse", (name) => {
@@ -111,13 +118,13 @@ module com.ordermanager.home {
                     this.AutoCompleteCommandMenu();
                 }
             });
-          this.AutoCompleteCommandMenu();
+            this.AutoCompleteCommandMenu();
         }
         public commandRegister() {
             shortcut.add("Home", () => {
-                
-                (<HTMLInputElement> document.getElementById("searchCode")).value = "";
-                document.getElementById("searchCode").focus();               
+
+                (<HTMLInputElement>document.getElementById("searchCode")).value = "";
+                document.getElementById("searchCode").focus();
             }, {
                     'type': 'keyup',
                     'disable_in_input': false,
@@ -125,7 +132,7 @@ module com.ordermanager.home {
                     'propagate': true
                 });
             shortcut.add("Enter", () => {
-                var command = (<HTMLInputElement> document.getElementById("searchCode")).value
+                var command = (<HTMLInputElement>document.getElementById("searchCode")).value
                 if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ITEM) {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                 }
@@ -149,6 +156,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
                     this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DELIVERY_TRANSACTIONS) {
+                    this.menurReportsActionIntializer(OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS);
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                     this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
@@ -206,9 +216,9 @@ module com.ordermanager.home {
                 pattern: "3L",
                 cells:
                 [
-                    {id: "a", text: "Menu", width: 250},
-                    {id: "b", text: "Dashboard"},
-                    {id: "c", text: "Notifications", height: 150, collapse: true}
+                    { id: "a", text: "Menu", width: 250 },
+                    { id: "b", text: "Dashboard" },
+                    { id: "c", text: "Notifications", height: 150, collapse: true }
                 ]
             });
             //   console.log("Loading : " + JSON.stringify(Language));
@@ -233,6 +243,25 @@ module com.ordermanager.home {
             this.MenuAccordionObj.attachEvent("onActive", (id, state) => {
                 this.loadMenuItems(id)
             });
+            this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
+                pattern: "4J",
+                cells: [
+                    { id: "a", text: "Daily Sales", true: false },
+                    { id: "b", text: "Existing Data", header: false },
+                    { id: "c", text: "Existing Data", header: false },
+                    { id: "d", text: "Existing Data", header: false }
+                ]
+            });
+            this.temp();
+        }
+        public temp() {
+            var barChart = new dhtmlXChart({
+                view: "bar",
+                container: this.ChartLayout.cells("a"),
+                value: "#sales#",
+                color: "#66cc33"
+            });
+
         }
         public dbStatusLoader() {
             //            var intervalVar = setInterval(() => {
@@ -345,9 +374,9 @@ module com.ordermanager.home {
             });
         }
         public webcamImageManager() {
-            var WindowObject = this.getModelWindow("Take Product Image", 800, 550); 
+            var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
             WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=60005");
-            
+
         }
         public getModelWindow(HeaderText: any, Height: any, Width: any) {
             var myWins = new dhtmlXWindows();

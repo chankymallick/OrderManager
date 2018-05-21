@@ -61,15 +61,31 @@
     <rows>
         <row id="1">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Master Entry</b>]]></cell>        
+            <cell><![CDATA[<b>Single Entry</b>]]></cell>        
         </row>
         <row id="2">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Tailor Entry</b>]]></cell>  
+            <cell><![CDATA[<b>Master & Tailor Entry</b>]]></cell>  
         </row>
         <row id="3">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
-            <cell><![CDATA[<b>Single Master/Tailor Entry</b>]]></cell>  
+            <cell><![CDATA[<b>Iron & Finisher Entry</b>]]></cell>  
+        </row>
+        <row id="4">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b>Assignment Change & Cancel</b>]]></cell>  
+        </row>
+        <row id="5">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b>Production Enquiry</b>]]></cell>  
+        </row>
+        <row id="6">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b>Wage Payment</b>]]></cell>  
+        </row>
+        <row id="7">
+            <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b>Print Payment Details</b>]]></cell>  
         </row>
     </rows>
 </c:if>
@@ -460,6 +476,48 @@
     </c:forEach>
 </rows>
 </c:if>
+
+
+
+<c:if test="${OBJECT_MAP.get('Type').equals('deliveryTransactionsReport')}">
+    <rows>
+        <head>            
+        <column width="100" type="ro" align="center" color="white" sort="str">SR</column>       
+        <column width="100" type="ro" align="center" color="white" sort="str">BILL NO</column>       
+        <column width="250" type="ro" align="center" color="white" sort="str">NAME</column>   
+        <column width="100" type="ro" align="center" color="white" sort="int">PRICE</column>  
+        <column width="100" type="ro" align="center" color="white" sort="int">ADVANCE</column>    
+        <column width="100" type="ro" align="center" color="white" sort="int">DISCOUNT </column>    
+        <column width="100" type="ro" align="center" color="white" sort="int">PAID</column>    
+        <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>    
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+
+
+
+
+
 <c:if test="${OBJECT_MAP.get('Type').equals('updateBulkMasterTailor')}">
     <rows>
         <head>            
@@ -495,7 +553,7 @@
         <column width="70" type="ro" align="center" color="white" >ORDER TYPE</column>        
         <column width="60" type="ro" align="center" color="white" >REMOVE</column>      
         <column width="60" type="ro" align="center" color="white" >RESULT</column>     
-        </head> 
+    </head> 
 </rows>
 </c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('updateBulkToSingle')}">
@@ -539,7 +597,7 @@
         <column width="40" type="ro" align="center" color="white" >QTY</column>
         <column width="80" type="ro" align="center" color="white" >PRICE</column>
         <column width="100" type="ro" align="center" color="white" >ADVANCE</column>
-        <column width="70" type="ed" align="center" color="white" >DISCOUNT</column>        
+        <column width="70" type="edn" align="center" color="white" >DISCOUNT</column>        
         <column width="60" type="ro" align="center" color="white" >DUE</column>
         <column width="150" type="ro" align="center" color="white" >ORDER TYPE</column>
         <column width="150" type="ro" align="center" color="white" >STATUS</column> 

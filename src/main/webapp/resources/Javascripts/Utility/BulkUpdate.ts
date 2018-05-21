@@ -151,6 +151,28 @@ module com.ordermanager.bulkupdate {
                 Removeindex = 10;
                 this.AssignmentGrid.attachEvent("onCellChanged", (rId, cInd, val) => {
                     this.calculateStatistics();
+
+                    if (cInd == 5) {
+                        if (isNaN(val)) {
+                            showFailedNotification("Enter Proper Discount Amount");
+                            this.AssignmentGrid.cells(rId, cInd).setValue("0");
+                        }
+                        else {
+                            var Amount = this.AssignmentGrid.cells(rId, 3).getValue();
+                            var Advance = this.AssignmentGrid.cells(rId, 4).getValue();
+                            var Due = Amount - Advance
+                            if (val > Due) {
+                                showFailedNotification("Discount greater than due amount.");
+                                this.AssignmentGrid.cells(rId, cInd).setValue("0");
+                            }
+                            else {
+                                this.AssignmentGrid.cells(rId, 6).setValue(Due - val);
+                            }
+                        }
+                    }
+
+
+
                 });
             }
             if (this.UpdateModuleName == com.ordermanager.home.OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT) {

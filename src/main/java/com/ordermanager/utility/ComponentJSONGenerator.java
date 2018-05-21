@@ -147,6 +147,11 @@ public class ComponentJSONGenerator {
         return new ModelAndView("LoadJSON", "FormType", "advanceReport_Form");
 
     }
+    @RequestMapping("/deliveryTransactionsReport_Form")
+    public ModelAndView deliveryTransactionsReport() {
+        return new ModelAndView("LoadJSON", "FormType", "deliveryTransactionsReport_Form");
+
+    }
     @RequestMapping("/daily_productionReport_Form")
     public ModelAndView dailyProductionReport() {
         return new ModelAndView("LoadJSON", "FormType", "daily_productionReport_Form");
@@ -250,7 +255,12 @@ public class ComponentJSONGenerator {
         map.addAttribute("FormName", FormName);
         return "LoadJSON";
     }
-
+   @RequestMapping("/reportToolbar")
+    public String deliveryTransactionsReportToolbar(Model map, @RequestParam("formname") String FormName) {
+        map.addAttribute("FormType", "reportToolbar");
+        map.addAttribute("FormName", FormName);
+        return "LoadJSON";
+    }
    @RequestMapping("/wagePaymentUnpaidToolbar")
     public String wagePaymentUnpaidToolbar(Model map, @RequestParam("formname") String FormName) {
         map.addAttribute("FormType", "wagePaymentUnpaidToolbar");

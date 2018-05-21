@@ -35,6 +35,7 @@ var com;
                 CommandHandler.CODE_BULK_CHANGE_ASSIGNMENT = "UBCA";
                 CommandHandler.CODE_CANCEL_ORDER = "COD";
                 CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
+                CommandHandler.CODE_REPORT_DELIVERY_TRANSACTIONS = "RDT";
                 return CommandHandler;
             }());
             home.CommandHandler = CommandHandler;
@@ -66,10 +67,11 @@ var com;
                         { "label": "ANE  [Add New Employee]", "value": "ANE" },
                         { "label": "AQA  [Add Quick Advance]", "value": "AQA" },
                         { "label": "UIMG [Upload Order Image]", "value": "UIMG" },
-                        { "label": "ANL   [Add New Location]", "value": "ANL" },
-                        { "label": "DP    [Delivery Payment]", "value": "DP" },
+                        { "label": "ANL  [Add New Location]", "value": "ANL" },
+                        { "label": "DP   [Delivery Payment]", "value": "DP" },
                         { "label": "RDA  [Report Daily Advance]", "value": "RDA" },
                         { "label": "RDP  [Report Daily Production]", "value": "RDP" },
+                        { "label": "RDT  [Report Delivery Transaction]", "value": "RDT" },
                         { "label": "CLW  [Change Labour Wage]", "value": "CLW" },
                         { "label": "UAW  [Update Assignment Wage]", "value": "UAW" },
                         { "label": "UAD  [Update Advance]", "value": "UAD" },
@@ -79,9 +81,9 @@ var com;
                         { "label": "COD  [Cancel Order]", "value": "COD" },
                         { "label": "UBCA [Update Bulk Change Assignment]", "value": "UBCA" },
                         { "label": "UBRD [Update Bulk Ready to Delivery]", "value": "UBRD" },
-                        { "label": "UBS   [Update Bulk Single Assignment]", "value": "UBS" },
+                        { "label": "UBS  [Update Bulk Single Assignment]", "value": "UBS" },
                         { "label": "UBMT [Update Bulk Master Tailor Assignment]", "value": "UBMT" },
-                        { "label": "WPS   [Wage Payment System]", "value": "WPS" }
+                        { "label": "WPS  [Wage Payment System]", "value": "WPS" }
                     ];
                     $("#searchCode").autocomplete({
                         source: Commands,
@@ -125,6 +127,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DAILY_ADVANCE) {
                             _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DAILY_ADVANCE);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_DELIVERY_TRANSACTIONS) {
+                            _this.menurReportsActionIntializer(OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPDATE_NEW_ORDER) {
                             _this.menuUpdateActionInitializer(OrderManagerHome.UPDATE_NEW_ORDER, 100);
@@ -208,6 +213,24 @@ var com;
                     this.loadMenuItems("ordersandbills");
                     this.MenuAccordionObj.attachEvent("onActive", function (id, state) {
                         _this.loadMenuItems(id);
+                    });
+                    this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
+                        pattern: "4J",
+                        cells: [
+                            { id: "a", text: "Daily Sales", "true": false },
+                            { id: "b", text: "Existing Data", header: false },
+                            { id: "c", text: "Existing Data", header: false },
+                            { id: "d", text: "Existing Data", header: false }
+                        ]
+                    });
+                    this.temp();
+                };
+                OrderManagerHome.prototype.temp = function () {
+                    var barChart = new dhtmlXChart({
+                        view: "bar",
+                        container: this.ChartLayout.cells("a"),
+                        value: "#sales#",
+                        color: "#66cc33"
                     });
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
@@ -342,6 +365,7 @@ var com;
                 OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
                 OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
+                OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
                 OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
                 OrderManagerHome.UPDATE_ITEM = "updateItem";
                 OrderManagerHome.UPDATE_ADVANCE = "addadvance";

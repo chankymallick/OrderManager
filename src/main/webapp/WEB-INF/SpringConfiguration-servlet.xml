@@ -9,7 +9,7 @@
         <property name="prefix" value="/WEB-INF/JSP/" />
         <property name="suffix" value=".jsp" />
     </bean>     
-<!--    <mvc:interceptors>
+    <!--    <mvc:interceptors>
         <mvc:mapping path="/*" />
         <bean class="com.ordermanager.utility.MemoryMonitor" />
     </mvc:interceptors>         -->

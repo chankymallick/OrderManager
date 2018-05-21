@@ -97,14 +97,37 @@ public class OrderController {
         map.addAttribute("SavedList", orderDAO.getSavedItemSelectionList(Bill_No));
         return "LoadXMLComponent";
     }
-
+    @RequestMapping("/getStatisticsJSON")
+    public ModelAndView getStatisticsJSON(@RequestParam("StatisticsName") String Statistics_Name, @RequestParam("ReportParams") JSONObject jsonParam) {
+        Map<String, Object> requestMap = new HashMap();
+        if (Statistics_Name.equals("advanceReport")) {
+            String OrderDate = jsonParam.getString("REPORT_DATE=DATE");
+            String Location = jsonParam.getString("LOCATION=STR");
+            List<String[]> statList = orderDAO.getAdvanceStatistics(OrderDate, Location);
+            requestMap.put("STAT_VALUES", statList);
+        }
+        if (Statistics_Name.equals("deliveryTransactionsReport")) {
+            String OrderDate = jsonParam.getString("REPORT_DATE=DATE");
+            String Location = jsonParam.getString("LOCATION=STR");
+            List<String[]> statList = orderDAO.getDeliveryPaymentStatistics(OrderDate, Location);
+            requestMap.put("STAT_VALUES", statList);
+        }
+        
+        return new ModelAndView("MakeResponse", "responseValue",  new JSONObject(requestMap).toString());
+    }
     @RequestMapping("/getStatistics")
     public ModelAndView getStatistics(@RequestParam("StatisticsName") String Statistics_Name, @RequestParam("ReportParams") JSONObject jsonParam) {
         Map<String, Object> requestMap = new HashMap();
         if (Statistics_Name.equals("advanceReport")) {
-            String OrderDate = jsonParam.getString("ORDER_DATE=DATE");
+            String OrderDate = jsonParam.getString("REPORT_DATE=DATE");
             String Location = jsonParam.getString("LOCATION=STR");
             List<String[]> statList = orderDAO.getAdvanceStatistics(OrderDate, Location);
+            requestMap.put("STAT_VALUES", statList);
+        }
+        if (Statistics_Name.equals("deliveryTransactionsReport")) {
+            String OrderDate = jsonParam.getString("REPORT_DATE=DATE");
+            String Location = jsonParam.getString("LOCATION=STR");
+            List<String[]> statList = orderDAO.getDeliveryPaymentStatistics(OrderDate, Location);
             requestMap.put("STAT_VALUES", statList);
         }
         return new ModelAndView("StatisticsContainer", "OBJECT_MAP", requestMap);

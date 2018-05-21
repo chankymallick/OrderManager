@@ -466,7 +466,7 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public int getOrderDue(String BillNo) {
-        return this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ?))", new Object[]{BillNo, BillNo}, Integer.class);
+        return this.getJdbcTemplate().queryForObject("SELECT ((SELECT PRICE- ISNULL(DISCOUNT,0) FROM ORDERS WHERE BILL_NO =?) - (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ?))", new Object[]{BillNo, BillNo}, Integer.class);
     }
 
     public boolean isOrderFinishingCompleted(String BillNumber) {

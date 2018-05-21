@@ -103,6 +103,7 @@ IF NOT EXISTS (SELECT *FROM OBJECT_METADATA  WHERE OBJECT_NAME = 'PAYMENT_TRANSA
                         ORDER_BILL_NO VARCHAR(10),                     
                         PAYMENT_TYPE VARCHAR(20),
                         AMOUNT INT,    
+                        TRANSACTION_DATE DATETIME DEFAULT GETDATE(),
                         CONSTRAINT FK_BILLNO FOREIGN KEY (ORDER_BILL_NO) REFERENCES ORDERS(BILL_NO)
                       )')        
   END  
