@@ -1,5 +1,5 @@
 var Language;
-
+var USER_DETAILS;
 
 function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
     try {
@@ -161,6 +161,7 @@ function showFailedNotificationWithICON(data) {
 function loadLanguagePack() {
     var Response = SynchronousGetAjaxRequest("getLanguage", "", null);
     Language = Response.RESPONSE_VALUE.LANGUAGE_PACK;
+    USER_DETAILS = Response.RESPONSE_VALUE.USER_DETAILS;
 }
 function dateValidator(data) {
     return (data instanceof Date);

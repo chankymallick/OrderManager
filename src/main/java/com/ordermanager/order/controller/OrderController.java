@@ -51,6 +51,9 @@ public class OrderController {
 
     @RequestMapping("/addNewOrder")
     public ModelAndView addNewOrder(@RequestParam("ParamData") JSONObject paramJson) {
+        if(!orderDAO.roleLoginCheck(new String[]{"ADMIN","ORDER_MANAGER","ENQUIRER"})){
+        return new ModelAndView("Login");
+        }
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewOrder(paramJson));
     }
 
@@ -86,6 +89,14 @@ public class OrderController {
     @RequestMapping("/addNewAccount")
     public ModelAndView addNewAccount(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewAccount(paramJson));
+    }
+    @RequestMapping("/addNewAccountTransaction")
+    public ModelAndView addNewAccountTransaction(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewAccountTransaction(paramJson));
+    }
+    @RequestMapping("/addNewAccountSubType")
+    public ModelAndView addNewAccountSubType(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewAccountSubType(paramJson));
     }
 
     @RequestMapping("/addNewLocation")

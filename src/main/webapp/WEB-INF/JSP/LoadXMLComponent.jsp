@@ -284,6 +284,73 @@
     </c:forEach>
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewAccountTransaction')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="center" color="white" sort="int">UID</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">DATE</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">MODULE</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">SHOP</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">TYPE</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">AC NAME</column>   
+        <column width="150" type="ro" align="center" color="white" sort="str">TR DETAILS</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">SUB TYPE</column>   
+        <column width="70" type="ro" align="center" color="white" sort="int">AMOUNT</column>   
+        <column width="100" type="ro" align="center" color="white" sort="str">NOTE</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#select_filter,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('addNewAccountSubType')}">
+    <rows>
+        <head>            
+        <column width="100" type="ro" align="center" color="white" sort="int">UID</column>      
+        <column width="200" type="ro" align="center" color="white" sort="str">MODULE</column>       
+        <column width="200" type="ro" align="center" color="white" sort="str">SUB TYPE</column>   
+        <column width="200" type="ro" align="center" color="white" sort="int">ACTIVE</column>         
+        <column width="200" type="ro" align="center" color="white" sort="str">NOTE</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#select_filter,#text_search,#select_filter,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
 
 <c:if test="${OBJECT_MAP.get('Type').equals('getItemSelectionList')}">
     <rows>
@@ -491,6 +558,7 @@
         <column width="200" type="ro" align="center" color="white" sort="str">ORDER DATE</column>   
         <column width="200" type="ro" align="center" color="white" sort="str">PRICE</column>  
         <column width="200" type="ro" align="center" color="white" sort="str">ADVANCE</column>    
+        <column width="200" type="ro" align="center" color="white" sort="str">PAYMENT TYPE</column>    
         <beforeInit> 
             <call command="setImagePath"> 
                 <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
@@ -498,7 +566,7 @@
         </beforeInit> 
         <afterInit>  
             <call command="attachHeader">
-                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+                <param>#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
             </call> 
         </afterInit>     
     </head> 

@@ -7,6 +7,7 @@ declare var Commands: any;
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 declare var Language: any;
+declare var USER_DETAILS :any;
 declare var showFailedNotificationWithICON: any;
 declare var jQuery: any;
 declare var dhtmlXChart: any;
@@ -16,6 +17,8 @@ module com.ordermanager.home {
         public static CODE_FORM_NEW_ITEM = "ANI";
         public static CODE_FORM_NEW_USER = "ANU";
         public static CODE_FORM_NEW_ACCOUNT = "ANA";
+        public static CODE_FORM_NEW_ACCOUNT_SUBTYPE = "ANAST";
+        public static CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANT";
         public static CODE_FORM_NEW_ORDER = "ANO";
         public static CODE_ADD_NEW_STATUS_TYPE = "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
@@ -48,6 +51,8 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
         public static FORM_ADD_NEW_ACCOUNT = "addNewAccount";
+        public static FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
+        public static FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         public static REPORT_ORDER_SCHEDULER = "orderScheduler";
         public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
@@ -77,9 +82,11 @@ module com.ordermanager.home {
                 { "label": "ANI   [Add New Item]", "value": "ANI" },
                 { "label": "ANST [Add New Status Type]", "value": "ANST" },
                 { "label": "ANA [Add New Account]", "value": "ANA" },
+                { "label": "ANT [Add New Account Transaction]", "value": "ANT" },
                 { "label": "ANO  [Add New Order]", "value": "ANO" },
                 { "label": "ANU  [Add New User]", "value": "ANU" },
                 { "label": "ANE  [Add New Employee]", "value": "ANE" },
+                { "label": "ANAST  [Add New Account Subtype]", "value": "ANAST" },
                 { "label": "AQA  [Add Quick Advance]", "value": "AQA" },
                 { "label": "UIMG [Upload Order Image]", "value": "UIMG" },
                 { "label": "ANL  [Add New Location]", "value": "ANL" },
@@ -154,6 +161,12 @@ module com.ordermanager.home {
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
                 }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION, 220);
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_SUBTYPE) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_SUBTYPE, 220);
+                }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
                 }
@@ -227,6 +240,16 @@ module com.ordermanager.home {
                     { id: "c", text: "Notifications", height: 150, collapse: true }
                 ]
             });
+            var opts = [
+                ['lang', 'obj', "LANGUAGE : "+ USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
+                ['sep01', 'sep', '', ''],
+                ['lan', 'obj', "ROLE : "+ USER_DETAILS.USER_TYPE , "resources/Images/lock.png"],
+                ['sep02', 'sep', '', ''],
+                ['logout', 'obj', 'LOGOUT', "resources/Images/logout.png"],
+               
+               
+                
+            ];
             //   console.log("Loading : " + JSON.stringify(Language));
             this.HomeLayoutObject.progressOn();
             this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
@@ -234,8 +257,18 @@ module com.ordermanager.home {
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
             this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
             this.HomeToolbar.disableItem("dbState");
+
+            this.HomeToolbar.addButtonSelect("id", 3, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
+           
+           
             this.HomeToolbar.addSpacer("appname");
             this.dbStatusLoader();
+
+            this.HomeToolbar.attachEvent("onClick", (id)=>{
+                if(id === "logout"){
+                    window.open("/Logout","_self");
+                }
+            });
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
             this.HomeLayoutObject.cells("a").showHeader();
             this.MenuAccordionObj.addItem("ordersandbills", Language.orderandbill);
@@ -258,17 +291,10 @@ module com.ordermanager.home {
                     { id: "d", text: "Existing Data", header: false }
                 ]
             });
-            this.temp();
+            com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
+           
         }
-        public temp() {
-            var barChart = new dhtmlXChart({
-                view: "bar",
-                container: this.ChartLayout.cells("a"),
-                value: "#sales#",
-                color: "#66cc33"
-            });
-
-        }
+       
         public dbStatusLoader() {
             //            var intervalVar = setInterval(() => {
             //                try {
@@ -381,7 +407,7 @@ module com.ordermanager.home {
         }
         public webcamImageManager() {
             var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-            WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=60005");
+            WindowObject.attachURL("resources/JS_WEBCAM/Camera.html?BILL_NO=60005");
 
         }
         public getModelWindow(HeaderText: any, Height: any, Width: any) {

@@ -178,9 +178,10 @@ public class OrderDAO extends DAOHelper {
             paramData.remove("CURRENT_LOCATION=STR");
             paramData.remove("ORDER_SUB_STATUS=STR");
             paramData.put("ORDER_UID=NUM", UID);
+            
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
-            int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
-            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance});
+            int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");            
+            int PayemtInsert = getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance,this.getParsedTimeStamp(paramData.get("ORDER_DATE=DATE").toString())});
             int Order_Item_Uid_For_Main_Item = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
             int mainItem = getJdbcTemplate().update("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", new Object[]{Order_Item_Uid_For_Main_Item, paramData.get("BILL_NO=STR"), MainItemName, ""});
             int OrderStatusLocationInsert = orderMobiltyUpdate(
@@ -204,7 +205,7 @@ public class OrderDAO extends DAOHelper {
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
-            //       new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
+            new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
@@ -349,7 +350,7 @@ public class OrderDAO extends DAOHelper {
             paramData.put("LOCATION=STR", LOCATION.BAGNAN.toString());
             paramData.put("ORDER_DATE=DATE_AUTO", this.getCurrentTimeStamp().toString());
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
-            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance});
+            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance, paramData.get("ORDER_DATE=DATE_AUTO").toString()});
             int OrderStatusLocationInsert = orderMobiltyUpdate(paramData.get("BILL_NO=STR").toString(), paramData.get("ORDER_DATE=DATE_AUTO").toString(),
                     ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(),
                     ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString(),
@@ -382,6 +383,7 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
+
     public String addNewAccount(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -392,6 +394,41 @@ public class OrderDAO extends DAOHelper {
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ACCOUNT_REGISTER"));
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ACCOUNT_REGISTER, UID, "New Account Created");
             generateSQLSuccessResponse(response, paramData.get("ACCOUNT_NAME=STR") + " - added Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+
+    public String addNewAccountTransaction(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("ACCOUNTS_BOOK", "TRANSACTION_UID");
+            paramData.put("TRANSACTION_UID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ACCOUNTS_BOOK"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ACCOUNTS_BOOK, UID, "New Transaction Saved");
+            generateSQLSuccessResponse(response, paramData.get("TR_TYPE=STR") + ":" + paramData.get("ACCOUNT_NAME=STR") + ":" + paramData.get("AMOUNT=NUM") + " - saved Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+    public String addNewAccountSubType(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("ACCOUNT_BOOK_SUBTYPES", "TRANSACTION_UID");
+            paramData.put("TRANSACTION_UID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ACCOUNT_BOOK_SUBTYPES"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ACCOUNT_BOOK_SUBTYPES, UID, "New Transaction Saved");
+            generateSQLSuccessResponse(response,  "SubType  - saved Succesfully");
             this.getTransactionManager().commit(txStatus);
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
@@ -430,9 +467,9 @@ public class OrderDAO extends DAOHelper {
             String DeliveryDate = paramData.getString("DELIVERY_DATE=DATE");
             String Location = paramData.getString("CURRENT_LOCATION=STR");
             int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
-            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID,ORDER_BILL_NO,PAYMENT_TYPE,AMOUNT) VALUES (?,?,?,?)", new Object[]{PaymentUID, OrderBillNo, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString(), Advance});
+            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID,ORDER_BILL_NO,PAYMENT_TYPE,AMOUNT,TRANSACTION_DATE) VALUES (?,?,?,?,?)", new Object[]{PaymentUID, OrderBillNo, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString(), Advance,getCurrentTimeStamp()});
             int mobilityUpdate = this.orderMobiltyUpdate(OrderBillNo, this.getCurrentTimeStamp().toString(), MainStatus, SubStatus, Location, "Re Advance");
-            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.PAYMENT_TRANSACTION, PaymentUID, "RE ADVAMCE FOR BILL NO : " + OrderBillNo + ", Advance :" + Integer.toString(Advance));
+            mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.PAYMENT_TRANSACTION, PaymentUID, "RE ADVANCE FOR BILL NO : " + OrderBillNo + ", Advance :" + Integer.toString(Advance));
             this.getTransactionManager().commit(txStatus);
             generateSQLSuccessResponse(response, paramData.get("BILL_NO") + " - Advance Succesfully done");
         } catch (Exception e) {
@@ -471,7 +508,7 @@ public class OrderDAO extends DAOHelper {
     public List<Object> getGridDataForQuickOrdersWithDate(String ReportDate) {
         try {
             Timestamp od = this.getParsedTimeStamp(ReportDate);
-            String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO AND OD.ORDER_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND OD.ORDER_DATE <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1) ORDER BY PT.TRANSACTION_UID DESC";
+            String SQL = "SELECT  BILL_NO,ORDER_DATE,PRICE ,AMOUNT,PAYMENT_TYPE FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO AND PT.TRANSACTION_DATE > = DateAdd(Day, DateDiff(Day, 0, '" + od.toString() + "'), 0) AND PT.TRANSACTION_DATE  <  DateAdd(Day, DateDiff(Day,0,  '" + od.toString() + "'), 1)  AND (PT.PAYMENT_TYPE = 'ADVANCE' OR PT.PAYMENT_TYPE ='RE_ADVANCE') ORDER BY PT.TRANSACTION_UID DESC";
             return this.getJSONDataForGrid(SQL);
         } catch (Exception e) {
             return null;
@@ -499,7 +536,7 @@ public class OrderDAO extends DAOHelper {
             String Expense = "0";
             String TotalBill = this.getJdbcTemplate().queryForObject("SELECT COUNT(BILL_NO) FROM ORDERS WHERE LOCATION = ? AND  ORDER_DATE >= ? AND ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
             String TotalOrder = this.getJdbcTemplate().queryForObject("SELECT SUM(QUANTITY) AS TOTAL_PIECE FROM ORDERS WHERE LOCATION = ? AND  ORDER_DATE >= ? AND ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
-            String TotalAdvance = this.getJdbcTemplate().queryForObject("SELECT SUM(PM.AMOUNT) FROM PAYMENT_TRANSACTIONS PM INNER JOIN ORDERS ODR  ON ODR.BILL_NO = PM.ORDER_BILL_NO WHERE ODR.LOCATION =? AND PM.PAYMENT_TYPE IN('ADVANCE','RE_ADVANCE','PIECE_SALE')  AND ODR.ORDER_DATE >=? AND ODR.ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
+            String TotalAdvance = this.getJdbcTemplate().queryForObject("SELECT SUM(PM.AMOUNT) FROM PAYMENT_TRANSACTIONS PM INNER JOIN ORDERS ODR  ON ODR.BILL_NO = PM.ORDER_BILL_NO WHERE ODR.LOCATION =? AND PM.PAYMENT_TYPE IN('ADVANCE','RE_ADVANCE','PIECE_SALE')  AND PM.TRANSACTION_DATE >=? AND PM.TRANSACTION_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
             String TotalSale = this.getJdbcTemplate().queryForObject("SELECT SUM(ODR.PRICE) FROM PAYMENT_TRANSACTIONS PM INNER JOIN ORDERS ODR  ON ODR.BILL_NO = PM.ORDER_BILL_NO WHERE ODR.LOCATION = ? AND PM.PAYMENT_TYPE IN('ADVANCE','RE_ADVANCE','PIECE_SALE')  AND ODR.ORDER_DATE >= ? AND ODR.ORDER_DATE <  DATEADD(DAY,1,?)", new Object[]{StoreLocation, OrderDate, OrderDate}, String.class);
 
             TotalBill = (TotalBill == null) ? "0" : TotalBill;
@@ -550,7 +587,7 @@ public class OrderDAO extends DAOHelper {
             Discount = (Discount == null) ? "0" : Discount;
             FinalTotal = (FinalTotal == null) ? "0" : FinalTotal;
 
-            statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "DATE",orderDate.toString()});
+            statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "DATE", orderDate.toString()});
             statList.add(new String[]{STATISTICS_TYPE.LARGE.toString(), "BILL AMOUNT", Total});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "NO OF PIECE", TotalPiece});
             statList.add(new String[]{STATISTICS_TYPE.MEDIUM.toString(), "NO OF BILLS", TotalBills});

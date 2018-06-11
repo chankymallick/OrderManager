@@ -40,6 +40,14 @@ module com.ordermanager.utilty {
             myWins.window("win1").setText(HeaderText);
             return myWins.window("win1");
         }
+        public static getModelWindowImageViewer(HeaderText: any, Height: any, Width: any) {
+            var myWins = new dhtmlXWindows();
+            myWins.createWindow("win1", 50, 50, Height, Width);
+            myWins.window("win1").center();
+            myWins.window("win1").setText(HeaderText);
+            return myWins.window("win1");
+        }
+
         public static getModelWindow(HeaderText: any, Height: any, Width: any) {
             var myWins = new dhtmlXWindows();
             myWins.createWindow("win1", 50, 50, Height, Width);
@@ -67,6 +75,43 @@ module com.ordermanager.utilty {
                 showFailedNotification(Response.RESPONSE_MESSAGE);
             }
 
+        }
+        public static getImageViewer(Container: any, Module: string, Key: string, GalleryWidth, previewHeight, previewWidth) {
+            var imageViewerLayout = Container.attachLayout({
+                pattern: "2U",
+                cells: [
+                    { id: "a", text: "GALLERY", header: false, width: GalleryWidth },
+                    { id: "b", text: "IMAGE", header: false }
+                ]
+            });
+
+            var myDataView = imageViewerLayout.cells("a").attachDataView({
+                container: "data_container1",
+                type: {
+                    template: "<img src=#IMAGE# height='100px' width='200px'>",
+                    height: 100,
+                    width: 200
+                }
+            });
+            myDataView.load("getImage?MODULE=" + Module + "&KEY=" + Key, "json");
+
+            myDataView.attachEvent("onXLE", () => {
+                var ImageData = myDataView.get(myDataView.first()).IMAGE;
+                imageViewerLayout.cells("b").attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(myDataView.first()).IMAGE_DATE + "<br><img src=" + ImageData + " height='" + previewHeight + "px' width='" + previewWidth + "px'></h4>")
+                myDataView.attachEvent("onItemClick", (id, ev, html) => {
+                    var ImageData = myDataView.get(id).IMAGE;
+                    imageViewerLayout.cells("b").attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(id).IMAGE_DATE + "<br><img src=" + ImageData + " height='" + previewHeight + "px' width='" + previewWidth + "px'></h4>")
+                    return true;
+                });
+                myDataView.attachEvent("onItemDblClick", (id, ev, html) => {
+                    var ImageData = myDataView.get(id).IMAGE;
+                    this.getModelWindowImageViewer("Detail Image View", 1200, 650).attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(id).IMAGE_DATE + "<br><img src=" + ImageData + " height='550px' width='1180px'></h4>")
+                    return true;
+                });
+
+
+            });
+            return myDataView;
         }
     }
     export class FormEntryManager {
@@ -113,8 +158,8 @@ module com.ordermanager.utilty {
             this.ModifiedLayoutObject = this.DataEntryLayoutCell.attachLayout({
                 pattern: "2E",
                 cells: [
-                    {id: "a", text: "Data", header: false},
-                    {id: "b", text: "Existing Data", header: false, height: this.DataViewLayoutCellHeight}
+                    { id: "a", text: "Data", header: false },
+                    { id: "b", text: "Existing Data", header: false, height: this.DataViewLayoutCellHeight }
                 ]
             });
             this.ModifiedLayoutObject.progressOn();
@@ -214,6 +259,9 @@ module com.ordermanager.utilty {
                 DefaultForData["ORDER_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("ORDER_DATE=DATE", true);
                 DefaultForData["DELIVERY_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("DELIVERY_DATE=DATE", true);
             }
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+                DefaultForData["TR_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("TR_DATE=DATE", true);
+            }
             this.DataEntryLayoutCell.progressOn();
             var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(DefaultForData) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
             if (Response.RESPONSE_STATUS === "SUCCESS") {
@@ -290,14 +338,15 @@ module com.ordermanager.utilty {
                 });
                 //this.FormObject.attachEvent("onXLE", () => {
                 this.FormObject.attachEvent("onButtonClick", (name) => {
-                    if (name === "ITEM_BUTTON=BUTTON"){
-                        var Value = this.constructItemSelectionWindow();}
-                    if (name === "AUTO_BILL=BUTTON"){
+                    if (name === "ITEM_BUTTON=BUTTON") {
+                        var Value = this.constructItemSelectionWindow();
+                    }
+                    if (name === "AUTO_BILL=BUTTON") {
                         var BillNo = SynchronousGetAjaxRequest("getNextBillNo");
-                        this.FormObject.setItemValue("BILL_NO=STR",BillNo.toString()); 
+                        this.FormObject.setItemValue("BILL_NO=STR", BillNo.toString());
                         this.FormObject.setItemFocus("VERIFY_BILL_NO=STR");
-                        }
-                        
+                    }
+
                 });
                 //  });
 
@@ -319,6 +368,29 @@ module com.ordermanager.utilty {
                     }
                 });
 
+            }
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+
+                this.FormObject.attachEvent("onXLE", () => {
+                    //  this.FormObject.setItemValue("TR_DATE=DATE", getCurrentDate());
+                });
+                this.FormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "TR_MODULE=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("ACCOUNT_NAME=STR"), "ACCOUNT_REGISTER", "ACCOUNT_NAME", "ACCOUNT_MODULE", value);
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.FormObject.getOptions("MODULE_TRANSACTION_TYPE=STR"), "ACCOUNT_BOOK_SUBTYPES", "ACCOUNT_SUBTYPE", "ACCOUNT_MODULE", value);
+
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
+                this.DefualtDataFormObject.attachEvent("onChange", (name, value) => {
+                    if (name == "TR_MODULE=STR") {
+                        this.ModifiedLayoutObject.progressOn();
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.DefualtDataFormObject.getOptions("ACCOUNT_NAME=STR"), "ACCOUNT_REGISTER", "ACCOUNT_NAME", "ACCOUNT_MODULE", value);
+                        com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(this.DefualtDataFormObject.getOptions("MODULE_TRANSACTION_TYPE=STR"), "ACCOUNT_BOOK_SUBTYPES", "ACCOUNT_SUBTYPE", "ACCOUNT_MODULE", value);
+                        progressOffCustom(this.ModifiedLayoutObject);
+                    }
+                });
             }
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER) {
                 this.OperationToolbar.attachEvent("onXLE", () => {
@@ -366,6 +438,9 @@ module com.ordermanager.utilty {
                 this.GlobalFormJSONValues["ORDER_DATE=DATE"] = this.FormObject.getItemValue("ORDER_DATE=DATE", true);
                 this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
             }
+            if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+                this.GlobalFormJSONValues["TR_DATE=DATE"] = this.FormObject.getItemValue("TR_DATE=DATE", true);
+            }
         }
         public setSpecificAfterSave() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
@@ -377,7 +452,7 @@ module com.ordermanager.utilty {
             var ItemWindow = this.MainUtilityObj.getModelWindow("Select Items", 535, 500);
             ItemWindow.progressOn();
             var ItemGrid = ItemWindow.attachGrid();
-            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR"); 
+            var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
             ItemGrid.load("getExtraItems?ITEM_TYPE=" + this.FormObject.getItemValue("ORDER_TYPE=STR") + "&BILL_NO=" + BILL_NO);
             ItemGrid.setNoHeader(true)
             ItemGrid.attachEvent("onXLE", () => {
@@ -415,11 +490,11 @@ module com.ordermanager.utilty {
         }
         public customRateWindow() {
             var FormObj = [
-                {type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130},
-                {type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label"},
-                {type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
-                {type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0"},
-                {type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok"}
+                { type: "settings", offsetLeft: "15", position: "label-left", labelWidth: 90, inputWidth: 130 },
+                { type: "label", label: "<span style=\'color:white;\'>MASTER AND TAILOR RATE</span>", name: "MASTERANDTAILORRATE", labelWidth: "220", className: "DHTMLX_LABEL1", labelHeight: "15", icon: "icon-label" },
+                { type: "input", label: "MASTER RATE", name: "MASTER_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
+                { type: "input", label: "TAILOR RATE ", name: "TAILOR_RATE=STR", inputWidth: "150", style: "font-weight:bold;background-color:#edeaea;", tooltip: "Extra Note", icon: "icon-select", labelWidth: "110", validate: "isValidNumeric", required: true, maxLength: "3", value: "0" },
+                { type: "button", name: "OK=BUTTON", value: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bolder'>OK</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", tooltip: "Ok" }
             ];
             var ItemWindow = this.MainUtilityObj.getModelWindow("Enter Custom Rates", 290, 300);
             var RateForm = ItemWindow.attachForm(FormObj);

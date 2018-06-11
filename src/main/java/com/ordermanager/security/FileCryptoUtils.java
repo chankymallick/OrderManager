@@ -64,9 +64,9 @@ public class FileCryptoUtils {
     
     public static void main(String[] args) {
          String key = "Mary has one cat";
-        File inputFile = new File("e:\\dataSQL.txt");
-        File encryptedFile = new File("e:\\dataSQLEncrypted.encrypted");
-        File decryptedFile = new File("e:\\dataSQLDecrypted.txt");
+        File inputFile = new File("g:\\MDOM\\ODM_10_06_18_1528580117507_SCHEMA_1_0.bak");
+        File encryptedFile = new File("g:\\ODM_10_06_18_1528580117507_SCHEMA_1_1.encrypted");
+        File decryptedFile = new File("g:\\ODM_10_06_18_1528580117507_SCHEMA_1_2.bak");
          
         try {
             FileCryptoUtils.encrypt(key, inputFile, encryptedFile);

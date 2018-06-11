@@ -48,7 +48,7 @@ public class SecurityModule {
             SecretKey genkey = factory.generateSecret(new DESedeKeySpec(strPassPhrase.getBytes()));
             cipher.init(Cipher.DECRYPT_MODE, genkey);
             String str2 = new String(cipher.doFinal(DatatypeConverter.parseBase64Binary(encryptedText)));
-
+            return str2;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

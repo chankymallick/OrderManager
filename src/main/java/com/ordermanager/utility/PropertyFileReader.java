@@ -119,12 +119,16 @@ public class PropertyFileReader extends DAOHelper {
         }
     }
 
-    public String loadLanguagePropertiesForClient(Map<String, String> languageMap) {
+    public String loadLanguagePropertiesForClient(HttpServletRequest request) {
         ResponseJSONHandler rsp = new ResponseJSONHandler();
         try {
+            Map<String, String> languageMap = ( Map<String, String>) request.getSession(false).getAttribute("Language");
+            Map<String, String> USER_DETAILS = ( Map<String, String>) request.getSession(false).getAttribute("USER_DETAILS");
             JSONObject obj = new JSONObject(languageMap);
+            JSONObject obj2 = new JSONObject(USER_DETAILS);
             generateSQLSuccessResponse(rsp, "Language pack Recieved");
             rsp.addResponseValue("LANGUAGE_PACK", obj);
+            rsp.addResponseValue("USER_DETAILS",obj2);
             return rsp.getJSONResponse();
         } catch (Exception e) {
             generateSQLExceptionResponse(rsp, e, "Exception Loading Language Properties");

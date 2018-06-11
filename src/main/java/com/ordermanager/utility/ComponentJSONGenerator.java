@@ -259,6 +259,38 @@ public class ComponentJSONGenerator {
             return new ModelAndView("LoadJSON", "FormType", "addNewAccount");
         }
     }
+    @RequestMapping("/addNewAccountTransaction_Form")
+    public ModelAndView addNewAccountTransaction(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "addNewAccountTransaction"));
+            if (defaultData.length() == 0) {
+                return new ModelAndView("LoadJSON", "FormType", "addNewAccountTransaction");
+            } else {
+                requestMap.put("FormType", "addNewAccountTransaction_withValue");
+                requestMap.put("FormData", defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "addNewAccountTransaction");
+        }
+    }
+    @RequestMapping("/addNewAccountSubType_Form")
+    public ModelAndView addNewAccountSubType(@RequestParam("Default") boolean isDefaultOn) {
+        Map<String, Object> requestMap = new HashMap();
+        if (isDefaultOn) {
+            JSONObject defaultData = new JSONObject(UtilityDAO.getApplicationData("FORM_DEFAULT_VALUE", "addNewAccountSubType"));
+            if (defaultData.length() == 0) {
+                return new ModelAndView("LoadJSON", "FormType", "addNewAccountSubType");
+            } else {
+                requestMap.put("FormType", "addNewAccountSubType_withValue");
+                requestMap.put("FormData", defaultData);
+                return new ModelAndView("LoadJSON", "ReqObject", requestMap);
+            }
+        } else {
+            return new ModelAndView("LoadJSON", "FormType", "addNewAccountSubType");
+        }
+    }
 
     @RequestMapping("/operationMenu")
     public ModelAndView operationMenu(Model model) {

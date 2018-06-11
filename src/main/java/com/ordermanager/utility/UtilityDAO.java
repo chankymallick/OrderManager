@@ -7,6 +7,7 @@ package com.ordermanager.utility;
 
 import com.ordermanager.backupmanager.BackUpSQLServer;
 import com.ordermanager.security.FileCryptoUtils;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +18,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  *
@@ -404,4 +408,68 @@ public class UtilityDAO extends DAOHelper {
             return rsp.getJSONResponse();
         }
     }
+
+    public String setImage(String imageData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            JSONObject paramData = new JSONObject(imageData);
+            String Module = paramData.getString("MODULE");
+            String ImageKey = paramData.getString("IMAGE_KEY");
+            String Image = paramData.getString("IMAGE");
+            String Note = paramData.getString("NOTE");
+            int UID = getColumnAutoIncrementValue("IMAGE_STORE", "IMAGE_ID");
+            int InsertStatus = getJdbcTemplate().update("INSERT INTO IMAGE_STORE (IMAGE_ID,MODULE_NAME,IMAGE_KEY,IMAGE,NOTE ) VALUES (?,?,?,?,?)  ", new Object[]{UID, Module, ImageKey, Image, Note});
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.IMAGE_STORE, UID, "Image Saved Key=" + ImageKey);
+            generateSQLSuccessResponse(response, " - Image saved Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+
+    public String getImage(String Module, String Key) {
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        ResponseJSONHandler rsp = new ResponseJSONHandler();
+        try {
+            con = getJDBCConnection();
+            pst = con.prepareStatement("SELECT IMAGE_ID, MODULE_NAME,IMAGE_KEY, IMAGE ,NOTE,IMAGE_DATE FROM IMAGE_STORE WHERE MODULE_NAME = ? AND IMAGE_KEY= ? ORDER BY IMAGE_DATE ASC");
+            pst.setString(1, Module);
+            pst.setString(2, Key);
+            rst = pst.executeQuery();
+
+//            ArrayList<Map<String, String>> imageList = new ArrayList<Map<String, String>>();
+            JSONArray imageArray = new JSONArray();
+            while (rst.next()) {
+                Map<String, String> imageData = new HashMap<String, String>();
+                imageData.put("ID", rst.getString("IMAGE_ID"));
+                imageData.put("MODULE_NAME", rst.getString("MODULE_NAME"));
+                imageData.put("IMAGE_KEY", rst.getString("IMAGE_KEY"));
+                imageData.put("IMAGE", rst.getString("IMAGE"));
+                imageData.put("IMAGE_DATE", getCustomFormatDate(rst.getTimestamp("IMAGE_DATE")));
+                imageData.put("NOTE", rst.getString("NOTE"));
+                imageArray.put(imageData);
+                //rsp.addResponseValue(rst.getString("IMAGE_ID"), new JSONObject(imageData));
+            }
+            // rsp.addResponseValue("ALL_IMAGES", new JSONObject(imageList).toString());
+            //generateSQLSuccessResponse(rsp, "IMAGE FETCHED");
+            return imageArray.toString();
+        } catch (Exception e) {
+            return null;
+            //generateSQLExceptionResponse(rsp, e, "Image Fetch Error");
+        } finally {
+            try {
+                rst.close();
+                pst.close();
+                con.close();
+            } catch (Exception e) {
+            }
+        }
+    }
+
 }

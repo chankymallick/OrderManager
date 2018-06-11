@@ -9,11 +9,14 @@ import com.ordermanager.backupmanager.BackUpSQLServer;
 import java.sql.SQLException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -62,7 +65,7 @@ public class UtilityController {
 
     @RequestMapping("/getLanguage")
     public ModelAndView getLanguageforClient(HttpServletRequest request) {
-        return new ModelAndView("MakeResponse", "responseValue", new PropertyFileReader().loadLanguagePropertiesForClient((Map<String, String>) request.getSession(false).getAttribute("Language")));
+        return new ModelAndView("MakeResponse", "responseValue", new PropertyFileReader().loadLanguagePropertiesForClient(request));
     }
 
     @RequestMapping("/getComboValues")
@@ -78,4 +81,15 @@ public class UtilityController {
     public ModelAndView databaseBackUP() throws SQLException {            
         return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.createAndUploadDatabaseBackUp());
     }
+    
+    @RequestMapping(value="/setImage",method = RequestMethod.POST)
+    public ModelAndView setImage(@RequestBody String imageData) throws SQLException {           
+        return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.setImage(imageData));       
+    }
+    @RequestMapping(value="/getImage",method = RequestMethod.GET)
+    public ModelAndView getAllImage(@RequestParam String MODULE,@RequestParam String KEY) throws SQLException {           
+        return new ModelAndView("MakeResponse", "responseValue", UtilityDAO.getImage(MODULE,KEY));       
+    }
+
+    
 }

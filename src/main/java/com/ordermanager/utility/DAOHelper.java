@@ -25,9 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.naming.spi.DirStateFactory;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -171,6 +176,7 @@ public class DAOHelper extends ConstantContainer {
         ColumnNames.append(")");
         ColumnValues.append(")");
         InsertQuery.append(ColumnNames).append(" ").append("VALUES").append(" ").append(ColumnValues);
+        System.out.println(InsertQuery.toString());
         return InsertQuery.toString();
     }
 
@@ -297,7 +303,18 @@ public class DAOHelper extends ConstantContainer {
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
-            String currentUser = "Administrator";
+            String currentUser = this.getCurrentUserId();
+            int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, AuditKey, AuditHistory, Note});
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean SecurityAuditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory, String Note, String currentUser) {
+        try {
+            int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
+
             int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, AuditKey, AuditHistory, Note});
             return true;
         } catch (Exception e) {
@@ -308,7 +325,7 @@ public class DAOHelper extends ConstantContainer {
     public boolean mainAuditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, int AuditKey, String AuditHistory) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
-            String currentUser = "Administrator";
+            String currentUser = this.getCurrentUserId();
             int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, AuditKey, AuditHistory, ""});
             return true;
         } catch (Exception e) {
@@ -319,7 +336,7 @@ public class DAOHelper extends ConstantContainer {
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
-            String currentUser = "Administrator";
+            String currentUser = this.getCurrentUserId();
             int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, -1, "", ""});
             return true;
         } catch (Exception e) {
@@ -330,12 +347,61 @@ public class DAOHelper extends ConstantContainer {
     public boolean auditor(ConstantContainer.AUDIT_TYPE Type, ConstantContainer.APP_MODULE Module, String Note) {
         try {
             int autoUID = this.getColumnAutoIncrementValue("AUDIT", "AUDIT_UID");
-            String currentUser = "Administrator";
+            String currentUser = this.getCurrentUserId();
             int insertedRows = this.jdbcTemplate.update("INSERT INTO AUDIT (AUDIT_UID,AUDIT_TYPE,AUDIT_MODULE,AUDIT_DATETIME,AUDITED_BY,AUDIT_KEY,AUDIT_HISTORY,NOTE) VALUES (?,?,?,?,?,?,?,?)", new Object[]{autoUID, Type.toString(), Module.toString(), this.getCurrentTimeStamp(), currentUser, -1, "", Note});
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean roleLoginCheck(String Role[]) {
+
+        if (getCurrentUserId() != null) {
+            for (String AthorisedRole : Role) {
+                if (getCurrentUserRole().equals(AthorisedRole)) {
+                    return true;
+                } 
+            }            
+
+        } else {
+            return false;
+        }
+        return false;
+    }
+
+    public String getCurrentUserId() {
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = attributes.getRequest();
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String userid = httpSession.getAttribute("USER_ID").toString();
+            return userid;
+        } else {
+            return null;
+        }
+    }
+
+    public String getCurrentUserRole() {
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = attributes.getRequest();
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+            String userid = httpSession.getAttribute("USER_TYPE").toString();
+            return userid;
+        } else {
+            return null;
+        }
+    }
+
+    public HttpSession getSessionObject() {
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = attributes.getRequest();
+        HttpSession httpSession = request.getSession(false);
+        return httpSession;
     }
 
     /**
@@ -613,12 +679,12 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public String cancelAssignment(String BillNo, String AssignmentType, String UserName) {
-       
-            if (isWagePaid(BillNo, AssignmentType)) {
-                return "FAILED,WAGE ALREADY PAID";
-            }
-            int UpdateStatus = getJdbcTemplate().update("UPDATE  ORDER_ASSIGNMENTS SET ASSIGNMENT_TYPE=? ,NOTE = ? ,WAGE_AMOUNT=?   WHERE BILL_NO=? AND WAGE_STATUS='UNPAID' AND ASSIGNMENT_TYPE=?", new Object[]{ConstantContainer.ASSIGNMENTS_TYPES.TO_CANCEL.toString(),"Assignment Cancelled by - "+UserName,0,BillNo, AssignmentType});
-            return "SUCCES,DATAUPDATED";    
+
+        if (isWagePaid(BillNo, AssignmentType)) {
+            return "FAILED,WAGE ALREADY PAID";
+        }
+        int UpdateStatus = getJdbcTemplate().update("UPDATE  ORDER_ASSIGNMENTS SET ASSIGNMENT_TYPE=? ,NOTE = ? ,WAGE_AMOUNT=?   WHERE BILL_NO=? AND WAGE_STATUS='UNPAID' AND ASSIGNMENT_TYPE=?", new Object[]{ConstantContainer.ASSIGNMENTS_TYPES.TO_CANCEL.toString(), "Assignment Cancelled by - " + UserName, 0, BillNo, AssignmentType});
+        return "SUCCES,DATAUPDATED";
 
     }
 
@@ -631,13 +697,13 @@ public class DAOHelper extends ConstantContainer {
     }
 
     public String changeAssignmentForUnpaidOrder(String BillNo, String AssignmentType, String NewDate, String EmployeeName, String UserName) {
-      
-            if (isWagePaid(BillNo, AssignmentType)) {
-                return "FAILED,WAGE ALREADY PAID";
-            }
-            int UpdateStatus = getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET ASSIGNMENT_DATE=? ,EMPLOYEE_NAME = ?,NOTE =? WHERE BILL_NO=? AND ASSIGNMENT_TYPE=?", new Object[]{NewDate, EmployeeName, "Assignment Change from - " + getAssignmentEmployeeName(BillNo, AssignmentType), BillNo, AssignmentType});
-            return "SUCCES,DATAUPDATED";
-        
+
+        if (isWagePaid(BillNo, AssignmentType)) {
+            return "FAILED,WAGE ALREADY PAID";
+        }
+        int UpdateStatus = getJdbcTemplate().update("UPDATE ORDER_ASSIGNMENTS SET ASSIGNMENT_DATE=? ,EMPLOYEE_NAME = ?,NOTE =? WHERE BILL_NO=? AND ASSIGNMENT_TYPE=?", new Object[]{NewDate, EmployeeName, "Assignment Change from - " + getAssignmentEmployeeName(BillNo, AssignmentType), BillNo, AssignmentType});
+        return "SUCCES,DATAUPDATED";
+
     }
 
     public static void main(String[] args) {

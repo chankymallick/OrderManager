@@ -5,7 +5,7 @@ var com;
     (function (ordermanager) {
         var utilty;
         (function (utilty) {
-            var MainUtility = (function () {
+            var MainUtility = /** @class */ (function () {
                 function MainUtility() {
                 }
                 MainUtility.getRandomColorLight = function () {
@@ -36,6 +36,13 @@ var com;
                     myWins.window("win1").setText(HeaderText);
                     return myWins.window("win1");
                 };
+                MainUtility.getModelWindowImageViewer = function (HeaderText, Height, Width) {
+                    var myWins = new dhtmlXWindows();
+                    myWins.createWindow("win1", 50, 50, Height, Width);
+                    myWins.window("win1").center();
+                    myWins.window("win1").setText(HeaderText);
+                    return myWins.window("win1");
+                };
                 MainUtility.getModelWindow = function (HeaderText, Height, Width) {
                     var myWins = new dhtmlXWindows();
                     myWins.createWindow("win1", 50, 50, Height, Width);
@@ -63,10 +70,44 @@ var com;
                         showFailedNotification(Response.RESPONSE_MESSAGE);
                     }
                 };
+                MainUtility.getImageViewer = function (Container, Module, Key, GalleryWidth, previewHeight, previewWidth) {
+                    var _this = this;
+                    var imageViewerLayout = Container.attachLayout({
+                        pattern: "2U",
+                        cells: [
+                            { id: "a", text: "GALLERY", header: false, width: GalleryWidth },
+                            { id: "b", text: "IMAGE", header: false }
+                        ]
+                    });
+                    var myDataView = imageViewerLayout.cells("a").attachDataView({
+                        container: "data_container1",
+                        type: {
+                            template: "<img src=#IMAGE# height='100px' width='200px'>",
+                            height: 100,
+                            width: 200
+                        }
+                    });
+                    myDataView.load("getImage?MODULE=" + Module + "&KEY=" + Key, "json");
+                    myDataView.attachEvent("onXLE", function () {
+                        var ImageData = myDataView.get(myDataView.first()).IMAGE;
+                        imageViewerLayout.cells("b").attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(myDataView.first()).IMAGE_DATE + "<br><img src=" + ImageData + " height='" + previewHeight + "px' width='" + previewWidth + "px'></h4>");
+                        myDataView.attachEvent("onItemClick", function (id, ev, html) {
+                            var ImageData = myDataView.get(id).IMAGE;
+                            imageViewerLayout.cells("b").attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(id).IMAGE_DATE + "<br><img src=" + ImageData + " height='" + previewHeight + "px' width='" + previewWidth + "px'></h4>");
+                            return true;
+                        });
+                        myDataView.attachEvent("onItemDblClick", function (id, ev, html) {
+                            var ImageData = myDataView.get(id).IMAGE;
+                            _this.getModelWindowImageViewer("Detail Image View", 1200, 650).attachHTMLString("<h4 style='text-align:center;'>" + myDataView.get(id).IMAGE_DATE + "<br><img src=" + ImageData + " height='550px' width='1180px'></h4>");
+                            return true;
+                        });
+                    });
+                    return myDataView;
+                };
                 return MainUtility;
             }());
             utilty.MainUtility = MainUtility;
-            var FormEntryManager = (function () {
+            var FormEntryManager = /** @class */ (function () {
                 function FormEntryManager(layoutCell, notificationCell, formname, dataentryCellHeight, dataviewcellheight) {
                     this.isDefaultOn = false;
                     this.GlobalFormJSONValues = {};
@@ -198,6 +239,9 @@ var com;
                         DefaultForData["ORDER_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("ORDER_DATE=DATE", true);
                         DefaultForData["DELIVERY_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("DELIVERY_DATE=DATE", true);
                     }
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+                        DefaultForData["TR_DATE=DATE"] = this.DefualtDataFormObject.getItemValue("TR_DATE=DATE", true);
+                    }
                     this.DataEntryLayoutCell.progressOn();
                     var Response = SynchronousGetAjaxRequest("saveUpdateDefaultFormValue?VALUE=" + JSON.stringify(DefaultForData) + "&MODULE=" + module_name + "&KEY=" + key_name, "", null);
                     if (Response.RESPONSE_STATUS === "SUCCESS") {
@@ -300,6 +344,27 @@ var com;
                             }
                         });
                     }
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+                        this.FormObject.attachEvent("onXLE", function () {
+                            //  this.FormObject.setItemValue("TR_DATE=DATE", getCurrentDate());
+                        });
+                        this.FormObject.attachEvent("onChange", function (name, value) {
+                            if (name == "TR_MODULE=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("ACCOUNT_NAME=STR"), "ACCOUNT_REGISTER", "ACCOUNT_NAME", "ACCOUNT_MODULE", value);
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.FormObject.getOptions("MODULE_TRANSACTION_TYPE=STR"), "ACCOUNT_BOOK_SUBTYPES", "ACCOUNT_SUBTYPE", "ACCOUNT_MODULE", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                        });
+                        this.DefualtDataFormObject.attachEvent("onChange", function (name, value) {
+                            if (name == "TR_MODULE=STR") {
+                                _this.ModifiedLayoutObject.progressOn();
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.DefualtDataFormObject.getOptions("ACCOUNT_NAME=STR"), "ACCOUNT_REGISTER", "ACCOUNT_NAME", "ACCOUNT_MODULE", value);
+                                com.ordermanager.utilty.MainUtility.setDynamicSelectBoxOptions(_this.DefualtDataFormObject.getOptions("MODULE_TRANSACTION_TYPE=STR"), "ACCOUNT_BOOK_SUBTYPES", "ACCOUNT_SUBTYPE", "ACCOUNT_MODULE", value);
+                                progressOffCustom(_this.ModifiedLayoutObject);
+                            }
+                        });
+                    }
                     if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_USER) {
                         this.OperationToolbar.attachEvent("onXLE", function () {
                             _this.OperationToolbar.disableItem("save_default");
@@ -344,6 +409,9 @@ var com;
                         }
                         this.GlobalFormJSONValues["ORDER_DATE=DATE"] = this.FormObject.getItemValue("ORDER_DATE=DATE", true);
                         this.GlobalFormJSONValues["DELIVERY_DATE=DATE"] = this.FormObject.getItemValue("DELIVERY_DATE=DATE", true);
+                    }
+                    if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION) {
+                        this.GlobalFormJSONValues["TR_DATE=DATE"] = this.FormObject.getItemValue("TR_DATE=DATE", true);
                     }
                 };
                 FormEntryManager.prototype.setSpecificAfterSave = function () {

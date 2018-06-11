@@ -15,6 +15,8 @@ var com;
                 CommandHandler.CODE_FORM_NEW_ITEM = "ANI";
                 CommandHandler.CODE_FORM_NEW_USER = "ANU";
                 CommandHandler.CODE_FORM_NEW_ACCOUNT = "ANA";
+                CommandHandler.CODE_FORM_NEW_ACCOUNT_SUBTYPE = "ANAST";
+                CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANT";
                 CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
                 CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
                 CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
@@ -64,9 +66,11 @@ var com;
                         { "label": "ANI   [Add New Item]", "value": "ANI" },
                         { "label": "ANST [Add New Status Type]", "value": "ANST" },
                         { "label": "ANA [Add New Account]", "value": "ANA" },
+                        { "label": "ANT [Add New Account Transaction]", "value": "ANT" },
                         { "label": "ANO  [Add New Order]", "value": "ANO" },
                         { "label": "ANU  [Add New User]", "value": "ANU" },
                         { "label": "ANE  [Add New Employee]", "value": "ANE" },
+                        { "label": "ANAST  [Add New Account Subtype]", "value": "ANAST" },
                         { "label": "AQA  [Add Quick Advance]", "value": "AQA" },
                         { "label": "UIMG [Upload Order Image]", "value": "UIMG" },
                         { "label": "ANL  [Add New Location]", "value": "ANL" },
@@ -123,6 +127,12 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_SUBTYPE) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_SUBTYPE, 220);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_ADD_NEW_STATUS_TYPE) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
@@ -197,6 +207,13 @@ var com;
                             { id: "c", text: "Notifications", height: 150, collapse: true }
                         ]
                     });
+                    var opts = [
+                        ['lang', 'obj', "LANGUAGE : " + USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
+                        ['sep01', 'sep', '', ''],
+                        ['lan', 'obj', "ROLE : " + USER_DETAILS.USER_TYPE, "resources/Images/lock.png"],
+                        ['sep02', 'sep', '', ''],
+                        ['logout', 'obj', 'LOGOUT', "resources/Images/logout.png"],
+                    ];
                     //   console.log("Loading : " + JSON.stringify(Language));
                     this.HomeLayoutObject.progressOn();
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
@@ -204,8 +221,14 @@ var com;
                     this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
                     this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
                     this.HomeToolbar.disableItem("dbState");
+                    this.HomeToolbar.addButtonSelect("id", 3, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
                     this.HomeToolbar.addSpacer("appname");
                     this.dbStatusLoader();
+                    this.HomeToolbar.attachEvent("onClick", function (id) {
+                        if (id === "logout") {
+                            window.open("/Logout", "_self");
+                        }
+                    });
                     this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
                     this.HomeLayoutObject.cells("a").showHeader();
                     this.MenuAccordionObj.addItem("ordersandbills", Language.orderandbill);
@@ -228,15 +251,7 @@ var com;
                             { id: "d", text: "Existing Data", header: false }
                         ]
                     });
-                    this.temp();
-                };
-                OrderManagerHome.prototype.temp = function () {
-                    var barChart = new dhtmlXChart({
-                        view: "bar",
-                        container: this.ChartLayout.cells("a"),
-                        value: "#sales#",
-                        color: "#66cc33"
-                    });
+                    com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"), "ORDERS", "1250", 235, 200, 400);
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
                     //            var intervalVar = setInterval(() => {
@@ -349,7 +364,7 @@ var com;
                 };
                 OrderManagerHome.prototype.webcamImageManager = function () {
                     var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-                    WindowObject.attachURL("resources/JS_WEBCAM/demo/index.html?BILL_NO=60005");
+                    WindowObject.attachURL("resources/JS_WEBCAM/Camera.html?BILL_NO=60005");
                 };
                 OrderManagerHome.prototype.getModelWindow = function (HeaderText, Height, Width) {
                     var myWins = new dhtmlXWindows();
@@ -369,6 +384,8 @@ var com;
                 OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
                 OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT = "addNewAccount";
+                OrderManagerHome.FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
+                OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
                 OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
                 OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
