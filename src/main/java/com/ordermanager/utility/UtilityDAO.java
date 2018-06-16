@@ -413,12 +413,15 @@ public class UtilityDAO extends DAOHelper {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
         TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
-        try {
+        try {            
             JSONObject paramData = new JSONObject(imageData);
             String Module = paramData.getString("MODULE");
             String ImageKey = paramData.getString("IMAGE_KEY");
             String Image = paramData.getString("IMAGE");
             String Note = paramData.getString("NOTE");
+            if(Module.equals("") || ImageKey.equals("") || Image.equals("")){
+            throw new Exception("Image data missing");
+            }
             int UID = getColumnAutoIncrementValue("IMAGE_STORE", "IMAGE_ID");
             int InsertStatus = getJdbcTemplate().update("INSERT INTO IMAGE_STORE (IMAGE_ID,MODULE_NAME,IMAGE_KEY,IMAGE,NOTE ) VALUES (?,?,?,?,?)  ", new Object[]{UID, Module, ImageKey, Image, Note});
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.IMAGE_STORE, UID, "Image Saved Key=" + ImageKey);

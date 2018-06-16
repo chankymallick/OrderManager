@@ -70,7 +70,7 @@ var com;
                         showFailedNotification(Response.RESPONSE_MESSAGE);
                     }
                 };
-                MainUtility.getImageViewer = function (Container, Module, Key, GalleryWidth, previewHeight, previewWidth) {
+                MainUtility.showImageViewer = function (Container, Module, Key, GalleryWidth, previewHeight, previewWidth) {
                     var _this = this;
                     var imageViewerLayout = Container.attachLayout({
                         pattern: "2U",
@@ -266,6 +266,7 @@ var com;
                             if (Response.RESPONSE_STATUS === "SUCCESS") {
                                 showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
                                 this.setFormStateAfterSave();
+                                this.setSpecificAfterSave();
                                 this.NotificationCell.collapse();
                                 this.DataEntryLayoutCell.progressOff();
                             }
@@ -416,6 +417,8 @@ var com;
                 };
                 FormEntryManager.prototype.setSpecificAfterSave = function () {
                     if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
+                        var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
+                        com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=" + BILL_NO + "&MODULE=ORDERS");
                     }
                 };
                 FormEntryManager.prototype.constructItemSelectionWindow = function () {

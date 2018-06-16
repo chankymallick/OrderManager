@@ -251,7 +251,7 @@ var com;
                             { id: "d", text: "Existing Data", header: false }
                         ]
                     });
-                    com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"), "ORDERS", "1250", 235, 200, 400);
+                    //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
                     //            var intervalVar = setInterval(() => {
@@ -363,18 +363,7 @@ var com;
                     });
                 };
                 OrderManagerHome.prototype.webcamImageManager = function () {
-                    var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-                    WindowObject.attachURL("resources/JS_WEBCAM/Camera.html?BILL_NO=60005");
-                };
-                OrderManagerHome.prototype.getModelWindow = function (HeaderText, Height, Width) {
-                    var myWins = new dhtmlXWindows();
-                    myWins.createWindow("win1", 50, 50, Height, Width);
-                    myWins.window("win1").denyPark();
-                    myWins.window("win1").denyResize();
-                    myWins.window("win1").center();
-                    myWins.window("win1").setModal(true);
-                    myWins.window("win1").setText(HeaderText);
-                    return myWins.window("win1");
+                    var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=32434&MODULE=ORDERS");
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
                 OrderManagerHome.FORM_NEW_USER = "addNewUser";

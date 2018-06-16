@@ -32,10 +32,10 @@
 
 
         .container {
-            max-width: 1000px;
-            margin: 50px auto;
-            padding: 20px;
+            height: 414px;
+            width: 545px;
             background-color: #efefef;
+            margin-left: 0px;
         }
 
         .app {
@@ -149,9 +149,7 @@
 
 
         @media(max-width: 1000px) {
-            .container {
-                margin: 40px;
-            }
+            .container {}
 
             .app #start-camera.visible {
                 display: block;
@@ -185,14 +183,40 @@
                 font-size: 18px;
             }
         }
+
+
+        .upload_button {
+            background: #3498db;
+            background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+            background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+            background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+            background-image: -o-linear-gradient(top, #3498db, #2980b9);
+            background-image: linear-gradient(to bottom, #3498db, #2980b9);
+            -webkit-border-radius: 5;
+            -moz-border-radius: 5;
+            border-radius: 5px;
+            font-family: Arial;
+            color: #ffffff;
+            font-size: 27px;
+            padding: 10px 20px 10px 20px;
+            text-decoration: none;
+        }
+
+        .upload_button:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-
         <div class="app">
-
             <a href="#" id="start-camera" class="visible">Touch here to start the app.</a>
             <video id="camera-stream"></video>
             <img id="snap">
@@ -210,31 +234,94 @@
                     <i class="material-icons">file_download</i>
                 </a>
             </div>
-
             <canvas></canvas>
-
         </div>
-        <button id="upload" onclick="imageUpload()">Upload</button>
         <h1 id="notification"></h1>
     </div>
+    <div style="margin-left: 10px; float: left;">
+        <button id="upload" class="upload_button" onclick="imageUpload()">Upload</button>
+        <div id="options" style="display:none;margin-left: 10px;float:right;">
+            <select id="module">
+                <option value="ORDERS">ORDERS</option>
+            </select>
+            <input type="text" id="image_key" />
+        </div>
+        <span style="margin-left: 10px;color:red;float: right;" id="uploadNotification">
+            <textarea rows="2" id="note_area"></textarea>
+        </span>
+        <p id="output" style="">Take a photo and Click Upload</p>
+    </div>
+
 </body>
 <script>
+    var custom = false;
+    var params = {};
+    if (location.search) {
+        var parts = location.search.substring(1).split('&');
+        for (var i = 0; i < parts.length; i++) {
+            var nv = parts[i].split('=');
+            if (!nv[0])
+                continue;
+            params[nv[0]] = nv[1] || true;
+        }
+    }
+    var KEY = params.KEY;
+    var MODULE = params.MODULE;
+    var NOTE = "";
+    if (KEY == true || MODULE == true || KEY == undefined || MODULE == undefined) {
+        
+        document.getElementById("options").style.display = "block";
+        custom = true;
+    }
+
     function imageUpload() {
+        if (image.src == "" || image.src == null) {
+            alert("No image to Save , take a photo first");
+            return;
+        }
+        if (image.src.indexOf("PHOTO_UPLOADED")>-1) {
+            document.getElementById("output").style.color = "RED"
+            document.getElementById("output").innerHTML = "Photo already Saved";
+            return;
+        }
+        if (custom) {
+            KEY = document.getElementById("image_key").value;
+            MODULE = document.getElementById("module").value;
+        }
+        NOTE = document.getElementById("note_area").value;
         $.ajax({
             type: "POST",
             url: "/setImage",
             data: JSON.stringify(getImageData()),
             contentType: 'application/json',
-            success: postSuccess(), 
-            dataType: 'json'     
-            
+            success: function (data) {
+                if (data.RESPONSE_STATUS == "SUCCESS") {             
+                    document.getElementById("output").style.color = "GREEN"
+                    document.getElementById("output").innerHTML = data.RESPONSE_STATUS + " " + data.RESPONSE_MESSAGE;
+                    resetCamera();
+                    image.src="PHOTO_UPLOADED";
+                } else {
+                    document.getElementById("output").style.color = "RED"
+                    document.getElementById("output").innerHTML = data.RESPONSE_STATUS + " " + data.RESPONSE_VALUE.EXCEPTION_MESSAGE;
+                }
+
+            },
+            dataType: 'json'
+
         });
     }
-    function postSuccess(){
+
+    function postSuccess() {
         //document.getElementById("notification").innerHTML = data.RESPONSE_MESSAGE;
     }
-    function getImageData(){
-        return {"IMAGE_KEY":"1250","IMAGE":image.src,"MODULE":"ORDERS","NOTE":""};
+
+    function getImageData() {
+        return {
+            "IMAGE_KEY": KEY,
+            "IMAGE": image.src,
+            "MODULE": MODULE,
+            "NOTE": NOTE
+        };
     }
     // References to all the element we will need.
     var video = document.querySelector('#camera-stream'),
@@ -340,7 +427,17 @@
 
     });
 
+    function resetCamera(){
+        image.setAttribute('src', "");
+        image.classList.remove("visible");
 
+        // Disable delete and save buttons
+        delete_photo_btn.classList.add("disabled");
+        download_photo_btn.classList.add("disabled");
+
+        // Resume playback of stream.
+        video.play();
+    }
 
     function showVideo() {
         // Display the video stream and the controls.

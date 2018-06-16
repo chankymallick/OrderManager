@@ -76,7 +76,7 @@ module com.ordermanager.utilty {
             }
 
         }
-        public static getImageViewer(Container: any, Module: string, Key: string, GalleryWidth, previewHeight, previewWidth) {
+        public static showImageViewer(Container: any, Module: string, Key: string, GalleryWidth, previewHeight, previewWidth) {
             var imageViewerLayout = Container.attachLayout({
                 pattern: "2U",
                 cells: [
@@ -284,8 +284,9 @@ module com.ordermanager.utilty {
                     //this.DataEntryLayoutCell.progressOn();
                     var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                     if (Response.RESPONSE_STATUS === "SUCCESS") {
-                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);                        
                         this.setFormStateAfterSave();
+                        this.setSpecificAfterSave();
                         this.NotificationCell.collapse();
                         this.DataEntryLayoutCell.progressOff();
                     }
@@ -444,7 +445,8 @@ module com.ordermanager.utilty {
         }
         public setSpecificAfterSave() {
             if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
-
+                var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
+                com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY="+BILL_NO+"&MODULE=ORDERS");
             }
         }
         public constructItemSelectionWindow() {

@@ -291,7 +291,7 @@ module com.ordermanager.home {
                     { id: "d", text: "Existing Data", header: false }
                 ]
             });
-            com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
+            //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
            
         }
        
@@ -406,20 +406,9 @@ module com.ordermanager.home {
             });
         }
         public webcamImageManager() {
-            var WindowObject = this.getModelWindow("Take Product Image", 800, 550);
-            WindowObject.attachURL("resources/JS_WEBCAM/Camera.html?BILL_NO=60005");
-
+            var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=32434&MODULE=ORDERS");
         }
-        public getModelWindow(HeaderText: any, Height: any, Width: any) {
-            var myWins = new dhtmlXWindows();
-            myWins.createWindow("win1", 50, 50, Height, Width);
-            myWins.window("win1").denyPark();
-            myWins.window("win1").denyResize();
-            myWins.window("win1").center();
-            myWins.window("win1").setModal(true);
-            myWins.window("win1").setText(HeaderText);
-            return myWins.window("win1");
-        }
+     
 
     }
 }
