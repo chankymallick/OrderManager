@@ -6,6 +6,7 @@
 package com.ordermanager.utility;
 
 import com.sun.javafx.PlatformUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,6 +25,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.Color;
+import java.util.Random;
 import javax.naming.spi.DirStateFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -361,8 +364,8 @@ public class DAOHelper extends ConstantContainer {
             for (String AthorisedRole : Role) {
                 if (getCurrentUserRole().equals(AthorisedRole)) {
                     return true;
-                } 
-            }            
+                }
+            }
 
         } else {
             return false;
@@ -708,6 +711,13 @@ public class DAOHelper extends ConstantContainer {
 
     public static void main(String[] args) {
         try {
+            Random randomGenerator = new Random();
+            int red = randomGenerator.nextInt(256);
+            int green = randomGenerator.nextInt(256);
+            int blue = randomGenerator.nextInt(256);
+            Color randomColour = new Color(red, green, blue);
+
+            System.out.println(randomColour.getRGB());
 //            SimpleDateFormat datetimeFormatter1 = new SimpleDateFormat("dd/MM/yy");
 //            Date lFromDate1 = datetimeFormatter1.parse("10/05/16");
 //            Timestamp fromTS1 = new Timestamp(lFromDate1.getTime());
@@ -717,18 +727,17 @@ public class DAOHelper extends ConstantContainer {
 //            SimpleDateFormat df = new SimpleDateFormat("dd-MM-yy");
 //            String text = df.format(dateObj);
 //            System.out.println(text);
-
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
-            Date startDate = formatter.parse("01/02/17");
-            Date endDate = formatter.parse("01/05/17");
-            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
-                // Do your job here with `date`.
-
-                System.out.println(date.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
-            }
+//            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+//            Date startDate = formatter.parse("01/02/17");
+//            Date endDate = formatter.parse("01/05/17");
+//            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//            LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+//
+//            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+//                // Do your job here with `date`.
+//
+//                System.out.println(date.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+//            }
 //            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
 //            Date startDate = formatter.parse("10/12/16");
 //            Date endDate = formatter.parse("15/12/16");
@@ -742,7 +751,6 @@ public class DAOHelper extends ConstantContainer {
 //                // Do your job here with `date`.
 //                System.out.println(date);
 //            }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

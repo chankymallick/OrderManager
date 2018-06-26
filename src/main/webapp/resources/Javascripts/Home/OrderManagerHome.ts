@@ -3,6 +3,7 @@
 /// <reference path="../Utility/BulkUpdate.ts"/>
 /// <reference path="../Utility/ReportingUtility.ts"/>
 /// <reference path="../Utility/OrderScheduler.ts"/>
+/// <reference path="../Utility/ChartsUtility.ts"/>
 declare var Commands: any;
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
@@ -18,7 +19,8 @@ module com.ordermanager.home {
         public static CODE_FORM_NEW_USER = "ANU";
         public static CODE_FORM_NEW_ACCOUNT = "ANA";
         public static CODE_FORM_NEW_ACCOUNT_SUBTYPE = "ANAST";
-        public static CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANT";
+        public static CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANAT";
+        public static CODE_FORM_NEW_TASK = "ANT";
         public static CODE_FORM_NEW_ORDER = "ANO";
         public static CODE_ADD_NEW_STATUS_TYPE = "ANST";
         public static CODE_QUICK_NEW_ORDER = "AQA"
@@ -53,6 +55,7 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_ACCOUNT = "addNewAccount";
         public static FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
         public static FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
+        public static FORM_ADD_NEW_TASK = "addNewTask";
         public static REPORT_DAILY_ADVANCE = "advanceReport";
         public static REPORT_ORDER_SCHEDULER = "orderScheduler";
         public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
@@ -82,7 +85,8 @@ module com.ordermanager.home {
                 { "label": "ANI   [Add New Item]", "value": "ANI" },
                 { "label": "ANST [Add New Status Type]", "value": "ANST" },
                 { "label": "ANA [Add New Account]", "value": "ANA" },
-                { "label": "ANT [Add New Account Transaction]", "value": "ANT" },
+                { "label": "ANAT [Add New Account Transaction]", "value": "ANAT" },
+                { "label": "ANT [Add New Task]", "value": "ANT" },
                 { "label": "ANO  [Add New Order]", "value": "ANO" },
                 { "label": "ANU  [Add New User]", "value": "ANU" },
                 { "label": "ANE  [Add New Employee]", "value": "ANE" },
@@ -161,6 +165,9 @@ module com.ordermanager.home {
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
                 }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_TASK) {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_TASK, 220);
+                }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION) {
                     this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION, 220);
                 }
@@ -236,10 +243,13 @@ module com.ordermanager.home {
                 cells:
                 [
                     { id: "a", text: "Menu", width: 250 },
-                    { id: "b", text: "Dashboard" },
-                    { id: "c", text: "Notifications", height: 150, collapse: true }
+                    { id: "b", text: "Dashboard",height:1000},
+                    { id: "c", text: "Notifications", collapse: true }
                 ]
             });
+            this.HomeLayoutObject.cells("b").fixSize(false, true);
+            this.HomeLayoutObject.cells("b").showInnerScroll();
+           
             var opts = [
                 ['lang', 'obj', "LANGUAGE : "+ USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
                 ['sep01', 'sep', '', ''],
@@ -282,15 +292,16 @@ module com.ordermanager.home {
             this.MenuAccordionObj.attachEvent("onActive", (id, state) => {
                 this.loadMenuItems(id)
             });
-            this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
-                pattern: "4J",
-                cells: [
-                    { id: "a", text: "Daily Sales", true: false },
-                    { id: "b", text: "Existing Data", header: false },
-                    { id: "c", text: "Existing Data", header: false },
-                    { id: "d", text: "Existing Data", header: false }
-                ]
-            });
+            // this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
+            //     pattern: "4J",
+            //     cells: [
+            //         { id: "a", text: "Daily Sales", true: false },
+            //         { id: "b", text: "Existing Data", header: false },
+            //         { id: "c", text: "Existing Data", header: false },
+            //         { id: "d", text: "Existing Data", header: false }
+            //     ]
+            // });
+            new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"),"orderStatusData");
             //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
            
         }

@@ -24,12 +24,11 @@ public class ComponentXMLGenarator {
         long maxMemory = runtime.maxMemory(); // Max heap VM can use e.g. Xmx setting
         long usedMemory = totalMemory - freeMemory; // how much of the current heap the VM is using
         long availableMemory = maxMemory - usedMemory;
-        
-        System.out.println("Total : "+totalMemory);
-        System.out.println("freeMemory : "+freeMemory);
-        System.out.println("usedMemory : "+usedMemory);
 
-             
+        System.out.println("Total : " + totalMemory);
+        System.out.println("freeMemory : " + freeMemory);
+        System.out.println("usedMemory : " + usedMemory);
+
     }
     @Autowired
     OrderDAO OrderDAO;
@@ -93,6 +92,16 @@ public class ComponentXMLGenarator {
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }
+        if (Type.equals("taskList")) {
+            List temp = OrderDAO.getGridDataForTaskList();
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }
+        if (Type.equals("addNewTask")) {
+            List temp = OrderDAO.getGridData("TASK_LIST", "TASK_ID");    
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }
@@ -100,7 +109,7 @@ public class ComponentXMLGenarator {
     @RequestMapping("/LoadAssignmentGrid")
     public ModelAndView assignmentUpdateGrid(@RequestParam("gridname") String Type) {
 
-        Map<String, Object> mvc = new HashMap<String, Object>();        
+        Map<String, Object> mvc = new HashMap<String, Object>();
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

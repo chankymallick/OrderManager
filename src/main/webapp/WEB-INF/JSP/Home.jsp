@@ -254,14 +254,54 @@
         <script src="<c:url value='/resources/Javascripts/Utility/Utility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/ReportingUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/UpdateUtility.js' />" ></script> 
+        <script src="<c:url value='/resources/Javascripts/Utility/ChartsUtility.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/BulkUpdate.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/OrderScheduler.js' />" ></script> 
         <script src="<c:url value='/resources/Javascripts/Utility/KeyNavigation.js' />" ></script> 
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        
         <script>
-            loadLanguagePack();
+            loadLanguagePack();            
+            (function (global) {
+
+                if (typeof (global) === "undefined") {
+                    throw new Error("window is undefined");
+                }
+
+                var _hash = "!";
+                var noBackPlease = function () {
+                    global.location.href += "#";
+
+                    // making sure we have the fruit available for juice (^__^)
+                    global.setTimeout(function () {
+                        global.location.href += "!";
+                    }, 50);
+                };
+
+                global.onhashchange = function () {
+                    if (global.location.hash !== _hash) {
+                        global.location.hash = _hash;
+                    }
+                };
+
+                global.onload = function () {
+                    noBackPlease();
+
+                    // disables backspace on page except on input fields and textarea..
+                    document.body.onkeydown = function (e) {
+                        var elm = e.target.nodeName.toLowerCase();
+                        if (e.which === 8 && (elm !== 'input' && elm !== 'textarea')) {
+                            e.preventDefault();
+                        }
+                        // stopping event bubbling up the DOM tree..
+                        e.stopPropagation();
+                    };
+                }
+
+            })(window);       
         </script>
         <title>Order Manager v 1.0</title>
     </head>
@@ -273,7 +313,7 @@
         var Commands;
         var initializeObj = new com.ordermanager.home.OrderManagerHome();
     </script>
-    <script>    
-      
+    <script>
+
     </script>
 </html>

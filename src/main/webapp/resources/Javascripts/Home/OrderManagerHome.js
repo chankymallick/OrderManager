@@ -3,6 +3,7 @@
 /// <reference path="../Utility/BulkUpdate.ts"/>
 /// <reference path="../Utility/ReportingUtility.ts"/>
 /// <reference path="../Utility/OrderScheduler.ts"/>
+/// <reference path="../Utility/ChartsUtility.ts"/>
 var com;
 (function (com) {
     var ordermanager;
@@ -16,7 +17,8 @@ var com;
                 CommandHandler.CODE_FORM_NEW_USER = "ANU";
                 CommandHandler.CODE_FORM_NEW_ACCOUNT = "ANA";
                 CommandHandler.CODE_FORM_NEW_ACCOUNT_SUBTYPE = "ANAST";
-                CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANT";
+                CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION = "ANAT";
+                CommandHandler.CODE_FORM_NEW_TASK = "ANT";
                 CommandHandler.CODE_FORM_NEW_ORDER = "ANO";
                 CommandHandler.CODE_ADD_NEW_STATUS_TYPE = "ANST";
                 CommandHandler.CODE_QUICK_NEW_ORDER = "AQA";
@@ -66,7 +68,8 @@ var com;
                         { "label": "ANI   [Add New Item]", "value": "ANI" },
                         { "label": "ANST [Add New Status Type]", "value": "ANST" },
                         { "label": "ANA [Add New Account]", "value": "ANA" },
-                        { "label": "ANT [Add New Account Transaction]", "value": "ANT" },
+                        { "label": "ANAT [Add New Account Transaction]", "value": "ANAT" },
+                        { "label": "ANT [Add New Task]", "value": "ANT" },
                         { "label": "ANO  [Add New Order]", "value": "ANO" },
                         { "label": "ANU  [Add New User]", "value": "ANU" },
                         { "label": "ANE  [Add New Employee]", "value": "ANE" },
@@ -127,6 +130,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT, 220);
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_TASK) {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_TASK, 220);
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_FORM_NEW_ACCOUNT_TRANSACTION) {
                             _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION, 220);
@@ -203,10 +209,12 @@ var com;
                         pattern: "3L",
                         cells: [
                             { id: "a", text: "Menu", width: 250 },
-                            { id: "b", text: "Dashboard" },
-                            { id: "c", text: "Notifications", height: 150, collapse: true }
+                            { id: "b", text: "Dashboard", height: 1000 },
+                            { id: "c", text: "Notifications", collapse: true }
                         ]
                     });
+                    this.HomeLayoutObject.cells("b").fixSize(false, true);
+                    this.HomeLayoutObject.cells("b").showInnerScroll();
                     var opts = [
                         ['lang', 'obj', "LANGUAGE : " + USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
                         ['sep01', 'sep', '', ''],
@@ -242,15 +250,16 @@ var com;
                     this.MenuAccordionObj.attachEvent("onActive", function (id, state) {
                         _this.loadMenuItems(id);
                     });
-                    this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
-                        pattern: "4J",
-                        cells: [
-                            { id: "a", text: "Daily Sales", "true": false },
-                            { id: "b", text: "Existing Data", header: false },
-                            { id: "c", text: "Existing Data", header: false },
-                            { id: "d", text: "Existing Data", header: false }
-                        ]
-                    });
+                    // this.ChartLayout = this.HomeLayoutObject.cells("b").attachLayout({
+                    //     pattern: "4J",
+                    //     cells: [
+                    //         { id: "a", text: "Daily Sales", true: false },
+                    //         { id: "b", text: "Existing Data", header: false },
+                    //         { id: "c", text: "Existing Data", header: false },
+                    //         { id: "d", text: "Existing Data", header: false }
+                    //     ]
+                    // });
+                    new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"), "orderStatusData");
                     //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
@@ -375,6 +384,7 @@ var com;
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT = "addNewAccount";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
+                OrderManagerHome.FORM_ADD_NEW_TASK = "addNewTask";
                 OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
                 OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";

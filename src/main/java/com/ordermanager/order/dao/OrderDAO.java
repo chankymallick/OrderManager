@@ -178,10 +178,10 @@ public class OrderDAO extends DAOHelper {
             paramData.remove("CURRENT_LOCATION=STR");
             paramData.remove("ORDER_SUB_STATUS=STR");
             paramData.put("ORDER_UID=NUM", UID);
-            
+
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ORDERS"));
-            int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");            
-            int PayemtInsert = getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance,this.getParsedTimeStamp(paramData.get("ORDER_DATE=DATE").toString())});
+            int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
+            int PayemtInsert = getJdbcTemplate().update("INSERT INTO PAYMENT_TRANSACTIONS VALUES (?,?,?,?,?)", new Object[]{PaymentUID, paramData.get("BILL_NO=STR"), ConstantContainer.PAYMENT_TYPE.ADVANCE.toString(), Advance, this.getParsedTimeStamp(paramData.get("ORDER_DATE=DATE").toString())});
             int Order_Item_Uid_For_Main_Item = this.getColumnAutoIncrementValue("ORDER_ITEMS", "ORDER_ITEMS_UID");
             int mainItem = getJdbcTemplate().update("INSERT INTO ORDER_ITEMS VALUES (?,?,?,?)", new Object[]{Order_Item_Uid_For_Main_Item, paramData.get("BILL_NO=STR"), MainItemName, ""});
             int OrderStatusLocationInsert = orderMobiltyUpdate(
@@ -205,7 +205,7 @@ public class OrderDAO extends DAOHelper {
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ORDERS, UID, "Bill No :" + paramData.getString("BILL_NO=STR"));
             generateSQLSuccessResponse(response, paramData.get("BILL_NO=STR") + " - added Succesfully");
             this.getTransactionManager().commit(txStatus);
-            new sendSMS().sendSms( paramData.get("BILL_NO=STR").toString(),  paramData.get("CONTACT_NO=STR").toString(),paramData.get("CUSTOMER_NAME=STR").toString());
+            new sendSMS().sendSms(paramData.get("BILL_NO=STR").toString(), paramData.get("CONTACT_NO=STR").toString(), paramData.get("CUSTOMER_NAME=STR").toString());
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
             generateSQLExceptionResponse(response, e, "Exception ... see Logs");
@@ -419,6 +419,7 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
     }
+
     public String addNewAccountSubType(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -428,7 +429,7 @@ public class OrderDAO extends DAOHelper {
             paramData.put("TRANSACTION_UID=NUM", UID);
             int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "ACCOUNT_BOOK_SUBTYPES"));
             mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.ACCOUNT_BOOK_SUBTYPES, UID, "New Transaction Saved");
-            generateSQLSuccessResponse(response,  "SubType  - saved Succesfully");
+            generateSQLSuccessResponse(response, "SubType  - saved Succesfully");
             this.getTransactionManager().commit(txStatus);
         } catch (Exception e) {
             this.getTransactionManager().rollback(txStatus);
@@ -467,7 +468,7 @@ public class OrderDAO extends DAOHelper {
             String DeliveryDate = paramData.getString("DELIVERY_DATE=DATE");
             String Location = paramData.getString("CURRENT_LOCATION=STR");
             int PaymentUID = this.getColumnAutoIncrementValue("PAYMENT_TRANSACTIONS", "TRANSACTION_UID");
-            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID,ORDER_BILL_NO,PAYMENT_TYPE,AMOUNT,TRANSACTION_DATE) VALUES (?,?,?,?,?)", new Object[]{PaymentUID, OrderBillNo, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString(), Advance,getCurrentTimeStamp()});
+            int PayemtInsert = getJdbcTemplate().update("iNSERT INTO PAYMENT_TRANSACTIONS (TRANSACTION_UID,ORDER_BILL_NO,PAYMENT_TYPE,AMOUNT,TRANSACTION_DATE) VALUES (?,?,?,?,?)", new Object[]{PaymentUID, OrderBillNo, ConstantContainer.PAYMENT_TYPE.RE_ADVANCE.toString(), Advance, getCurrentTimeStamp()});
             int mobilityUpdate = this.orderMobiltyUpdate(OrderBillNo, this.getCurrentTimeStamp().toString(), MainStatus, SubStatus, Location, "Re Advance");
             mainAuditor(AUDIT_TYPE.INSERT, APP_MODULE.PAYMENT_TRANSACTION, PaymentUID, "RE ADVANCE FOR BILL NO : " + OrderBillNo + ", Advance :" + Integer.toString(Advance));
             this.getTransactionManager().commit(txStatus);
@@ -492,6 +493,10 @@ public class OrderDAO extends DAOHelper {
 
     public List<Object> getGridDataForQuickOrders() {
         String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO ORDER BY PT.TRANSACTION_UID DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+    public List<Object> getGridDataForTaskList() {
+        String SQL = "SELECT TASK_ID,TASK_TYPE+' <b> '+TASK_NAME+'<br> </b>'+TASK_STATUS + '<br>  '+ CONVERT(VARCHAR(30),SCHEDULE_DATE)  +'  <br>'+ ISNULL(NOTE,'') AS DATA FROM TASK_LIST";
         return this.getJSONDataForGrid(SQL);
     }
 
@@ -1940,6 +1945,91 @@ public class OrderDAO extends DAOHelper {
         }
         return response.getJSONResponse();
 
+    }
+
+    public String getChartDataOrderStatus(JSONObject chartParams) throws Exception {
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rst = null;
+        JSONArray dataArray = new JSONArray();
+        try {
+            String Days = chartParams.getString("DAYS");
+            con = getJDBCConnection();
+            pst = con.prepareStatement("SELECT CURRENT_STATUS,COUNT(QUANTITY) AS PIECE FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, GETDATE()), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, GETDATE()), ?) GROUP BY CURRENT_STATUS");
+            pst.setInt(1, Integer.parseInt(Days));
+            rst = pst.executeQuery();
+            while (rst.next()) {
+                JSONObject obj = new JSONObject();
+
+                obj.put("CURRENT_STATUS", rst.getString("CURRENT_STATUS"));
+                obj.put("PIECE", rst.getString("PIECE"));
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString())) {
+                    obj.put("color", "green");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString())) {
+                    obj.put("color", "red");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString())) {
+                    obj.put("color", "orange");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString())) {
+                    obj.put("color", "white");
+                }
+                dataArray.put(obj);
+            }
+
+        } catch (Exception e) {
+        } finally {
+            rst.close();
+            pst.close();
+            con.close();
+        }
+        return dataArray.toString();
+    }
+    public String getChartDataLocationStatus(JSONObject chartParams) throws Exception {
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rst = null;
+        JSONArray dataArray = new JSONArray();
+        try {
+            String Days = chartParams.getString("DAYS");
+            con = getJDBCConnection();
+            pst = con.prepareStatement("SELECT CURRENT_STATUS,COUNT(QUANTITY) AS PIECE FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, GETDATE()), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, GETDATE()), ?) GROUP BY CURRENT_STATUS");
+            pst.setInt(1, Integer.parseInt(Days));
+            rst = pst.executeQuery();
+            while (rst.next()) {
+                JSONObject obj = new JSONObject();
+
+                obj.put("CURRENT_STATUS", rst.getString("CURRENT_STATUS"));
+                obj.put("PIECE", rst.getString("PIECE"));
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString())) {
+                    obj.put("color", "green");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString())) {
+                    obj.put("color", "red");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString())) {
+                    obj.put("color", "orange");
+                }
+
+                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString())) {
+                    obj.put("color", "white");
+                }
+                dataArray.put(obj);
+            }
+
+        } catch (Exception e) {
+        } finally {
+            rst.close();
+            pst.close();
+            con.close();
+        }
+        return dataArray.toString();
     }
 
 }
