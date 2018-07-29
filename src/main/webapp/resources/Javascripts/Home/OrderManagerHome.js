@@ -227,14 +227,24 @@ var com;
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
                     this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
-                    this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
+                    this.HomeToolbar.addInput("searchinput", 2, "", 50);
+                    this.HomeToolbar.addButton("search", 3, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
+                    this.HomeToolbar.addButtonTwoState("dbState", 4, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
                     this.HomeToolbar.disableItem("dbState");
-                    this.HomeToolbar.addButtonSelect("id", 3, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
+                    this.HomeToolbar.addButtonSelect("id", 5, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
                     this.HomeToolbar.addSpacer("appname");
                     this.dbStatusLoader();
+                    this.HomeToolbar.attachEvent("onEnter", function (id, value) {
+                        if (id === "searchinput") {
+                            com.ordermanager.utility.ChartsUtility.orderEnquiry(value);
+                        }
+                    });
                     this.HomeToolbar.attachEvent("onClick", function (id) {
                         if (id === "logout") {
                             window.open("/Logout", "_self");
+                        }
+                        if (id === "search") {
+                            com.ordermanager.utility.ChartsUtility.orderEnquiry(_this.HomeLayoutObject.getValue("searchinput"));
                         }
                     });
                     this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
@@ -259,7 +269,7 @@ var com;
                     //         { id: "d", text: "Existing Data", header: false }
                     //     ]
                     // });
-                    new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"), "orderStatusData");
+                    ChartUtilityObj = new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"), "orderStatusData");
                     //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
                 };
                 OrderManagerHome.prototype.dbStatusLoader = function () {
@@ -372,7 +382,7 @@ var com;
                     });
                 };
                 OrderManagerHome.prototype.webcamImageManager = function () {
-                    var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=32434&MODULE=ORDERS");
+                    var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=&MODULE=");
                 };
                 OrderManagerHome.FORM_NEW_ITEM = "addNewItem";
                 OrderManagerHome.FORM_NEW_USER = "addNewUser";

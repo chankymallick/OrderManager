@@ -55,9 +55,9 @@ public class SecurityModule {
         return null;
     }
     public static void main(String[] args) {
-        String enc =encrypt("smu520759958","smu520759958");
+        String enc =encrypt("520759","520759");
         System.out.println(enc);
-        System.out.println(decrypt("smu520759958",enc));
+     //   System.out.println(decrypt("smu520759958",enc));
     }
 
 }

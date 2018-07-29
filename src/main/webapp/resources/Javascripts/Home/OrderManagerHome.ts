@@ -8,10 +8,11 @@ declare var Commands: any;
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
 declare var Language: any;
-declare var USER_DETAILS :any;
+declare var USER_DETAILS: any;
 declare var showFailedNotificationWithICON: any;
 declare var jQuery: any;
 declare var dhtmlXChart: any;
+declare var ChartUtilityObj: any;
 module com.ordermanager.home {
     export class CommandHandler {
 
@@ -69,7 +70,7 @@ module com.ordermanager.home {
         public static UPDATE_BULK_READY_TO_DELIVER = "updateBulkReadyToDeliver";
         public static UPDATE_BULK_SINGLE = "updateBulkToSingle";
 
-        
+
         public HomeLayoutObject: any;
         public HomeToolbar: any;
         public MenuAccordionObj: any;
@@ -241,42 +242,48 @@ module com.ordermanager.home {
                 parent: "Layout_Container",
                 pattern: "3L",
                 cells:
-                [
-                    { id: "a", text: "Menu", width: 250 },
-                    { id: "b", text: "Dashboard",height:1000},
-                    { id: "c", text: "Notifications", collapse: true }
-                ]
+                    [
+                        { id: "a", text: "Menu", width: 250 },
+                        { id: "b", text: "Dashboard", height: 1000 },
+                        { id: "c", text: "Notifications", collapse: true }
+                    ]
             });
             this.HomeLayoutObject.cells("b").fixSize(false, true);
             this.HomeLayoutObject.cells("b").showInnerScroll();
-           
+
             var opts = [
-                ['lang', 'obj', "LANGUAGE : "+ USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
+                ['lang', 'obj', "LANGUAGE : " + USER_DETAILS.LANGUAGE, "resources/Images/edit.png"],
                 ['sep01', 'sep', '', ''],
-                ['lan', 'obj', "ROLE : "+ USER_DETAILS.USER_TYPE , "resources/Images/lock.png"],
+                ['lan', 'obj', "ROLE : " + USER_DETAILS.USER_TYPE, "resources/Images/lock.png"],
                 ['sep02', 'sep', '', ''],
                 ['logout', 'obj', 'LOGOUT', "resources/Images/logout.png"],
-               
-               
-                
+
+
+
             ];
             //   console.log("Loading : " + JSON.stringify(Language));
             this.HomeLayoutObject.progressOn();
             this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
             this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
-            this.HomeToolbar.addButtonTwoState("dbState", 2, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
+            this.HomeToolbar.addInput("searchinput", 2, "", 50);
+            this.HomeToolbar.addButton("search", 3, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
+            this.HomeToolbar.addButtonTwoState("dbState", 4, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
             this.HomeToolbar.disableItem("dbState");
-
-            this.HomeToolbar.addButtonSelect("id", 3, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
-           
-           
+            this.HomeToolbar.addButtonSelect("id", 5, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
             this.HomeToolbar.addSpacer("appname");
             this.dbStatusLoader();
-
-            this.HomeToolbar.attachEvent("onClick", (id)=>{
-                if(id === "logout"){
-                    window.open("/Logout","_self");
+            this.HomeToolbar.attachEvent("onEnter", function (id, value) {
+                if (id === "searchinput") {
+                    com.ordermanager.utility.ChartsUtility.orderEnquiry(value);
+                }
+            });
+            this.HomeToolbar.attachEvent("onClick", (id) => {
+                if (id === "logout") {
+                    window.open("/Logout", "_self");
+                }
+                if (id === "search") {
+                    com.ordermanager.utility.ChartsUtility.orderEnquiry(this.HomeLayoutObject.getValue("searchinput"));
                 }
             });
             this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();
@@ -301,11 +308,11 @@ module com.ordermanager.home {
             //         { id: "d", text: "Existing Data", header: false }
             //     ]
             // });
-            new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"),"orderStatusData");
+            ChartUtilityObj = new com.ordermanager.utility.ChartsUtility(this.HomeLayoutObject.cells("b"), "orderStatusData");
             //com.ordermanager.utilty.MainUtility.getImageViewer(this.ChartLayout.cells("b"),"ORDERS","1250",235,200,400);
-           
+
         }
-       
+
         public dbStatusLoader() {
             //            var intervalVar = setInterval(() => {
             //                try {
@@ -417,9 +424,9 @@ module com.ordermanager.home {
             });
         }
         public webcamImageManager() {
-            var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=32434&MODULE=ORDERS");
+            var WindowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=&MODULE=");
         }
-     
+
 
     }
 }

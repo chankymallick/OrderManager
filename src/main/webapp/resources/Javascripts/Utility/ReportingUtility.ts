@@ -12,6 +12,7 @@ declare var dhtmlXWindows: any;
 declare var getCurrentDate: any;
 declare var $: any;
 declare var ReportGrid: any;
+declare var imageViewer: any;
 module com.ordermanager.reportingutility {
     export class TransactionReports {
         public ModifiedLayoutObject: any;

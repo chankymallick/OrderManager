@@ -35,7 +35,8 @@ public class ConstantContainer {
     LOGIN,
     LOGOUT,
     FAILED_LOGIN,
-    IMAGE_STORE
+    IMAGE_STORE,
+    TASK_LIST
     }
     public enum AUDIT_TYPE{
     INSERT,UPDATE,DELETED,SECURITY

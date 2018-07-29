@@ -1,6 +1,6 @@
 var Language;
 var USER_DETAILS;
-
+var ChartUtilityObj;
 function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
     try {
         if (ProgressObject != null) {
@@ -20,19 +20,19 @@ function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
         return null;
     }
 }
+
 function SynchronousGetAjaxRequest(Url, Params, ProgressObject) {
     try {
         if (ProgressObject != null) {
             ProgressObject.progressOn();
         }
-        if(Params == null || Params == ""){
-            
+        if (Params == null || Params == "") {
+
             Url = encodeURI(Url);
-        }
-        else{
-              Url = encodeURI(Url);
-              Params = encodeURI(Params);
-            
+        } else {
+            Url = encodeURI(Url);
+            Params = encodeURI(Params);
+
         }
         var response = window.dhx.ajax.getSync(Url, Params);
         var json = window.dhx.s2j(response.xmlDoc.responseText);
@@ -48,9 +48,11 @@ function SynchronousGetAjaxRequest(Url, Params, ProgressObject) {
         return null;
     }
 }
+
 function progressOffCustom(ProgressObject) {
     ProgressObject.progressOff();
 }
+
 function ItemNameValidation(data) {
     if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
         return false;
@@ -70,6 +72,7 @@ function ItemNameValidation(data) {
         }
     }
 }
+
 function UpdatedItemNameValidation(data) {
     if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
         return false;
@@ -89,6 +92,7 @@ function UpdatedItemNameValidation(data) {
         }
     }
 }
+
 function UserNameValidation(data) {
     if (data === "" || data === null || (data.length > 20 || data.length < 3)) {
         return false;
@@ -110,7 +114,7 @@ function UserNameValidation(data) {
 }
 
 function OrderBillNoValidation(data) {
-        if (data === "" || data === null || (data.length > 10 || data.length < 1)) {
+    if (data === "" || data === null || (data.length > 10 || data.length < 1)) {
         return false;
     } else {
         var Response = SynchronousGetAjaxRequest("isValueUnique?VALUE=" + data.trim() + "&TABLE_NAME=ORDERS&COLUMN_NAME=BILL_NO", "", null);
@@ -129,6 +133,7 @@ function OrderBillNoValidation(data) {
     }
 
 }
+
 function showSuccessNotification(data) {
     dhtmlx.message({
         text: data,
@@ -136,6 +141,7 @@ function showSuccessNotification(data) {
         type: "SuccessNotification"
     });
 }
+
 function showFailedNotification(data) {
     dhtmlx.message({
         text: data,
@@ -143,16 +149,18 @@ function showFailedNotification(data) {
         type: "error"
     });
 }
+
 function showSuccessNotificationWithICON(data) {
     dhtmlx.message({
-        text:"<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/ok.png' height='30px' width='30px'></div><div >"+data+"</div></div>",
+        text: "<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/ok.png' height='30px' width='30px'></div><div >" + data + "</div></div>",
         expire: 5000,
         type: "SuccessNotification"
     });
 }
+
 function showFailedNotificationWithICON(data) {
     dhtmlx.message({
-        text:"<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/failed.png' height='30px' width='30px'></div><div >"+data+"</div></div>",
+        text: "<div><div style='float:left;margin-right:5px;vertical-align:middle;' ><img src='resources/Images/failed.png' height='30px' width='30px'></div><div >" + data + "</div></div>",
         expire: 5000,
         type: "error"
     });
@@ -163,9 +171,11 @@ function loadLanguagePack() {
     Language = Response.RESPONSE_VALUE.LANGUAGE_PACK;
     USER_DETAILS = Response.RESPONSE_VALUE.USER_DETAILS;
 }
+
 function dateValidator(data) {
     return (data instanceof Date);
 }
+
 function dateCheck(data) {
     var regex = /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$/;
     return regex.test(data);
@@ -182,14 +192,15 @@ function getCurrentDate() {
     if (mm < 10) {
         mm = '0' + mm
     }
-    var today = dd + '/' + mm + '/' + today.getFullYear().toString().substring(2,4);
+    var today = dd + '/' + mm + '/' + today.getFullYear().toString().substring(2, 4);
     return today;
 }
-function isCompositeValueUnique(TABLE_NAME,COLUMN_NAME1,COLUMN_NAME2,VALUE1,VALUE2) {    
-    if (false) {//Conditions later
+
+function isCompositeValueUnique(TABLE_NAME, COLUMN_NAME1, COLUMN_NAME2, VALUE1, VALUE2) {
+    if (false) { //Conditions later
         return false;
     } else {
-        var Response = SynchronousGetAjaxRequest("isCompositeValueUnique?TABLE_NAME="+TABLE_NAME.trim()+"&COLUMN_NAME1="+COLUMN_NAME1.trim()+"&COLUMN_NAME2="+COLUMN_NAME2.trim()+"&VALUE1="+VALUE1+"&VALUE2="+VALUE2, "", null);
+        var Response = SynchronousGetAjaxRequest("isCompositeValueUnique?TABLE_NAME=" + TABLE_NAME.trim() + "&COLUMN_NAME1=" + COLUMN_NAME1.trim() + "&COLUMN_NAME2=" + COLUMN_NAME2.trim() + "&VALUE1=" + VALUE1 + "&VALUE2=" + VALUE2, "", null);
         if (Response.RESPONSE_STATUS === "SUCCESS") {
             if (Response.RESPONSE_VALUE.UNIQUE === "TRUE") {
                 showSuccessNotification(Response.RESPONSE_MESSAGE);
@@ -203,4 +214,13 @@ function isCompositeValueUnique(TABLE_NAME,COLUMN_NAME1,COLUMN_NAME2,VALUE1,VALU
             showFailedNotification("Request Error, Check Database Connection");
         }
     }
+
+}
+
+function imageViewer(BillNo, Type) {
+    com.ordermanager.utilty.MainUtility.showImageViewer(com.ordermanager.utilty.MainUtility.getModelWindow("Image Gallery", 1200, 580), "ORDERS", BillNo, 235, 450, 900);
+}
+
+function externalEvent(paramData) {
+    ChartUtilityObj.updateTask(paramData);
 }

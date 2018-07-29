@@ -51,7 +51,17 @@ var com;
                     myWins.window("win1").center();
                     myWins.window("win1").setModal(true);
                     myWins.window("win1").setText(HeaderText);
+                    shortcut.add("Esc", function () {
+                        myWins.window("win1").close();
+                        shortcut.remove("Esc");
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
                     return myWins.window("win1");
+                    ;
                 };
                 MainUtility.setDynamicSelectBoxOptions = function (TargetSelectObject, TableName, ColumnName, QueryColumn, QueryValue) {
                     var Params = "?TableName=" + TableName + "&ColumnName=" + ColumnName + "&QueryColumn=" + QueryColumn + "&QueryValue=" + QueryValue;
@@ -261,7 +271,7 @@ var com;
                     if (this.FormObject.validate()) {
                         if (this.customValidation()) {
                             this.FormObject.updateValues();
-                            //this.DataEntryLayoutCell.progressOn();
+                            this.DataEntryLayoutCell.progressOn();
                             var Response = SynchronousGetAjaxRequest(this.FormName + "?ParamData=" + JSON.stringify(this.GlobalFormJSONValues), "", null);
                             if (Response.RESPONSE_STATUS === "SUCCESS") {
                                 showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
@@ -274,7 +284,7 @@ var com;
                                 showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
                                 this.NotificationCell.attachHTMLString(this.FormName + "  : <b style='color:red'>" + Response.RESPONSE_VALUE.EXCEPTION_MESSAGE + "</b>");
                                 this.NotificationCell.expand();
-                                //progressOffCustom(this.DataEntryLayoutCell);
+                                progressOffCustom(this.DataEntryLayoutCell);
                             }
                         }
                     }
@@ -418,7 +428,7 @@ var com;
                 FormEntryManager.prototype.setSpecificAfterSave = function () {
                     if (this.FormName === com.ordermanager.home.OrderManagerHome.FORM_NEW_ORDER) {
                         var BILL_NO = this.FormObject.getItemValue("BILL_NO=STR");
-                        com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=" + BILL_NO + "&MODULE=ORDERS");
+                        var windowObject = com.ordermanager.utilty.MainUtility.getModelWindow("Take Product Image", 580, 580).attachURL("resources/JS_WEBCAM/Camera.html?KEY=" + BILL_NO + "&MODULE=ORDERS");
                     }
                 };
                 FormEntryManager.prototype.constructItemSelectionWindow = function () {

@@ -101,6 +101,16 @@ public class OrderController {
     public ModelAndView addNewAccountSubType(@RequestParam("ParamData") JSONObject paramJson) {
         return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewAccountSubType(paramJson));
     }
+    
+     @RequestMapping("/addNewTask")
+    public ModelAndView addNewTask(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.addNewTask(paramJson));
+    }
+     @RequestMapping("/updateTask")
+    public ModelAndView updateTask(@RequestParam("ParamData") JSONObject paramJson) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.updateTask(paramJson));
+    }
+
 
     @RequestMapping("/addNewLocation")
     public ModelAndView addNewLocation(@RequestParam("ParamData") JSONObject paramJson) {
@@ -133,6 +143,14 @@ public class OrderController {
         }
 
         return new ModelAndView("MakeResponse", "responseValue", new JSONObject(requestMap).toString());
+    }
+    @RequestMapping("/getSearchOrderDetails")
+    public ModelAndView getSearchOrderDetailsJSON(@RequestParam("BILL_NO") String BILL_NO) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.getOrderDetailsForSearchQuery(BILL_NO));
+    }
+    @RequestMapping("/getSearchOrderMobilityDetails")
+    public ModelAndView getSearchOrderMobilityDetailsJSON(@RequestParam("BILL_NO") String BILL_NO) {
+        return new ModelAndView("MakeResponse", "responseValue", orderDAO.getOrderMobilityDetailsForSearchQuery(BILL_NO));
     }
 
     @RequestMapping("/getStatistics")

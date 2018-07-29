@@ -5,6 +5,7 @@ declare var showFailedNotificationWithICON: any;
 declare var dhtmlx: any;
 declare var dhtmlXDataView: any;
 declare var getCurrentDate: any;
+declare var imageViewer: any;
 
 module com.ordermanager.bulkupdate {
     export class BulkUpdate {

@@ -354,11 +354,11 @@
 <c:if test="${OBJECT_MAP.get('Type').equals('addNewTask')}">
     <rows>
         <head>            
-        <column width="100" type="ro" align="center" color="white" sort="int">UID</column>      
-        <column width="200" type="ro" align="center" color="white" sort="str">TASK NAME</column>       
-        <column width="100" type="ro" align="center" color="white" sort="str">TYPE</column>   
-        <column width="60" type="ro" align="center" color="white" sort="str">PRIORITY</column>      
-        <column width=200 type="ro" align="center" color="white" sort="str">TIMING</column>      
+        <column width="50" type="ro" align="center" color="white" sort="int">UID</column>      
+        <column width="250" type="ro" align="center" color="white" sort="str">TASK NAME</column>       
+        <column width="200" type="ro" align="center" color="white" sort="str">TYPE</column>   
+        <column width="80" type="ro" align="center" color="white" sort="int">PRIORITY</column>      
+        <column width="200" type="ro" align="center" color="white" sort="str">TIMING</column>      
         <column width="100" type="ro" align="center" color="white" sort="str" >STATUS</column>      
         <column width="100" type="ro" align="center" color="white" sort="str" >NOTE</column>         
         <beforeInit> 
@@ -368,7 +368,7 @@
         </beforeInit> 
         <afterInit>  
             <call command="attachHeader">
-                <param>#text_search,#select_filter,#text_search,#select_filter,#text_search,#text_search,#text_search</param>                      
+                <param>#text_search,#text_search,#select_filter,#select_filter,#text_search,#select_filter,#text_search</param>                      
             </call> 
         </afterInit>     
     </head> 
@@ -384,11 +384,12 @@
     </c:forEach>
 </rows>
 </c:if>
+
 <c:if test="${OBJECT_MAP.get('Type').equals('taskList')}">
     <rows>
         <head>            
         <column width="100" type="ro" align="left" color="#b5e2ff" sort="int">UID</column>      
-        <column width="300" type="ro" align="left" color="#b5e2ff" sort="str">DATA</column> 
+        <column width="300" type="ro" align="left" color="#b5e2ff" sort="str">DATA</column>      
         <beforeInit> 
             <call command="setImagePath"> 
                 <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
@@ -403,14 +404,100 @@
     <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                <cell><![CDATA[  ${DATA_OBJECT.get(COLUMN_NAME)}  ]]></cell>
+                <cell><![CDATA[${DATA_OBJECT.get(COLUMN_NAME)}]]></cell>
                 </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('paymentGrid')}">
+    <rows>
+        <head>            
+        <column width="100" type="ro" align="left" color="#FFFFFF" sort="int">UID</column>      
+        <column width="165" type="ro" align="left" color="#afe5ff" sort="str">DATA</column>      
+        <column width="170" type="ro" align="left" color="#e2ffeb" sort="str">TYPE</column>      
+        <column width="70" type="ro" align="center" color="#ffeaea" sort="str">AMOUNT</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>                 
+            <call command="setColumnHidden"><param>0</param><param>true</param></call>        
+        </afterInit>     
+    </head> 
 
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell><![CDATA[${DATA_OBJECT.get(COLUMN_NAME)}]]></cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('orderItemsGrid')}">
+    <rows>
+        <head>              
+        <column width="50" type="ro" align="left" color="#ffd789" sort="int">UID</column>      
+        <column width="200" type="ro" align="center" color="#ffd789" sort="str">DATA</column>      
+        <column width="150" type="ro" align="center" color="#f9ff54" sort="str">PIC</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>                 
+<!--            <call command="setColumnHidden"><param>0</param><param>true</param></call>        -->
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell><![CDATA[<b style='font-size:16px;'>${ID+1}</b>]]></cell>
+                <cell><![CDATA[<b style='font-size:18px;'>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>
+                <cell><![CDATA[<img height="25px" width="40px" src="resources/Images/${DATA_OBJECT.get(COLUMN_NAME)}.png"/>]]></cell>
+                
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('assignmentGrid')}">
+    <rows>
+        <head>            
+        <column width="100" type="ro" align="left" color="#fffcbc" sort="int">UID</column>      
+        <column width="90" type="ro" align="center" color="#fffcbc" sort="str">DATE</column>      
+        <column width="135" type="ro" align="left" color="#fffcbc" sort="str">TYPE</column>      
+        <column width="100" type="ro" align="left" color="#fffcbc" sort="str">NAME</column>      
+        <column width="80" type="ro" align="left" color="#fffcbc" sort="str">PAY STATUS</column>      
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>                 
+            <call command="setColumnHidden"><param>0</param><param>true</param></call>        
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <cell><![CDATA[<b style='font-size:16px;'>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('getItemSelectionList')}">
     <rows>
         <head>            
@@ -473,7 +560,14 @@
     <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                 <c:choose>                 
+                    <c:when test="${COLUMN_NAME.equals('BILL_NO')}">
+                        <cell><![CDATA[<a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)},'')">${DATA_OBJECT.get(COLUMN_NAME)}</a>]]></cell>
+                        </c:when>
+                        <c:otherwise>
+                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                        </c:otherwise>
+                    </c:choose>  
                 </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
@@ -503,7 +597,14 @@
     <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                <c:choose>                 
+                    <c:when test="${COLUMN_NAME.equals('BILL_NO')}">
+                        <cell><![CDATA[<b><a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)},'')">${DATA_OBJECT.get(COLUMN_NAME)}</a></b>]]></cell>
+                        </c:when>
+                        <c:otherwise>
+                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                        </c:otherwise>
+                    </c:choose>  
                 </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
@@ -625,7 +726,7 @@
         </beforeInit> 
         <afterInit>  
             <call command="attachHeader">
-                <param>#text_search,#text_search,#text_search,#text_search,#text_search</param>                      
+                <param>#text_search,#text_search,#text_search,#text_search,#select_filter</param>                      
             </call> 
         </afterInit>     
     </head> 

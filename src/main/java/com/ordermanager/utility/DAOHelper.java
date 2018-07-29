@@ -399,6 +399,10 @@ public class DAOHelper extends ConstantContainer {
         }
     }
 
+    public int getImageCount(String Module, String Key) {
+        return this.getJdbcTemplate().queryForObject("SELECT COUNT(*) FROM IMAGE_STORE WHERE MODULE_NAME=? AND IMAGE_KEY=? ", new Object[]{Module, Key}, Integer.class);
+    }
+
     public HttpSession getSessionObject() {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;

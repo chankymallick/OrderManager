@@ -96,12 +96,33 @@ public class ComponentXMLGenarator {
             List temp = OrderDAO.getGridDataForTaskList();
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        }
+        }       
         if (Type.equals("addNewTask")) {
             List temp = OrderDAO.getGridData("TASK_LIST", "TASK_ID");    
             mvc.put("ALL_ROWS_LIST", temp.get(0));
             mvc.put("COLUMN_NAME_LIST", temp.get(1));
         }
+        mvc.put("Type", Type);
+        return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
+    }
+    @RequestMapping("/LoadSearchGrid")
+    public ModelAndView dataViewGrid(@RequestParam("gridname") String Type,@RequestParam("BillNo") String BillNo) {
+        Map<String, Object> mvc = new HashMap<String, Object>();      
+        if (Type.equals("paymentGrid")) {
+            List temp = OrderDAO.getGridDataForPaymentSearchQuery(BillNo);
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }
+        if (Type.equals("assignmentGrid")) {
+            List temp = OrderDAO.getGridDataForOrderAssignmentSearchQuery(BillNo);
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }
+        if (Type.equals("orderItemsGrid")) {
+            List temp = OrderDAO.getGridDataForOrderItemsSearchQuery(BillNo);
+            mvc.put("ALL_ROWS_LIST", temp.get(0));
+            mvc.put("COLUMN_NAME_LIST", temp.get(1));
+        }     
         mvc.put("Type", Type);
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }

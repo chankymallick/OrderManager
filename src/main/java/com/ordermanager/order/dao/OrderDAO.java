@@ -420,6 +420,46 @@ public class OrderDAO extends DAOHelper {
         return response.getJSONResponse();
     }
 
+    public String addNewTask(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int UID = getColumnAutoIncrementValue("TASK_LIST", "TASK_ID");
+            paramData.put("TASK_ID=NUM", UID);
+            int InsertStatus = getJdbcTemplate().update(getSimpleSQLInsert(paramData, "TASK_LIST"));
+            mainAuditor(ConstantContainer.AUDIT_TYPE.INSERT, ConstantContainer.APP_MODULE.TASK_LIST, UID, "New Task Created");
+            generateSQLSuccessResponse(response, "New Task Created Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+
+    public String updateTask(JSONObject paramData) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        TransactionDefinition txDef = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
+        try {
+            int Task_ID = paramData.getInt("TASK_ID");
+            int updateStatus = getJdbcTemplate().update("UPDATE TASK_LIST SET RESOLVE_DATE=? , TASK_STATUS =?, NOTE=CONCAT(NOTE+' ', ?)   WHERE TASK_ID = ? ", new Object[]{
+                getParsedTimeStamp(paramData.getString("RESOLVE_DATE")),
+                paramData.getString("TASK_STATUS"),
+                paramData.getString("NOTE"),
+                Task_ID
+            });
+            mainAuditor(ConstantContainer.AUDIT_TYPE.UPDATE, ConstantContainer.APP_MODULE.TASK_LIST, Task_ID, "Task Updated : " + paramData.getString("TASK_STATUS"));
+            generateSQLSuccessResponse(response, "Task Updated Succesfully");
+            this.getTransactionManager().commit(txStatus);
+        } catch (Exception e) {
+            this.getTransactionManager().rollback(txStatus);
+            generateSQLExceptionResponse(response, e, "Exception ... see Logs");
+        }
+        return response.getJSONResponse();
+    }
+
     public String addNewAccountSubType(JSONObject paramData) {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
@@ -495,8 +535,24 @@ public class OrderDAO extends DAOHelper {
         String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,PRICE ,AMOUNT FROM ORDERS OD INNER JOIN PAYMENT_TRANSACTIONS PT ON OD.BILL_NO=PT.ORDER_BILL_NO ORDER BY PT.TRANSACTION_UID DESC";
         return this.getJSONDataForGrid(SQL);
     }
+
     public List<Object> getGridDataForTaskList() {
-        String SQL = "SELECT TASK_ID,TASK_TYPE+' <b> '+TASK_NAME+'<br> </b>'+TASK_STATUS + '<br>  '+ CONVERT(VARCHAR(30),SCHEDULE_DATE)  +'  <br>'+ ISNULL(NOTE,'') AS DATA FROM TASK_LIST";
+        String SQL = "SELECT TASK_ID,'<b>'+TASK_TYPE+'</b> : <b> '+TASK_NAME+'<br> </b>'+TASK_STATUS + '&nbsp;&nbsp; : &nbsp;'+ CONVERT(VARCHAR(30),SCHEDULE_DATE)  +'  <br>'+ CASE WHEN NOTE='' THEN '' ELSE NOTE+'<br>' END + '<a href=\"#\" class=\"taskButton\" onClick=\"externalEvent('+CONVERT(VARCHAR(10),TASK_ID)+')\" >Update Task</a>' AS DATA FROM TASK_LIST WHERE (DATEDIFF(day, CURRENT_TIMESTAMP  , SCHEDULE_DATE) <15) AND (TASK_STATUS <> 'FINISHED' AND TASK_STATUS <> 'CANCEL') ORDER BY TASK_STATUS DESC , SCHEDULE_DATE ASC,PRIORITY DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForPaymentSearchQuery(String BillNo) {
+        String SQL = "SELECT TRANSACTION_UID,'<B>DATE : '+CONVERT(VARCHAR(20), CAST(TRANSACTION_DATE AS DATE),3)+'<BR></B>'+'ID:'+CONVERT(VARCHAR(10),TRANSACTION_UID) AS DATA,'<b>'+PAYMENT_TYPE+'</b></br>' AS TYPE,'<B style=\"font-size:20px;\">'+CONVERT(VARCHAR(10),AMOUNT)+'<B><BR>' AS AMOUNT  FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO =" + BillNo + " ORDER BY TRANSACTION_DATE ";
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForOrderAssignmentSearchQuery(String BillNo) {
+        String SQL = "SELECT ASSIGNMENT_UID,ASSIGNMENT_DATE ,ASSIGNMENT_TYPE,EMPLOYEE_NAME,WAGE_STATUS  FROM ORDER_ASSIGNMENTS WHERE BILL_NO =" + BillNo + " ORDER BY ASSIGNMENT_UID ";
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForOrderItemsSearchQuery(String BillNo) {
+        String SQL = "SELECT OD.ITEM_NAME FROM ORDER_ITEMS OD INNER JOIN ITEMS IT ON OD.ITEM_NAME=IT.ITEM_NAME WHERE BILL_NO ="+BillNo+"ORDER BY IT.ITEM_TYPE DESC";
         return this.getJSONDataForGrid(SQL);
     }
 
@@ -783,6 +839,151 @@ public class OrderDAO extends DAOHelper {
             }
         } catch (Exception e) {
             this.generateSQLExceptionResponse(response, e, "Exception getorder Details");
+        } finally {
+            try {
+                rst.close();
+                rst2.close();
+                pst.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+        return response.getJSONResponse();
+    }
+
+    public String getOrderDetailsForSearchQuery(String OrderBillNo) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        ResultSet rst2 = null;
+        JSONObject billDetails = new JSONObject();
+        try {
+            String SQL = "SELECT BILL_NO,ORDER_DATE,DELIVERY_DATE,CUSTOMER_NAME,QUANTITY,PRICE, (SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO= ? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE')) AS ADVANCE, ISNULL(DISCOUNT,0) AS DISCOUNT,PRICE-(ISNULL(DISCOUNT,0)+( SELECT SUM(AMOUNT) FROM PAYMENT_TRANSACTIONS WHERE ORDER_BILL_NO=? AND (PAYMENT_TYPE = 'ADVANCE' OR PAYMENT_TYPE='RE_ADVANCE'))) AS DUE,ORDER_TYPE,CURRENT_STATUS,NOTE FROM ORDERS WHERE BILL_NO = ?";
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            pst.setString(1, OrderBillNo);
+            pst.setString(2, OrderBillNo);
+            pst.setString(3, OrderBillNo);
+            rst = pst.executeQuery();
+            if (rst.next()) {
+                billDetails.put("BILL_NO", rst.getString("BILL_NO"));
+                billDetails.put("ORDER_DATE", getCustomFormatDate(rst.getTimestamp("ORDER_DATE")));
+                billDetails.put("DELIVERY_DATE", getCustomFormatDate(rst.getTimestamp("DELIVERY_DATE")));
+                billDetails.put("CUSTOMER_NAME", rst.getString("CUSTOMER_NAME"));
+                billDetails.put("QUANTITY", rst.getString("QUANTITY"));
+                billDetails.put("PRICE", rst.getString("PRICE"));
+                billDetails.put("ADVANCE", rst.getString("ADVANCE"));
+                billDetails.put("DISCOUNT", rst.getString("DISCOUNT"));
+                billDetails.put("DUE", rst.getString("DUE"));
+                billDetails.put("ORDER_TYPE", rst.getString("ORDER_TYPE"));
+                billDetails.put("CURRENT_STATUS", rst.getString("CURRENT_STATUS"));
+                billDetails.put("SUB_STATUS", getSubStatus(OrderBillNo));
+                billDetails.put("CURRENT_LOCATION", getCurrentLocation(OrderBillNo));
+                billDetails.put("IMAGE_COUNT", getImageCount(ConstantContainer.APP_MODULE.ORDERS.toString(), OrderBillNo));
+                billDetails.put("NOTE", rst.getString("NOTE"));
+                response.addResponseValue("ORDER_DATA", billDetails.toString());
+                this.generateSQLSuccessResponse(response, "Data Fetched Succesfully");
+            }
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getOrderDetailsForSearchQuery ");
+        } finally {
+            try {
+                rst.close();
+                rst2.close();
+                pst.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+        return response.getJSONResponse();
+    }
+
+    public String getOrderMobilityDetailsForSearchQuery(String OrderBillNo) {
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        ResultSet rst2 = null;
+        JSONArray mobilityArray = new JSONArray();
+        try {
+            String SQL = "SELECT MOBILITY_UID,MAIN_STATUS,SUB_STATUS,CURRENT_LOCATION,PROCESS_DATE,NOTE FROM ORDER_MOBILITY WHERE BILL_NO = ? ORDER BY MOBILITY_UID ASC";
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            pst.setString(1, OrderBillNo);
+            rst = pst.executeQuery();
+            int i = 1;
+            while (rst.next()) {
+                JSONObject billDetails = new JSONObject();
+                billDetails.put("id", Integer.toString(i));
+                billDetails.put("title", rst.getString("SUB_STATUS") + " : " + rst.getString("CURRENT_LOCATION"));
+                billDetails.put("text", rst.getString("MAIN_STATUS") + " : " + getCustomFormatDate(rst.getTimestamp("PROCESS_DATE")));
+                billDetails.put("img", "/resources/Images/ok.png");
+                billDetails.put("height", "80");
+                billDetails.put("width", "280");
+                billDetails.put("NOTE", rst.getString("NOTE"));
+                billDetails.put("css", "myStyle");
+                mobilityArray.put(billDetails);
+                i = i + 1;
+            }
+            i=i-1;
+            for (int j = 1; j < i; j++) {
+                JSONObject billDetails = new JSONObject();
+                billDetails.put("id", Integer.toString(i + j));
+                billDetails.put("from", Integer.toString(j));
+                billDetails.put("to", Integer.toString(j + 1));
+                billDetails.put("type", "dash");
+                mobilityArray.put(billDetails);
+            }
+
+            response.addResponseValue("MOBILITY_DATA", mobilityArray.toString());
+            this.generateSQLSuccessResponse(response, "Data Fetched Succesfully");
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getOrderMobilityDetailsForSearchQuery ");
+        } finally {
+            try {
+                rst.close();
+                rst2.close();
+                pst.close();
+                con.close();
+            } catch (Exception e) {
+            }
+
+        }
+
+        return response.getJSONResponse();
+    }
+
+    public String getOrderMobilityJSON(String OrderBillNo) { //Can be Used Later to Get Order Details for Mobile
+        ResponseJSONHandler response = new ResponseJSONHandler();
+        PreparedStatement pst = null;
+        Connection con = null;
+        ResultSet rst = null;
+        ResultSet rst2 = null;
+        JSONArray mobilityArray = new JSONArray();
+        try {
+            String SQL = "SELECT MAIN_STATUS,SUB_STATUS,CURRENT_LOCATION,PROCESS_DATE,NOTE FROM ORDER_MOBILITY WHERE BILL_NO = ? ORDER BY MOBILITY_UID ASC";
+            con = this.getJDBCConnection();
+            pst = con.prepareStatement(SQL);
+            pst.setString(1, OrderBillNo);
+            rst = pst.executeQuery();
+            while (rst.next()) {
+                JSONObject billDetails = new JSONObject();
+                billDetails.put("PROCESS_DATE", getCustomFormatDate(rst.getTimestamp("PROCESS_DATE")));
+                billDetails.put("MAIN_STATUS", rst.getString("MAIN_STATUS"));
+                billDetails.put("SUB_STATUS", rst.getString("SUB_STATUS"));
+                billDetails.put("CURRENT_LOCATION", rst.getString("CURRENT_LOCATION"));
+                billDetails.put("NOTE", rst.getString("NOTE"));
+                mobilityArray.put(billDetails);
+            }
+            response.addResponseValue("MOBILITY_DATA", mobilityArray.toString());
+            this.generateSQLSuccessResponse(response, "Data Fetched Succesfully");
+        } catch (Exception e) {
+            this.generateSQLExceptionResponse(response, e, "Exception getOrderMobilityDetailsForSearchQuery ");
         } finally {
             try {
                 rst.close();
@@ -1989,6 +2190,7 @@ public class OrderDAO extends DAOHelper {
         }
         return dataArray.toString();
     }
+
     public String getChartDataLocationStatus(JSONObject chartParams) throws Exception {
         Connection con = null;
         PreparedStatement pst = null;
