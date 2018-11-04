@@ -223,7 +223,7 @@ public class OrderController {
         mvc.put("DATA", orderDAO.getOrderScheduleStatusByMonth(fromDate, toDate));
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }
-
+   
     @RequestMapping("/getDayWiseProductionDetails")
     public ModelAndView getDayWiseProductionDetails(Model map, @RequestParam("ProductionType") String ProductionType, @RequestParam("Name") String Name, @RequestParam("ReportType") String ReportType) {
 
@@ -295,8 +295,8 @@ public class OrderController {
         if (chartName.equals("locationStatus")) {
             return new ModelAndView("MakeResponse", "responseValue", orderDAO.getChartDataLocationStatus(chartParams));
         }
-        if (chartName.equals("")) {
-
+        if (chartName.equals("orderScheduler")) {
+             return new ModelAndView("MakeResponse", "responseValue", orderDAO.getOrderScheduleDayWiseBarChartData());
         }
         if (chartName.equals("")) {
 

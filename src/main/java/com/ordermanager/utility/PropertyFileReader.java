@@ -76,6 +76,17 @@ public class PropertyFileReader extends DAOHelper {
             return null;
         }        
     }
+    public static String readSQLQueryFromFile(String Key) {
+        try {
+            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Properties/SQL_Server.properties");
+            Properties LanguageProperties = new Properties();
+            LanguageProperties.load(new FileInputStream(rootDir.getAbsolutePath()));
+            System.out.println(LanguageProperties.getProperty(Key));
+            return LanguageProperties.getProperty(Key);
+        } catch (Exception e) {
+            return null;
+        }        
+    }
 
     public void loadSelectItemProperties(HttpServletRequest request, ServletContext servletContext, ConstantContainer.LANGUAGES LanguangeName) {
         Map<String, List<String>> selectItemMap = new HashMap();

@@ -31,9 +31,9 @@ var com;
                         pattern: "5I",
                         cells: [
                             { id: "a", text: "a", header: false, height: 30 },
-                            { id: "b", text: "b", header: false, height: 200 },
-                            { id: "c", text: "c", header: false },
-                            { id: "d", text: "d", header: false },
+                            { id: "b", text: "Order Status <a href='#' onClick='enlargeCharts(2)'>Large</a>", header: true, height: 240 },
+                            { id: "c", text: "Order Location <a href='#' onClick='enlargeCharts(1)'>Large</a>", header: true },
+                            { id: "d", text: "", header: false },
                             { id: "e", text: "e", header: false }
                         ]
                     });
@@ -45,63 +45,102 @@ var com;
                         ]
                     });
                     this.ChatParams = { 'DAYS': '100' };
-                    this.getOrderStatusDonutChart();
-                    this.getOrderLocationPieChart();
-                    this.getOrderPieChart();
+                    this.getOrderStatusChart("SMALL");
+                    this.getOrderLocationChart("SMALL");
+                    //this.getOrderPieChart();
                     this.getBarChart();
                     this.taskList();
                 }
-                ChartsUtility.prototype.getOrderStatusDonutChart = function () {
+                ChartsUtility.prototype.getOrderStatusChart = function (size) {
+                    var _this = this;
+                    var data = [{ "color": "orange", "CURRENT_STATUS": "IN_PROCESS", "ID": "1", "STOCK": "23" }, { "color": "red", "CURRENT_STATUS": "NEW_ORDER", "ID": "2", "STOCK": "73" }, { "color": "green", "CURRENT_STATUS": "READY_TO_DELIVER", "ID": "3", "STOCK": "22" }];
+                    var Container;
+                    var CircleMargin;
+                    var width;
+                    var legendTextSize = "12px";
+                    if (size === "SMALL") {
+                        Container = this.ChartLayout.cells("b");
+                        CircleMargin = 230;
+                        width = 70;
+                    }
+                    else {
+                        Container = com.ordermanager.utilty.MainUtility.getModelWindow("Order Location", 800, 550);
+                        CircleMargin = 435;
+                        width = 100;
+                        legendTextSize = "16px";
+                    }
                     var config = {
                         view: "donut",
-                        value: "#PIECE#",
-                        x: 230,
+                        value: "#STOCK#",
+                        x: CircleMargin,
                         color: "#color#",
-                        tooltip: "<b>#CURRENT_STATUS#:#PIECE#</b>",
+                        tooltip: "<b>#CURRENT_STATUS#:#STOCK#</b>",
                         legend: {
-                            width: 50,
+                            width: width,
                             align: "center",
                             valign: "middle",
-                            template: "<b style='font-size:12px;'>#CURRENT_STATUS#</b>"
+                            template: "<b style='font-size:" + legendTextSize + ";'>#CURRENT_STATUS#</b>"
                         },
                         gradient: 1,
                         shadow: true,
-                        pieInnerText: "<b>#PIECE#</b>",
+                        pieInnerText: "<b>#STOCK#</b>",
                         marker: {
                             type: "round",
                             width: 15
                         }
                     };
-                    var myPieChart = this.ChartLayout.cells("b").attachChart(config);
+                    var myPieChart = Container.attachChart(config);
                     myPieChart.load("getChartData?chartName=orderStatus&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
+                    myPieChart.attachEvent("onItemclick", function (id, ev, trg) {
+                        _this.OrderListViewer("ORDER_STATUS", myPieChart.get(id).CURRENT_STATUS);
+                    });
                 };
-                ChartsUtility.prototype.getOrderLocationPieChart = function () {
+                ChartsUtility.prototype.getOrderLocationChart = function (size) {
+                    var _this = this;
+                    var Container;
+                    var CircleMargin;
+                    var width;
+                    var legendTextSize = "12px";
+                    if (size === "SMALL") {
+                        Container = this.ChartLayout.cells("c");
+                        CircleMargin = 230;
+                        width = 70;
+                    }
+                    else {
+                        Container = com.ordermanager.utilty.MainUtility.getModelWindow("Order Location", 800, 550);
+                        CircleMargin = 435;
+                        width = 100;
+                        legendTextSize = "16px";
+                    }
                     var config = {
-                        view: "pie",
-                        value: "#PIECE#",
-                        x: 230,
-                        color: "#color#",
-                        tooltip: "<b>#CURRENT_STATUS#:#PIECE#</b>",
+                        view: "donut",
+                        value: "#STOCK#",
+                        x: CircleMargin,
+                        color: "#COLOR#",
+                        tooltip: "<b>#CURRENT_LOCATION#:#STOCK#</b>",
                         legend: {
-                            width: 50,
+                            width: width,
                             align: "center",
                             valign: "middle",
-                            template: "<b style='font-size:12px;'>#CURRENT_STATUS#</b>"
+                            template: "<b style='font-size:" + legendTextSize + ";'>#CURRENT_LOCATION#</b>"
                         },
                         gradient: 1,
                         shadow: true,
-                        pieInnerText: "<b>#PIECE#</b>",
+                        pieInnerText: "<b>#STOCK#</b>",
                         marker: {
                             type: "round",
                             width: 15
                         }
                     };
-                    var myPieChart = this.ChartLayout.cells("c").attachChart(config);
+                    var myPieChart = Container.attachChart(config);
                     myPieChart.load("getChartData?chartName=locationStatus&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
+                    myPieChart.attachEvent("onItemclick", function (id, ev, trg) {
+                        _this.OrderListViewer("ORDER_LOCATION", myPieChart.get(id).CURRENT_LOCATION);
+                    });
                 };
                 ChartsUtility.prototype.getOrderPieChart = function () {
                     var config = {
-                        view: "pie",
+                        view: "donut",
                         value: "#PIECE#",
                         x: 230,
                         color: "#color#",
@@ -124,51 +163,53 @@ var com;
                     myPieChart.load("getChartData?chartName=locationStatus&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
                 };
                 ChartsUtility.prototype.getBarChart = function () {
-                    var multiple_dataset = [
-                        { sales: "20", sales2: "35", sales3: "55", year: "02" },
-                        { sales: "40", sales2: "24", sales3: "40", year: "03" },
-                        { sales: "44", sales2: "20", sales3: "27", year: "04" },
-                        { sales: "23", sales2: "50", sales3: "43", year: "05" },
-                        { sales: "21", sales2: "36", sales3: "31", year: "06" },
-                        { sales: "50", sales2: "40", sales3: "56", year: "07" },
-                        { sales: "30", sales2: "65", sales3: "75", year: "08" },
-                        { sales: "90", sales2: "50", sales3: "50", year: "09" },
-                        { sales: "55", sales2: "40", sales3: "60", year: "10" },
-                        { sales: "72", sales2: "45", sales3: "54", year: "11" }
-                    ];
+                    var _this = this;
                     var config = {
                         view: "stackedBar",
                         container: "chart1",
-                        value: "#sales#",
-                        label: "<b>#sales#</b>",
-                        color: "#7ed500",
+                        value: "#READY#",
+                        label: "<b>#READY#</b>",
+                        color: "#09ea54",
                         gradient: "rising",
                         width: 30,
                         tooltip: {
-                            template: "#sales#"
+                            template: "#READY#"
                         },
                         xAxis: {
-                            template: "<i><b>#year#</b></i>"
+                            template: "<i><b>#DATE#</b></i>"
                         },
                         yAxis: {},
                         legend: {
-                            values: [{ text: "Type A", color: "#36abee" }, { text: "Type B", color: "#a7ee70" }, { text: "Type C", color: "#58dccd" }],
+                            values: [{ text: "READY", color: "#09ea54" }, { text: "NOT READY", color: "#e80000" }],
                             valign: "middle",
                             align: "right",
-                            width: 90,
+                            width: 120,
                             layout: "y"
                         }
                     };
                     var barchart = this.ChartSublayout.cells("a").attachChart(config);
                     barchart.addSeries({
-                        value: "#sales2#",
-                        color: "#3fc4f4",
-                        label: "<b>#sales2#</b>",
+                        value: "#NOT_READY#",
+                        color: "#e80000",
+                        label: "<b>#NOT_READY#</b>",
                         tooltip: {
-                            template: "#sales2#"
+                            template: "#NOT_READY#"
                         }
                     });
-                    barchart.parse(multiple_dataset, "json");
+                    barchart.load("getChartData?chartName=orderScheduler&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
+                    barchart.attachEvent("onItemclick", function (id, ev, trg) {
+                        _this.OrderListViewer("FUTURE_ORDER", barchart.get(id).FULL_DATE);
+                    });
+                };
+                ChartsUtility.prototype.OrderListViewer = function (ListType, param) {
+                    var winObj = com.ordermanager.utilty.MainUtility.getModelWindow("Order List : " + ListType + " : " + param, 1250, 620);
+                    var OrderListGrid = winObj.attachGrid();
+                    OrderListGrid.enableMultiline(true);
+                    OrderListGrid.enableAutoWidth(true);
+                    OrderListGrid.setStyle("", "font-weight:bold;", "color:red;", "");
+                    OrderListGrid.load("loadChartOrderList?TYPE=" + ListType + "&PARAM_DATA=" + param);
+                    OrderListGrid.attachEvent("onXLE", function () {
+                    });
                 };
                 ChartsUtility.prototype.taskList = function () {
                     var _this = this;

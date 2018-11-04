@@ -220,6 +220,8 @@ var com;
                         ['sep01', 'sep', '', ''],
                         ['lan', 'obj', "ROLE : " + USER_DETAILS.USER_TYPE, "resources/Images/lock.png"],
                         ['sep02', 'sep', '', ''],
+                        ['dbbackup', 'obj', "DATA BACKUP", "resources/Images/save.png"],
+                        ['sep02', 'sep', '', ''],
                         ['logout', 'obj', 'LOGOUT', "resources/Images/logout.png"],
                     ];
                     //   console.log("Loading : " + JSON.stringify(Language));
@@ -227,8 +229,8 @@ var com;
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
                     this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
-                    this.HomeToolbar.addInput("searchinput", 2, "", 50);
-                    this.HomeToolbar.addButton("search", 3, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
+                    this.HomeToolbar.addButton("search", 2, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
+                    this.HomeToolbar.addInput("searchinput", 3, "", 50);
                     this.HomeToolbar.addButtonTwoState("dbState", 4, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
                     this.HomeToolbar.disableItem("dbState");
                     this.HomeToolbar.addButtonSelect("id", 5, USER_DETAILS.USERNAME, opts, "resources/Images/user.png", "resources/Images/connected.png");
@@ -245,6 +247,32 @@ var com;
                         }
                         if (id === "search") {
                             com.ordermanager.utility.ChartsUtility.orderEnquiry(_this.HomeLayoutObject.getValue("searchinput"));
+                        }
+                        if (id === "dbbackup") {
+                            var winObj = com.ordermanager.utilty.MainUtility.getModelWindow("Database Backup", 550, 300);
+                            var formConfig = [
+                                { type: "settings", position: "label-left", labelWidth: 150, inputWidth: 160 },
+                                {
+                                    type: "block", width: "auto", blockOffset: 20, list: [
+                                        { type: "button", name: "SAVE", label: "New Input", value: "CREATE BACKUP", className: "taskBACKUPbutton" },
+                                        { type: "label", name: "output", label: "Click to start Backup", className: "taskBACKUPbutton" }
+                                    ]
+                                }
+                            ];
+                            var formObj = winObj.attachForm(formConfig);
+                            formObj.attachEvent("onButtonClick", function (id) {
+                                if (id === "SAVE") {
+                                    var Response = SynchronousGetAjaxRequest("databaseBackUP", "", null);
+                                    if (Response.RESPONSE_STATUS === "SUCCESS") {
+                                        showSuccessNotificationWithICON(Response.RESPONSE_MESSAGE);
+                                        winObj.attachHTMLString("<h3 style='text-align:center'><img src='resources/Images/ok.png' height='40px' width='40px'><br>" + Response.RESPONSE_MESSAGE + "<BR>" + Response.RESPONSE_VALUE.STEPS + "</h3>");
+                                    }
+                                    if (Response.RESPONSE_STATUS === "FAILED") {
+                                        showFailedNotificationWithICON(Response.RESPONSE_MESSAGE);
+                                        winObj.attachHTMLString(Response.RESPONSE_MESSAGE);
+                                    }
+                                }
+                            });
                         }
                     });
                     this.MenuAccordionObj = this.HomeLayoutObject.cells("a").attachAccordion();

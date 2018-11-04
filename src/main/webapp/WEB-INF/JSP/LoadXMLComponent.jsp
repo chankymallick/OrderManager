@@ -451,7 +451,7 @@
             </call>             
         </beforeInit> 
         <afterInit>                 
-<!--            <call command="setColumnHidden"><param>0</param><param>true</param></call>        -->
+            <!--            <call command="setColumnHidden"><param>0</param><param>true</param></call>        -->
         </afterInit>     
     </head> 
 
@@ -462,8 +462,8 @@
                 <cell><![CDATA[<b style='font-size:16px;'>${ID+1}</b>]]></cell>
                 <cell><![CDATA[<b style='font-size:18px;'>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>
                 <cell><![CDATA[<img height="25px" width="40px" src="resources/Images/${DATA_OBJECT.get(COLUMN_NAME)}.png"/>]]></cell>
-                
-                </c:forEach>
+
+            </c:forEach>
         </row>     
         <c:set var="ID" value="${ID+1}"/>   
     </c:forEach>
@@ -560,9 +560,9 @@
     <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
         <row id="${ID+1}">
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                 <c:choose>                 
+                <c:choose>                 
                     <c:when test="${COLUMN_NAME.equals('BILL_NO')}">
-                        <cell><![CDATA[<a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)},'')">${DATA_OBJECT.get(COLUMN_NAME)}</a>]]></cell>
+                        <cell><![CDATA[<a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)}, '')">${DATA_OBJECT.get(COLUMN_NAME)}</a>]]></cell>
                         </c:when>
                         <c:otherwise>
                         <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
@@ -599,9 +599,9 @@
             <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
                 <c:choose>                 
                     <c:when test="${COLUMN_NAME.equals('BILL_NO')}">
-                        <cell><![CDATA[<b><a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)},'')">${DATA_OBJECT.get(COLUMN_NAME)}</a></b>]]></cell>
-                        </c:when>
-                        <c:otherwise>
+                        <cell><![CDATA[<b><a href="#" onClick="imageViewer(${DATA_OBJECT.get(COLUMN_NAME)}, '')">${DATA_OBJECT.get(COLUMN_NAME)}</a></b>]]></cell>
+                            </c:when>
+                            <c:otherwise>
                         <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
                         </c:otherwise>
                     </c:choose>  
@@ -711,6 +711,80 @@
     </c:forEach>
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('SCHEDULER_ORDER_LIST')}">
+    <rows>
+        <head>            
+        <column width="80" type="ro" align="center" color="white" sort="int">SR NO</column>       
+        <column width="100" type="ro" align="center" color="white" sort="int">BILL_NO</column>       
+        <column width="200" type="ro" align="center" color="white" sort="str">TYPE</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>     
+        <column width="200" type="ro" align="center" color="white" sort="str">SUB STATUS</column>     
+        <column width="200" type="ro" align="center" color="white" sort="str">LOCATION</column>    
+        <column width="150" type="ro" align="center" color="white" sort="str">DELIVERY_DATE</column>    
+        <column width="100" type="ro" align="center" color="white" sort="str">NOTE</column>    
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <cell><![CDATA[<b>${ID+1}</b>]]></cell>
+                <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <!--<cell><![CDATA[<b>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>-->
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('CHART_ORDER_LIST')}">
+    <rows>
+        <head>            
+        <column width="90" type="ro" align="center" color="white" sort="int">SR NO</column>       
+        <column width="120" type="ro" align="center" color="white" sort="int">BILL_NO</column>       
+        <column width="100" type="ro" align="center" color="white" sort="int">PRICE</column>   
+        <column width="60" type="ro" align="center" color="white" sort="int">QTY</column>   
+        <column width="130" type="ro" align="center" color="white" sort="str">ORDER DATE</column>     
+        <column width="130" type="ro" align="center" color="white" sort="str">DELIVERY DATE</column>     
+        <column width="160" type="ro" align="center" color="white" sort="str">STATUS</column>    
+        <column width="160" type="ro" align="center" color="white" sort="str">LOCATION</column>    
+        <column width="140" type="ro" align="center" color="white" sort="str">TYPE</column>    
+        <column width="135" type="ro" align="center" color="white" sort="str">NOTE</column>    
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#text_search,#select_filter,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#text_search</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <cell><![CDATA[<b>${ID+1}</b>]]></cell>
+                <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <!--<cell><![CDATA[<b>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>-->
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('advanceReport')}">
     <rows>
         <head>            
@@ -749,7 +823,7 @@
     <rows>
         <head>            
         <column width="100" type="ro" align="center" color="white" sort="str">SR</column>       
-        <column width="100" type="ro" align="center" color="white" sort="str">BILL NO</column>       
+        <column width="100" type="ro" align="center" color="white" sort="str">BILL</column>       
         <column width="250" type="ro" align="center" color="white" sort="str">NAME</column>   
         <column width="100" type="ro" align="center" color="white" sort="int">PRICE</column>  
         <column width="100" type="ro" align="center" color="white" sort="int">ADVANCE</column>    
@@ -877,19 +951,19 @@
     <data>
         <c:set var="ID" value="${0}"/>
         <c:forEach items="${OBJECT_MAP.get('DATA')}" var="DATA_OBJECT" >
-            <event id="${ID}">
+            <event id="${DATA_OBJECT[3]}-${DATA_OBJECT[0]}">
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: #00c9f2;color:white;font-size: 14px;'>${DATA_OBJECT[0]}</b>]]></text>
                 <start_date>${DATA_OBJECT[3]}</start_date>
                 <end_date>${DATA_OBJECT[3]}</end_date>
             </event>            
             <c:set var="ID" value="${ID+1}"/>
-            <event id="${ID}">
+            <event id="${DATA_OBJECT[3]}-${DATA_OBJECT[1]}">
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: yellowgreen;color:white;font-size: 14px;'>${DATA_OBJECT[1]}</b>]]>></text>
                 <start_date>${DATA_OBJECT[3]}</start_date>
                 <end_date>${DATA_OBJECT[3]}</end_date>
             </event>        
             <c:set var="ID" value="${ID+1}"/>
-            <event id="${ID}">
+            <event id="${DATA_OBJECT[3]}-${DATA_OBJECT[2]}">
                 <text><![CDATA[<b style='display:inline-block;width:120px;background-color: red;color:white;font-size: 14px;'>${DATA_OBJECT[2]}</b>]]></text>
                 <start_date>${DATA_OBJECT[3]}</start_date>
                 <end_date>${DATA_OBJECT[3]}</end_date>

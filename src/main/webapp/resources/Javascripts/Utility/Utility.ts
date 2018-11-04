@@ -162,6 +162,14 @@ module com.ordermanager.utilty {
                     'target': document,
                     'propagate': true
                 });
+            shortcut.add("F8", () => {
+                this.validateAndSaveFormData();
+            }, {
+                    'type': 'keyup',
+                    'disable_in_input': false,
+                    'target': document,
+                    'propagate': true
+                });
         }
 
         public constructInnerLayoutforDataEntry() {

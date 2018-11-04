@@ -4,7 +4,9 @@ import com.google.gson.JsonArray;
 import com.ordermanager.messanger.sendSMS;
 import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
+import com.ordermanager.utility.PropertyFileReader;
 import com.ordermanager.utility.ResponseJSONHandler;
+import com.ordermanager.utility.UtilityDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -552,7 +554,7 @@ public class OrderDAO extends DAOHelper {
     }
 
     public List<Object> getGridDataForOrderItemsSearchQuery(String BillNo) {
-        String SQL = "SELECT OD.ITEM_NAME FROM ORDER_ITEMS OD INNER JOIN ITEMS IT ON OD.ITEM_NAME=IT.ITEM_NAME WHERE BILL_NO ="+BillNo+"ORDER BY IT.ITEM_TYPE DESC";
+        String SQL = "SELECT OD.ITEM_NAME FROM ORDER_ITEMS OD INNER JOIN ITEMS IT ON OD.ITEM_NAME=IT.ITEM_NAME WHERE BILL_NO =" + BillNo + "ORDER BY IT.ITEM_TYPE DESC";
         return this.getJSONDataForGrid(SQL);
     }
 
@@ -563,6 +565,46 @@ public class OrderDAO extends DAOHelper {
 
     public List<Object> getGridDataForNewLocation() {
         String SQL = "SELECT CURRENT_LOCATIONS_UID,LOCATION_NAME,PARENT_STATUS,NOTE,ACTIVE FROM CURRENT_LOCATIONS  ORDER BY CURRENT_LOCATIONS_UID DESC";
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForSchedulerOrderList(String Type, String DeliverDate) throws Exception {
+        String SQL = "";
+
+        if (Type.equals("TOTAL")) {
+            String TempSQL = "SELECT OD.BILL_NO,OD.ORDER_TYPE,OD.CURRENT_STATUS,(SELECT TOP 1 SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS SUB_STATUS,(SELECT TOP 1 CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS LOCATION,OD.DELIVERY_DATE,OD.NOTE FROM ORDERS OD WHERE DELIVERY_DATE  IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0,?), 1)";
+            SQL = TempSQL.replace("?", "'" + getParsedTimeStamp(DeliverDate).toString() + "'");
+
+        }
+        if (Type.equals("READY")) {
+            String TempSQL = "SELECT OD.BILL_NO,OD.ORDER_TYPE,OD.CURRENT_STATUS,(SELECT TOP 1 SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS SUB_STATUS,(SELECT TOP 1 CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS LOCATION,OD.DELIVERY_DATE,OD.NOTE FROM ORDERS OD WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS = 'READY_TO_DELIVER' OR CURRENT_STATUS = 'DELIVERY_COMPLETED')";
+            SQL = TempSQL.replace("?", "'" + getParsedTimeStamp(DeliverDate).toString() + "'");
+        }
+        if (Type.equals("NOT_READY")) {
+            String TempSQL = "SELECT OD.BILL_NO,OD.ORDER_TYPE,OD.CURRENT_STATUS,(SELECT TOP 1 SUB_STATUS FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS SUB_STATUS,(SELECT TOP 1 CURRENT_LOCATION FROM ORDER_MOBILITY WHERE BILL_NO = OD.BILL_NO ORDER BY MOBILITY_UID DESC) AS LOCATION,OD.DELIVERY_DATE,OD.NOTE FROM ORDERS OD WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' OR CURRENT_STATUS IS NULL) AND (CURRENT_STATUS <> 'DELIVERY_COMPLETED' OR CURRENT_STATUS IS NULL)";
+            SQL = TempSQL.replace("?", "'" + getParsedTimeStamp(DeliverDate).toString() + "'");
+        }
+
+        return this.getJSONDataForGrid(SQL);
+    }
+
+    public List<Object> getGridDataForChartOrderList(String Type, String param) throws Exception {
+        String SQL = "";
+
+        if (Type.equals("ORDER_LOCATION")) {
+            String TempSQL = "SELECT OD.BILL_NO,OD.PRICE,OD.QUANTITY,OD.ORDER_DATE,OD.DELIVERY_DATE,OD.CURRENT_STATUS,DBO.getCurrentLocation(OD.BILL_NO) AS CURRENT_LOCATION,OD.ORDER_TYPE,OD.NOTE FROM ORDERS OD where DBO.GETCURRENTLOCATION(od.BILL_NO) =? ";
+            SQL = TempSQL.replace("?", "'" + param + "'");
+        }
+        if (Type.equals("ORDER_STATUS")) {
+
+            String TempSQL = "SELECT OD.BILL_NO,OD.PRICE,OD.QUANTITY,OD.ORDER_DATE,OD.DELIVERY_DATE,OD.CURRENT_STATUS,DBO.getCurrentLocation(OD.BILL_NO) AS CURRENT_LOCATION,OD.ORDER_TYPE,OD.NOTE FROM ORDERS OD  WHERE CURRENT_STATUS <> '' AND CURRENT_STATUS <> 'DELIVERY_COMPLETED' AND CURRENT_STATUS <> 'CANCELLED'  AND ORDER_TYPE <> 'PIECE_SALE' AND CURRENT_STATUS = ?";
+            SQL = TempSQL.replace("?", "'" + param + "'");
+        }
+        if (Type.equals("FUTURE_ORDER")) {
+            String TempSQL = "SELECT OD.BILL_NO,OD.PRICE,OD.QUANTITY,OD.ORDER_DATE,OD.DELIVERY_DATE,OD.CURRENT_STATUS,DBO.getCurrentLocation(OD.BILL_NO) AS CURRENT_LOCATION,OD.ORDER_TYPE,OD.NOTE  FROM ORDERS OD WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' AND CURRENT_STATUS <> 'DELIVERY_COMPLETED')";
+            SQL = TempSQL.replace("?", "'" + param + "'");
+        }
+
         return this.getJSONDataForGrid(SQL);
     }
 
@@ -922,7 +964,19 @@ public class OrderDAO extends DAOHelper {
                 billDetails.put("id", Integer.toString(i));
                 billDetails.put("title", rst.getString("SUB_STATUS") + " : " + rst.getString("CURRENT_LOCATION"));
                 billDetails.put("text", rst.getString("MAIN_STATUS") + " : " + getCustomFormatDate(rst.getTimestamp("PROCESS_DATE")));
-                billDetails.put("img", "/resources/Images/ok.png");
+                if (rst.getString("SUB_STATUS").contains("NEW_ORDER")) {
+                    billDetails.put("img", "/resources/Images/neworder.png");
+                } else if (rst.getString("SUB_STATUS").contains("CUTTING")) {
+                    billDetails.put("img", "/resources/Images/master.png");
+                } else if (rst.getString("SUB_STATUS").contains("STICHING")) {
+                    billDetails.put("img", "/resources/Images/tailor.jpg");
+                } else if (rst.getString("SUB_STATUS").contains("FINISHING")) {
+                    billDetails.put("img", "/resources/Images/finisher.png");
+                } else if (rst.getString("SUB_STATUS").contains("IRON")) {
+                    billDetails.put("img", "/resources/Images/iron.png");
+                } else {
+                    billDetails.put("img", "/resources/Images/ok.png");
+                }
                 billDetails.put("height", "80");
                 billDetails.put("width", "280");
                 billDetails.put("NOTE", rst.getString("NOTE"));
@@ -930,7 +984,7 @@ public class OrderDAO extends DAOHelper {
                 mobilityArray.put(billDetails);
                 i = i + 1;
             }
-            i=i-1;
+            i = i - 1;
             for (int j = 1; j < i; j++) {
                 JSONObject billDetails = new JSONObject();
                 billDetails.put("id", Integer.toString(i + j));
@@ -1652,12 +1706,12 @@ public class OrderDAO extends DAOHelper {
             LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
-                int TotalOrder = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE  IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1)", Integer.class);
-                int Ready = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1) AND (CURRENT_STATUS = 'READY_TO_DELIVER' OR CURRENT_STATUS = 'DELIVERY_COMPLETED')", Integer.class);
-                int NotReady = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, '" + date + "'), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, '" + date + "'), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' OR CURRENT_STATUS IS NULL) AND (CURRENT_STATUS <> 'DELIVERY_COMPLETED' OR CURRENT_STATUS IS NULL)", Integer.class);
+                int TotalOrder = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE  IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0,?), 1)", new Object[]{date, date}, Integer.class);
+                int Ready = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS = 'READY_TO_DELIVER' OR CURRENT_STATUS = 'DELIVERY_COMPLETED')", new Object[]{date, date}, Integer.class);
+                int NotReady = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' OR CURRENT_STATUS IS NULL) AND (CURRENT_STATUS <> 'DELIVERY_COMPLETED' OR CURRENT_STATUS IS NULL)", new Object[]{date, date}, Integer.class);
                 String FormatedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
                 if (TotalOrder > 0) {
-                    String data[] = {"Total : " + TotalOrder, "Ready : " + Ready, "Not Ready : " + NotReady, FormatedDate};
+                    String data[] = {"TOTAL : " + TotalOrder, "READY : " + Ready, "NOT READY : " + NotReady, FormatedDate};
                     datalist.add(data);
                 }
             }
@@ -1665,6 +1719,35 @@ public class OrderDAO extends DAOHelper {
             System.out.println(e);
         }
         return datalist;
+    }
+
+    public String getOrderScheduleDayWiseBarChartData() {
+
+        JSONArray jarray = new JSONArray();
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+            Date startDate = formatter.parse(getCustomFormatDate(getCurrentTimeStamp()));
+            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = start.plusDays(10);
+            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+                int TotalOrder = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE  IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0,?), 1)", new Object[]{date, date}, Integer.class);
+                int Ready = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS = 'READY_TO_DELIVER' OR CURRENT_STATUS = 'DELIVERY_COMPLETED')", new Object[]{date, date}, Integer.class);
+                int NotReady = this.getJdbcTemplate().queryForObject("SELECT ISNULL(SUM(QUANTITY),0) FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' OR CURRENT_STATUS IS NULL) AND (CURRENT_STATUS <> 'DELIVERY_COMPLETED' OR CURRENT_STATUS IS NULL)", new Object[]{date, date}, Integer.class);
+
+                String Day = Integer.toString(date.getDayOfMonth());
+
+                JSONObject obj = new JSONObject();
+                obj.put("READY", Integer.toString(Ready));
+                obj.put("NOT_READY", Integer.toString(NotReady));
+                obj.put("DATE", Day);
+                obj.put("FULL_DATE", date.toString());
+                jarray.put(obj);
+
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return jarray.toString();
     }
 
     public Map<String, Object> getProductionData(String ProductionType, String Name, String ReportType, String FromDate, String ToDate) {
@@ -2156,14 +2239,13 @@ public class OrderDAO extends DAOHelper {
         try {
             String Days = chartParams.getString("DAYS");
             con = getJDBCConnection();
-            pst = con.prepareStatement("SELECT CURRENT_STATUS,COUNT(QUANTITY) AS PIECE FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, GETDATE()), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, GETDATE()), ?) GROUP BY CURRENT_STATUS");
-            pst.setInt(1, Integer.parseInt(Days));
+            pst = con.prepareStatement("SELECT CURRENT_STATUS,SUM(OD.QUANTITY) AS STOCK FROM ORDERS OD  WHERE CURRENT_STATUS <> '' AND CURRENT_STATUS <> 'DELIVERY_COMPLETED' AND CURRENT_STATUS <> 'CANCELLED'  AND ORDER_TYPE <> 'PIECE_SALE'  GROUP BY CURRENT_STATUS");
             rst = pst.executeQuery();
             while (rst.next()) {
                 JSONObject obj = new JSONObject();
-
                 obj.put("CURRENT_STATUS", rst.getString("CURRENT_STATUS"));
-                obj.put("PIECE", rst.getString("PIECE"));
+                obj.put("STOCK", rst.getString("STOCK"));
+
                 if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString())) {
                     obj.put("color", "green");
                 }
@@ -2197,32 +2279,18 @@ public class OrderDAO extends DAOHelper {
         ResultSet rst = null;
         JSONArray dataArray = new JSONArray();
         try {
+            int num = 0;
             String Days = chartParams.getString("DAYS");
             con = getJDBCConnection();
-            pst = con.prepareStatement("SELECT CURRENT_STATUS,COUNT(QUANTITY) AS PIECE FROM ORDERS WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, GETDATE()), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, GETDATE()), ?) GROUP BY CURRENT_STATUS");
-            pst.setInt(1, Integer.parseInt(Days));
+            pst = con.prepareStatement("SELECT dbo.GETCURRENTLOCATION(od.BILL_NO) AS CURRENT_LOCATION ,SUM(OD.QUANTITY) AS STOCK FROM ORDERS OD where DBO.GETCURRENTLOCATION(od.BILL_NO) <> '' group by  DBO.GETCURRENTLOCATION(od.BILL_NO)");
             rst = pst.executeQuery();
             while (rst.next()) {
                 JSONObject obj = new JSONObject();
-
-                obj.put("CURRENT_STATUS", rst.getString("CURRENT_STATUS"));
-                obj.put("PIECE", rst.getString("PIECE"));
-                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.READY_TO_DELIVER.toString())) {
-                    obj.put("color", "green");
-                }
-
-                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.NEW_ORDER.toString())) {
-                    obj.put("color", "red");
-                }
-
-                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.IN_PROCESS.toString())) {
-                    obj.put("color", "orange");
-                }
-
-                if (rst.getString("CURRENT_STATUS").equals(ConstantContainer.ORDER_MAIN_STATUS.DELIVERY_COMPLETED.toString())) {
-                    obj.put("color", "white");
-                }
+                obj.put("CURRENT_LOCATION", rst.getString("CURRENT_LOCATION"));
+                obj.put("STOCK", rst.getString("STOCK"));
+                obj.put("COLOR", UtilityDAO.getColor(num));
                 dataArray.put(obj);
+                num = num + 1;
             }
 
         } catch (Exception e) {
@@ -2232,6 +2300,20 @@ public class OrderDAO extends DAOHelper {
             con.close();
         }
         return dataArray.toString();
+    }
+
+    public static void main(String... s) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+            Date startDate = formatter.parse(new DAOHelper().getCustomFormatDate(new DAOHelper().getCurrentTimeStamp()));
+            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate end = start.plusDays(10);
+            for (LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
+                System.out.println(date);
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
 }

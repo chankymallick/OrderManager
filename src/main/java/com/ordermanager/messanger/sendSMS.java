@@ -10,22 +10,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Scanner;
 
 public class sendSMS {
 
-    public String sendSms(String BillNo ,String MobileNo,String Name) {
+    public String sendSms(String BillNo, String MobileNo, String Name) {
         try {
             // Construct data
             String user = "username=" + "chanky.mallick@gmail.com";
             String hash = "&hash=" + "58928697161c74f2131ed8d7d67146dbc010a6a6";
-            String message = "&message=" + "Thank you "+Name+" for Your Order ,  Bill No :"+BillNo+", - Mallick Dresses";
-            String sender="&sender="+"";
-            String numbers = "&numbers=" + "91"+MobileNo;
-           // String test = "&test=true";
+            String message = "&message=" + "Thank you " + Name + " for Your Order ,  Bill No :" + BillNo + ", - Mallick Dresses";
+            String sender = "&sender=" + "";
+            String numbers = "&numbers=" + "91" + MobileNo;
+            // String test = "&test=true";
 
             // Send data
             HttpURLConnection conn = (HttpURLConnection) new URL("http://api.textlocal.in/send/?").openConnection();
-            String data = user + hash + numbers + message +sender;
+            String data = user + hash + numbers + message + sender;
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Length", Integer.toString(data.length()));
@@ -44,20 +45,20 @@ public class sendSMS {
             return "Error " + e;
         }
     }
-  
-    public String sendSmsSMSLane(String BillNo ,String MobileNo,String Name) {
+
+    public String sendSmsSMSLane(String BillNo, String MobileNo, String Name) {
         try {
             // Construct data
             String user = "user=" + "chanky.mallick";
             String hash = "&password=" + "smu520759958";
-            String message = "&msg=" + "Thank you "+Name+" for Your Order ,  Bill No :"+BillNo+", - Mallick Dresses-জমা হিসাব";
-            String sender="&sid="+"WebSMS";
-            String numbers = "&msisdn=" + "91"+MobileNo;
-           // String test = "&test=true";
+            String message = "&msg=" + "Thank you " + Name + " for Your Order ,  Bill No :" + BillNo + ", - Mallick Dresses-জমা হিসাব";
+            String sender = "&sid=" + "WebSMS";
+            String numbers = "&msisdn=" + "91" + MobileNo;
+            // String test = "&test=true";
 
             // Send data
             HttpURLConnection conn = (HttpURLConnection) new URL("/http://smslane.com/vendorsms/pushsms.aspx?").openConnection();
-            String data = user + hash + numbers + message +sender;
+            String data = user + hash + numbers + message + sender;
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Length", Integer.toString(data.length()));
@@ -77,7 +78,29 @@ public class sendSMS {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(new sendSMS().sendSmsSMSLane("1002", "7097919273", "CHANKY"));
+    public static void main(String[] args) {        
+
+    
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("Введите целое число: ");
+            int n = scanner.nextInt();
+            boolean isPrime = false;
+
+            for (int i = 2; i <= n; i++) {
+                for (int j = 2; j < i; j++) {
+                    if (i % j == 0) {
+                        isPrime = false;
+                        break;
+                    } else {
+                        isPrime = true;
+                    }
+                }
+                if (isPrime) {
+                    System.out.println(i);
+                }
+            }
+        }
+//        System.out.println(new sendSMS().sendSmsSMSLane("1002", "7097919273", "CHANKY"));
     }
-}
+

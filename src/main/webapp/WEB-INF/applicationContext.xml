@@ -12,7 +12,7 @@
     </bean> -->
     <bean id="ds" class="com.mchange.v2.c3p0.ComboPooledDataSource"   destroy-method="close">
         <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
-        <property name="jdbcUrl" value="jdbc:sqlserver://localhost:1433;databaseName=ODM" />
+        <property name="jdbcUrl" value="jdbc:sqlserver://localhost:1433;databaseName=TEST_DB" />
         <property name="user" value="sa" />
         <property name="password" value="520759" />        
         <property name="checkoutTimeout" value="30000"/>

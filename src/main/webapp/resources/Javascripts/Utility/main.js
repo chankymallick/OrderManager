@@ -1,6 +1,7 @@
 var Language;
 var USER_DETAILS;
 var ChartUtilityObj;
+
 function SynchronousPostAjaxRequest(Url, Paramas, ProgressObject) {
     try {
         if (ProgressObject != null) {
@@ -223,4 +224,14 @@ function imageViewer(BillNo, Type) {
 
 function externalEvent(paramData) {
     ChartUtilityObj.updateTask(paramData);
+}
+
+function enlargeCharts(chartType) {  
+    if (chartType === 1) {
+        ChartUtilityObj.getOrderLocationChart("LARGE");
+    }
+    if (chartType === 2) {
+        ChartUtilityObj.getOrderStatusChart("LARGE");
+    }
+
 }

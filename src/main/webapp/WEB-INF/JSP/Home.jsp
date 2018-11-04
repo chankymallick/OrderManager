@@ -319,6 +319,9 @@
                 .taskupdatebutton {
                     margin-left: 90px;
                 }
+                .taskBACKUPbutton {
+                    margin-left: 53px;
+                }
 
                 .ORDER_SEARCH_KEY {
                     border-radius: 3px;
@@ -377,13 +380,18 @@
                     height: 100%;
                     padding: 3.5px;
                     display: block;
-                    color:white;
-                   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ff3019+0,cf0404+100;Red+3D */
-background: #ff3019; /* Old browsers */
-background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(top, #ff3019 0%,#cf0404 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to bottom, #ff3019 0%,#cf0404 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=0 ); /* IE6-9 */
+                    color: white;
+                    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ff3019+0,cf0404+100;Red+3D */
+                    background: #ff3019;
+                    /* Old browsers */
+                    background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+                    /* FF3.6-15 */
+                    background: -webkit-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+                    /* Chrome10-25,Safari5.1-6 */
+                    background: linear-gradient(to bottom, #ff3019 0%, #cf0404 100%);
+                    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404', GradientType=0);
+                    /* IE6-9 */
                 }
 
                 .ORDER_SEARCH_VALUE_GREEN {

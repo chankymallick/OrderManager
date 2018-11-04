@@ -51,7 +51,9 @@
 </head>
 <body>
     <div id="headerTab">       
-
+    <h1 class="sname">
+       Mallick Dresses Order Manager
+    </h1>
     </div>  
     <!--    <form action="j_spring_security_check" class="login" method="POST">
             <h1>Login</h1>    
@@ -63,7 +65,7 @@
         <h1></h1>-->
     <form action="LoginProcess" class="login" method="POST">
         <h1>Login</h1>
-        <input type="input" name="username" class="login-input" placeholder="Password">
+        <input type="input" name="username" class="login-input" placeholder="Username">
         <input type="password" name="password" class="login-input" placeholder="Password">
         <input type="submit" value="Login" class="login-submit">
         <p class="login-help"><a href="index.html">Forgot password?</a></p>
@@ -89,6 +91,9 @@
             </p>
         </c:if>
 
-    </form>    
+    </form>   
+
+    
+    
 </body>
 </html>

@@ -7,15 +7,20 @@ package com.ordermanager.utility;
 
 import com.ordermanager.backupmanager.BackUpSQLServer;
 import com.ordermanager.security.FileCryptoUtils;
+import java.awt.Color;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.transaction.TransactionDefinition;
@@ -401,7 +406,7 @@ public class UtilityDAO extends DAOHelper {
             String status = BackUpSQLServer.createBackUpFile(FilePath, FileName, DatabseName, this.getJdbcTemplate());
             stepResults.put("CREATING BACKUP FILE", status);
             this.generateSQLSuccessResponse(rsp, "BACK UP EVENT COMPLETED");
-            rsp.addResponseValue("STEPS", new JSONObject(stepResults));
+            rsp.addResponseValue("STEPS", new JSONObject(stepResults) + "<br> " + FilePath + FileName);
             return rsp.getJSONResponse();
         } catch (Exception e) {
             generateSQLExceptionResponse(rsp, e, "BACK UP FAILED");
@@ -413,14 +418,14 @@ public class UtilityDAO extends DAOHelper {
         ResponseJSONHandler response = new ResponseJSONHandler();
         TransactionDefinition txDef = new DefaultTransactionDefinition();
         TransactionStatus txStatus = this.getTransactionManager().getTransaction(txDef);
-        try {            
+        try {
             JSONObject paramData = new JSONObject(imageData);
             String Module = paramData.getString("MODULE");
             String ImageKey = paramData.getString("IMAGE_KEY");
             String Image = paramData.getString("IMAGE");
             String Note = paramData.getString("NOTE");
-            if(Module.equals("") || ImageKey.equals("") || Image.equals("")){
-            throw new Exception("Image data missing");
+            if (Module.equals("") || ImageKey.equals("") || Image.equals("")) {
+                throw new Exception("Image data missing");
             }
             int UID = getColumnAutoIncrementValue("IMAGE_STORE", "IMAGE_ID");
             int InsertStatus = getJdbcTemplate().update("INSERT INTO IMAGE_STORE (IMAGE_ID,MODULE_NAME,IMAGE_KEY,IMAGE,NOTE ) VALUES (?,?,?,?,?)  ", new Object[]{UID, Module, ImageKey, Image, Note});
@@ -472,6 +477,34 @@ public class UtilityDAO extends DAOHelper {
                 con.close();
             } catch (Exception e) {
             }
+        }
+    }
+
+    public boolean writeImageFile(String Image) {
+        try {
+            byte[] data = Base64.getDecoder().decode(Image);
+            try (OutputStream stream = new FileOutputStream("c:/abc.bmp")) {
+                stream.write(data);
+            }
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    public static String getColor(int num) {
+        String Colors[] = {"RED", "GREEN", "YELLOW", "BLUE", "GREY", "WHITE", "ORANGE", "PINK", "PURPLE"};
+        return Colors[num];
+    }
+    
+    public static void main(String ...s){
+       try {
+           String Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAADSCAMAAABThmYtAAAAXVB";
+            byte[] data = Base64.getDecoder().decode(Image);
+            try (OutputStream stream = new FileOutputStream("C:/MDOM/ABC.png")) {
+                stream.write(data);
+            }
+        } catch (Exception e) {
+            System.err.println(e);
         }
     }
 

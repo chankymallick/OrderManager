@@ -141,6 +141,14 @@ var com;
                         'target': document,
                         'propagate': true
                     });
+                    shortcut.add("F8", function () {
+                        _this.validateAndSaveFormData();
+                    }, {
+                        'type': 'keyup',
+                        'disable_in_input': false,
+                        'target': document,
+                        'propagate': true
+                    });
                 };
                 FormEntryManager.prototype.constructInnerLayoutforDataEntry = function () {
                     var _this = this;
