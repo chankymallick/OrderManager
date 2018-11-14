@@ -432,6 +432,7 @@
             <script src="<c:url value='/resources/Javascripts/Utility/ChartsUtility.js' />"></script>
             <script src="<c:url value='/resources/Javascripts/Home/OrderManagerHome.js' />"></script>
             <script src="<c:url value='/resources/Javascripts/Utility/BulkUpdate.js' />"></script>
+            <script src="<c:url value='/resources/Javascripts/Utility/DataExplorer.js' />"></script>
             <script src="<c:url value='/resources/Javascripts/Utility/OrderScheduler.js' />"></script>
             <script src="<c:url value='/resources/Javascripts/Utility/KeyNavigation.js' />"></script>
 

@@ -4,6 +4,7 @@
 /// <reference path="../Utility/ReportingUtility.ts"/>
 /// <reference path="../Utility/OrderScheduler.ts"/>
 /// <reference path="../Utility/ChartsUtility.ts"/>
+/// <reference path="../Utility/DataExplorer.ts"/>
 var com;
 (function (com) {
     var ordermanager;
@@ -41,6 +42,7 @@ var com;
                 CommandHandler.CODE_CANCEL_ORDER = "COD";
                 CommandHandler.CODE_REPORT_ORDER_SCHEDULER = "ROS";
                 CommandHandler.CODE_REPORT_DELIVERY_TRANSACTIONS = "RDT";
+                CommandHandler.CODE_VIEW_ALL_DATA = "VAD";
                 return CommandHandler;
             }());
             home.CommandHandler = CommandHandler;
@@ -92,6 +94,7 @@ var com;
                         { "label": "UBRD [Update Bulk Ready to Delivery]", "value": "UBRD" },
                         { "label": "UBS  [Update Bulk Single Assignment]", "value": "UBS" },
                         { "label": "UBMT [Update Bulk Master Tailor Assignment]", "value": "UBMT" },
+                        { "label": "VAD [View All Data]", "value": "VAD" },
                         { "label": "WPS  [Wage Payment System]", "value": "WPS" }
                     ];
                     $("#searchCode").autocomplete({
@@ -186,6 +189,9 @@ var com;
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                             _this.webcamImageManager();
+                        }
+                        else if (command.trim().toUpperCase() === CommandHandler.CODE_VIEW_ALL_DATA) {
+                            new com.ordermanager.utility.DataExplorer();
                         }
                         else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
                             _this.HomeLayoutObject.cells("a").collapse();

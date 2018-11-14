@@ -4,6 +4,7 @@
 /// <reference path="../Utility/ReportingUtility.ts"/>
 /// <reference path="../Utility/OrderScheduler.ts"/>
 /// <reference path="../Utility/ChartsUtility.ts"/>
+/// <reference path="../Utility/DataExplorer.ts"/>
 declare var Commands: any;
 declare var progressOffCustom: any;
 declare var dhtmlXLayoutObject;
@@ -44,6 +45,7 @@ module com.ordermanager.home {
         public static CODE_CANCEL_ORDER = "COD";
         public static CODE_REPORT_ORDER_SCHEDULER = "ROS";
         public static CODE_REPORT_DELIVERY_TRANSACTIONS = "RDT";
+        public static CODE_VIEW_ALL_DATA = "VAD";
     }
     export class OrderManagerHome {
         public static FORM_NEW_ITEM = "addNewItem";
@@ -110,6 +112,7 @@ module com.ordermanager.home {
                 { "label": "UBRD [Update Bulk Ready to Delivery]", "value": "UBRD" },
                 { "label": "UBS  [Update Bulk Single Assignment]", "value": "UBS" },
                 { "label": "UBMT [Update Bulk Master Tailor Assignment]", "value": "UBMT" },
+                { "label": "VAD [View All Data]", "value": "VAD" },
                 { "label": "WPS  [Wage Payment System]", "value": "WPS" }
             ];
             $("#searchCode").autocomplete({
@@ -221,6 +224,9 @@ module com.ordermanager.home {
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_UPLOAD) {
                     this.webcamImageManager();
+                }
+                else if (command.trim().toUpperCase() === CommandHandler.CODE_VIEW_ALL_DATA) {
+                    new com.ordermanager.utility.DataExplorer();
                 }
                 else if (command.trim().toUpperCase() === CommandHandler.CODE_REPORT_ORDER_SCHEDULER) {
                     this.HomeLayoutObject.cells("a").collapse();
