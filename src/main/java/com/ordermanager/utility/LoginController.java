@@ -1,6 +1,7 @@
 package com.ordermanager.utility;
 
 import com.ordermanager.security.SecurityModule;
+import static com.ordermanager.utility.PropertyFileReader.loadSQLQueries;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -157,6 +158,7 @@ public class LoginController {
             new PropertyFileReader().loadLanguageProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
             new PropertyFileReader().loadSelectItemProperties(request, servletContext, ConstantContainer.LANGUAGES.ENGLISH);
         }
+        //loadSQLQueries(request);
 
     }
 

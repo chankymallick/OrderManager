@@ -292,6 +292,9 @@ public class OrderController {
         if (chartName.equals("orderStatus")) {
             return new ModelAndView("MakeResponse", "responseValue", orderDAO.getChartDataOrderStatus(chartParams));
         }
+        if (chartName.equals("ordersUnderProcessing")) {
+            return new ModelAndView("MakeResponse", "responseValue", orderDAO.getChartDataOrdersUnderProcessing(chartParams));
+        }
         if (chartName.equals("locationStatus")) {
             return new ModelAndView("MakeResponse", "responseValue", orderDAO.getChartDataLocationStatus(chartParams));
         }

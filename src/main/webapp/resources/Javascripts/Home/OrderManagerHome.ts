@@ -55,16 +55,19 @@ module com.ordermanager.home {
         public static FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
         public static FORM_ADD_NEW_LOCATION = "addNewLocation";
         public static FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+        public static REPORT_DAILY_ADVANCE = "advanceReport";
+        public static UPDATE_NEW_ORDER = "updateNewOrder";
+        public static UPDATE_ADVANCE = "addadvance";
+
+
+
         public static FORM_ADD_NEW_ACCOUNT = "addNewAccount";
         public static FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
         public static FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
-        public static FORM_ADD_NEW_TASK = "addNewTask";
-        public static REPORT_DAILY_ADVANCE = "advanceReport";
+        public static FORM_ADD_NEW_TASK = "addNewTask";       
         public static REPORT_ORDER_SCHEDULER = "orderScheduler";
-        public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
-        public static UPDATE_NEW_ORDER = "updateNewOrder";
-        public static UPDATE_ITEM = "updateItem";
-        public static UPDATE_ADVANCE = "addadvance";
+        public static REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";       
+        public static UPDATE_ITEM = "updateItem";       
         public static UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
         public static UPDATE_LABOUR_WAGE = "updateLabourWage";
         public static UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";
@@ -273,7 +276,7 @@ module com.ordermanager.home {
             this.HomeLayoutObject.progressOn();
             this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
             this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
-            this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
+            this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Order Manager 1.0</span>");
             this.HomeToolbar.addButton("search", 2, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
             this.HomeToolbar.addInput("searchinput", 3, "", 50);
             this.HomeToolbar.addButtonTwoState("dbState", 4, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
@@ -430,6 +433,9 @@ module com.ordermanager.home {
             this.MenuGrid.attachEvent("onRowSelect", (id, ind) => {
                 if (id === "AddNewItem") {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
+                }
+                if (id === "addNewStatusType") {
+                    this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
                 }
                 if (id === "addnewuser") {
                     this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);

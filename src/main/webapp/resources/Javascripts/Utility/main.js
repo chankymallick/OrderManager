@@ -233,5 +233,7 @@ function enlargeCharts(chartType) {
     if (chartType === 2) {
         ChartUtilityObj.getOrderStatusChart("LARGE");
     }
-
+    if (chartType === 3) {
+        ChartUtilityObj.getOrderUnderProcessing("LARGE");
+    }
 }

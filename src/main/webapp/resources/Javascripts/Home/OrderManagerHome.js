@@ -234,7 +234,7 @@ var com;
                     this.HomeLayoutObject.progressOn();
                     this.HomeLayoutObject.cells("a").setText(Language.menu + "<span>&nbsp;&nbsp;<input type='text' id='searchCode' placeholder='Shortcut Command'/></span>");
                     this.HomeToolbar = this.HomeLayoutObject.attachToolbar();
-                    this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Mallick Dresses Order Manager 1.0</span>");
+                    this.HomeToolbar.addText("appname", 1, "<span style='font-weight:bold'>Order Manager 1.0</span>");
                     this.HomeToolbar.addButton("search", 2, "BILL ENQUIRY", "resources/Images/search2.png", "resources/Images/search2.png");
                     this.HomeToolbar.addInput("searchinput", 3, "", 50);
                     this.HomeToolbar.addButtonTwoState("dbState", 4, "Getting connectivity status ..", "resources/Images/connected.png", "resources/Images/not_connected.png");
@@ -386,6 +386,9 @@ var com;
                         if (id === "AddNewItem") {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_ITEM, 200);
                         }
+                        if (id === "addNewStatusType") {
+                            _this.menuActionIntializer(OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE, 220);
+                        }
                         if (id === "addnewuser") {
                             _this.menuActionIntializer(OrderManagerHome.FORM_NEW_USER, 200);
                         }
@@ -425,16 +428,16 @@ var com;
                 OrderManagerHome.FORM_ADD_NEW_STATUS_TYPE = "addNewStatusType";
                 OrderManagerHome.FORM_ADD_NEW_LOCATION = "addNewLocation";
                 OrderManagerHome.FORM_ADD_NEW_EMPLOYEE = "addNewEmployee";
+                OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
+                OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
+                OrderManagerHome.UPDATE_ADVANCE = "addadvance";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT = "addNewAccount";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT_SUBTYPE = "addNewAccountSubType";
                 OrderManagerHome.FORM_ADD_NEW_ACCOUNT_TRANSACTION = "addNewAccountTransaction";
                 OrderManagerHome.FORM_ADD_NEW_TASK = "addNewTask";
-                OrderManagerHome.REPORT_DAILY_ADVANCE = "advanceReport";
                 OrderManagerHome.REPORT_ORDER_SCHEDULER = "orderScheduler";
                 OrderManagerHome.REPORT_DELIVERY_TRANSACTIONS = "deliveryTransactionsReport";
-                OrderManagerHome.UPDATE_NEW_ORDER = "updateNewOrder";
                 OrderManagerHome.UPDATE_ITEM = "updateItem";
-                OrderManagerHome.UPDATE_ADVANCE = "addadvance";
                 OrderManagerHome.UPDATE_DELIVERY_COMPLETED_TRANSACTION = "updateDeliveryCompleted";
                 OrderManagerHome.UPDATE_LABOUR_WAGE = "updateLabourWage";
                 OrderManagerHome.UPDATE_BULK_CHANGE_ASSIGNMENT = "assignmentStatusChange";

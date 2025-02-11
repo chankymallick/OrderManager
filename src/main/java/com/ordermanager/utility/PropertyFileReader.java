@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -21,8 +22,17 @@ import org.json.JSONObject;
  */
 public class PropertyFileReader extends DAOHelper {
 
-    public static String queryReader(String QueryName) {
-        return "";
+
+    public static String queryReader(String key) {       
+        try {
+            System.out.println("<<<<<<<<<< Query Fetching : " + key + "  >>>>>>>>>>>>");
+            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Database/SQL_Server.properties");
+            Properties LanguageProperties = new Properties();
+            LanguageProperties.load(new FileInputStream(rootDir.getAbsolutePath()));
+            return LanguageProperties.getProperty(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String getTranslation(String key, String Default, Map<String, String> langaugeMap) {
@@ -74,18 +84,34 @@ public class PropertyFileReader extends DAOHelper {
             return LanguageProperties.getProperty(Key);
         } catch (Exception e) {
             return null;
-        }        
+        }
     }
+
+    public static void loadSQLQueries(HttpServletRequest request) {
+        try {
+            Map<String, String> QueryMap = new HashMap();
+            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Database/SQL_Server.properties");
+            Properties SQLQueries = new Properties();
+            SQLQueries.load(new FileInputStream(rootDir.getAbsolutePath()));
+            for (Object key : SQLQueries.keySet()) {
+                QueryMap.put((String) key, SQLQueries.getProperty((String) key));
+            }
+            request.getSession(false).setAttribute("QueyMap", QueryMap);
+        } catch (Exception e) {
+
+        }
+
+    }
+
     public static String readSQLQueryFromFile(String Key) {
         try {
-            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Properties/SQL_Server.properties");
+            File rootDir = new File(ConstantContainer.WEB_INF_PATH + "/Database/SQL_Server.properties");
             Properties LanguageProperties = new Properties();
             LanguageProperties.load(new FileInputStream(rootDir.getAbsolutePath()));
-            System.out.println(LanguageProperties.getProperty(Key));
             return LanguageProperties.getProperty(Key);
         } catch (Exception e) {
             return null;
-        }        
+        }
     }
 
     public void loadSelectItemProperties(HttpServletRequest request, ServletContext servletContext, ConstantContainer.LANGUAGES LanguangeName) {
@@ -133,17 +159,18 @@ public class PropertyFileReader extends DAOHelper {
     public String loadLanguagePropertiesForClient(HttpServletRequest request) {
         ResponseJSONHandler rsp = new ResponseJSONHandler();
         try {
-            Map<String, String> languageMap = ( Map<String, String>) request.getSession(false).getAttribute("Language");
-            Map<String, String> USER_DETAILS = ( Map<String, String>) request.getSession(false).getAttribute("USER_DETAILS");
+            Map<String, String> languageMap = (Map<String, String>) request.getSession(false).getAttribute("Language");
+            Map<String, String> USER_DETAILS = (Map<String, String>) request.getSession(false).getAttribute("USER_DETAILS");
             JSONObject obj = new JSONObject(languageMap);
             JSONObject obj2 = new JSONObject(USER_DETAILS);
             generateSQLSuccessResponse(rsp, "Language pack Recieved");
             rsp.addResponseValue("LANGUAGE_PACK", obj);
-            rsp.addResponseValue("USER_DETAILS",obj2);
+            rsp.addResponseValue("USER_DETAILS", obj2);
             return rsp.getJSONResponse();
         } catch (Exception e) {
             generateSQLExceptionResponse(rsp, e, "Exception Loading Language Properties");
             return rsp.getJSONResponse();
         }
     }
+
 }

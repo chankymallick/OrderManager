@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="/WEB-INF/CustomTags.tld" prefix="mytags" %>  
 <%@page contentType="text/xml" pageEncoding="UTF-8"%>
-<c:if test="${Type.equals('ordersandbills')}">
+<c:if test="${Type.equals('ordersandbills')}"> 
     <rows>
         <row id="addneworder">
             <cell><![CDATA[<img src="resources/Images/new_order.png" width="30px" height="30px"/>]]></cell>
@@ -31,7 +31,7 @@
             <cell><![CDATA[<img src="resources/Images/search2.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="searchorder"/></b>]]></cell>  
         </row>
-        <row id="7">
+        <row id="addNewStatusType">
             <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addstatus"/></b>]]></cell>  
         </row>
@@ -55,6 +55,18 @@
             <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
             <cell><![CDATA[<b><mytags:getTranslation key="addNewLocation"/></b>]]></cell>  
         </row>
+        <!--New Menu-->
+
+        <row id="addNewLocation">
+            <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addNewLocation"/></b>]]></cell>  
+        </row>
+        <row id="addNewLocation">
+            <cell><![CDATA[<img src="resources/Images/status.png" width="30px" height="30px"/>]]></cell>
+            <cell><![CDATA[<b><mytags:getTranslation key="addNewLocation"/></b>]]></cell>  
+        </row>
+
+        <!--New Menu-->
     </rows>
 </c:if>
 <c:if test="${Type.equals('mastertailor')}">
@@ -785,6 +797,43 @@
     </c:forEach>
 </rows>
 </c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('CHART_ORDER_LIST_IN_PROCESS_EMPLOYEE_DETAILS')}">
+    <rows>
+        <head>            
+        <column width="90" type="ro" align="center" color="white" sort="int">SR NO</column>       
+        <column width="120" type="ro" align="center" color="white" sort="int">BILL NO</column>       
+        <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>   
+        <column width="200" type="ro" align="center" color="white" sort="str">ASSIGNMENT DATE</column>
+        <column width="170" type="ro" align="center" color="white" sort="str">DELIVERY DATE</column>    
+        <column width="60" type="ro" align="center" color="white" sort="int">QTY</column>    
+        <column width="150" type="ro" align="center" color="white" sort="str">CURRENT STATUS</column>       
+        <column width="160" type="ro" align="center" color="white" sort="str">TYPE</column>    
+        <column width="160" type="ro" align="center" color="white" sort="str">PAYMENT DATE</column>         
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter</param>                      
+            </call> 
+        </afterInit>     
+    </head> 
+
+    <c:set var="ID" value="${0}"/>
+    <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+        <row id="${ID+1}">
+            <cell><![CDATA[<b>${ID+1}</b>]]></cell>
+                <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                <!--<cell><![CDATA[<b>${DATA_OBJECT.get(COLUMN_NAME)}</b>]]></cell>-->
+                <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                </c:forEach>
+        </row>     
+        <c:set var="ID" value="${ID+1}"/>   
+    </c:forEach>
+</rows>
+</c:if>
 <c:if test="${OBJECT_MAP.get('Type').equals('advanceReport')}">
     <rows>
         <head>            
@@ -1057,6 +1106,64 @@
             </row>  
         </c:if>
         <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
+        <c:choose>            
+            <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER') || LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('DELIVERY_COMPLETED')}">
+                <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
+                </c:when>
+                <c:otherwise>
+                    <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
+                    </c:otherwise>
+                </c:choose>  
+                <cell>${ID+1}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
+                <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>        
+            </row>
+            <c:set var="ID" value="${ID+1}"/>   
+        </c:forEach>
+</rows>
+</c:if>
+<c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionUnpaid')}">
+    <rows>
+        <head>            
+        <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
+        <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
+        <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
+        <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
+        <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
+        <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
+        <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
+        <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
+        <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
+        <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
+        <column width="100" type="ro" align="center" color="white" sort="str">REMOVE</column> 
+        <beforeInit> 
+            <call command="setImagePath"> 
+                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+            </call>             
+        </beforeInit> 
+        <afterInit>  
+            <call command="attachHeader">
+                <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>
+            </call> 
+        </afterInit>     
+    </head> 
+    <c:set var="ID" value="${0}"/>    
+    <c:set var="DATE" value=""/>
+    <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
+        <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
+            <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
+                <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
+            </row>  
+        </c:if>
+        <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
         <c:choose>
             <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
                 <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
@@ -1078,13 +1185,13 @@
                     <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
                     <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
                     <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
-                    <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>        
+                    <cell><![CDATA[ <img height='20px' width='20px' src='resources/Images/cancel_order.png'/> ]]></cell>        
                 </row>
                 <c:set var="ID" value="${ID+1}"/>   
             </c:forEach>
             </rows>
         </c:if>
-        <c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionUnpaid')}">
+        <c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionPaid')}">
             <rows>
                 <head>            
                 <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
@@ -1097,16 +1204,13 @@
                 <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
                 <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
                 <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
-                <column width="100" type="ro" align="center" color="white" sort="str">REMOVE</column> 
+
                 <beforeInit> 
                     <call command="setImagePath"> 
                         <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
                     </call>             
                 </beforeInit> 
-                <afterInit>  
-                    <call command="attachHeader">
-                        <param>#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search,#text_search</param>
-                    </call> 
+                <afterInit>             
                 </afterInit>     
                 </head> 
                 <c:set var="ID" value="${0}"/>    
@@ -1138,149 +1242,191 @@
                                 <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
                                 <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
                                 <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
-                                <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>     
-                                <cell><![CDATA[ <img height='20px' width='20px' src='resources/Images/cancel_order.png'/> ]]></cell>        
+                                <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>
                             </row>
                             <c:set var="ID" value="${ID+1}"/>   
                         </c:forEach>
                         </rows>
                     </c:if>
-                    <c:if test="${OBJECT_MAP.get('Type').equals('DayWiseProductionPaid')}">
+
+
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreORDERS')}">
                         <rows>
                             <head>            
-                            <column width="30" type="ro" align="center" color="white" sort="int">NO</column>       
-                            <column width="50" type="ro" align="center" color="white" sort="str">BILL</column>        
-                            <column width="200" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>            
-                            <column width="150" type="ro" align="center" color="white" sort="str">LOCATION</column>    
-                            <column width="50" type="ro" align="center" color="white" sort="int">WAGE</column>    
-                            <column width="100" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
-                            <column width="100" type="ro" align="center" color="white" sort="str">ITEMS</column>    
-                            <column width="35" type="ro" align="center" color="white" sort="int">QTY</column>    
-                            <column width="100" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
-                            <column width="70" type="ro" align="center" color="white" sort="str"> VENDOR</column>
+                            <column width="40" type="ro" align="center" color="white" sort="str">ID</column>       
+                            <column width="140" type="ro" align="center" color="white" sort="str">SHOP NAME</column>   
+                            <column width="80" type="ro" align="center" color="white" sort="str">BILL NO</column>     
+                            <column width="100" type="ro" align="center" color="white" sort="str">ORDER</column>     
+                            <column width="100" type="ro" align="center" color="white" sort="str">DELIVERY</column>    
+                            <column width="180" type="ro" align="center" color="white" sort="str">CUSTOMER NAME</column>    
+                            <column width="140" type="ro" align="center" color="white" sort="str">CONTACT</column>    
+                            <column width="100" type="ro" align="center" color="white" sort="str">VENDOR</column>    
+                            <column width="130" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
+                            <column width="180" type="ro" align="center" color="white" sort="str">PRODUCT TYPE</column>    
+                            <column width="70" type="ro" align="center" color="white" sort="str">QUANTITY</column>    
+                            <column width="80" type="ro" align="center" color="white" sort="str">PRICE</column>
+                            <column width="70" type="ro" align="center" color="white" sort="str">DISCOUNT</column>
+                            <column width="150" type="ro" align="center" color="white" sort="str">MEASURE</column>
+                            <column width="200" type="ro" align="center" color="white" sort="str">CURRENT STATUS</column>
+                            <column width="100" type="ch" align="center" color="white" sort="str">CUSTOM RATE</column>
+                            <column width="60" type="ro" align="center" color="white" sort="str">M_RATE</column>
+                            <column width="60" type="ro" align="center" color="white" sort="str">T_RATE</column>
+                            <column width="180" type="ro" align="center" color="white" sort="str">NOTE</column>
+                            <beforeInit> 
+                                <call command="setImagePath"> 
+                                    <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                                </call>             
+                            </beforeInit> 
+                            <afterInit>  
+                                <call command="attachHeader">
+                                    <param>#text_search,#select_filter,#text_search,#select_filter,#select_filter,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#select_filter,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#text_search,#text_search,#text_search</param>                      
+                                </call> 
+                            </afterInit>     
+                            </head> 
+
+                            <c:set var="ID" value="${0}"/>
+                            <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+                                <row id="${ID+1}">
+                                    <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                                        </c:forEach>
+                                </row>     
+                                <c:set var="ID" value="${ID+1}"/>   
+                            </c:forEach>
+                        </rows>
+                    </c:if>
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreAUDIT')}">
+                        <rows>
+                            <head>            
+                            <column width="100" type="ro" align="center" color="white" sort="str">ID</column>       
+                            <column width="200" type="ro" align="center" color="white" sort="str">AUDIT TYPE</column>   
+                            <column width="200" type="ro" align="center" color="white" sort="str">MODULE</column>     
+                            <column width="100" type="ro" align="center" color="white" sort="str"> DATE</column>     
+                            <column width="100" type="ro" align="center" color="white" sort="str"> TIME</column>     
+                            <column width="150" type="ro" align="center" color="white" sort="str">USER</column>    
+                            <column width="100" type="ro" align="center" color="white" sort="str">REFER KEY</column>    
+                            <column width="200" type="ro" align="center" color="white" sort="str">HISTORY</column>    
+                            <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>           
+                            <beforeInit> 
+                                <call command="setImagePath"> 
+                                    <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                                </call>             
+                            </beforeInit> 
+                            <afterInit>  
+                                <call command="attachHeader">
+                                    <param>#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_filter,#text_filter</param>                      
+                                </call> 
+                            </afterInit>     
+                            </head> 
+
+                            <c:set var="ID" value="${0}"/>
+                            <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+                                <row id="${ID+1}">
+                                    <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                                        </c:forEach>
+                                </row>     
+                                <c:set var="ID" value="${ID+1}"/>   
+                            </c:forEach>
+                        </rows>
+                    </c:if>
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreORDER_ASSIGNMENTS')}">
+                        <rows>
+                            <head>            
+                            <column width="80" type="ro" align="center" color="white" sort="str">ID</column>       
+                            <column width="150" type="ro" align="center" color="white" sort="str">BILL NO</column>   
+                            <column width="180" type="ro" align="center" color="white" sort="str">DATE</column>     
+                            <column width="200" type="ro" align="center" color="white" sort="str">TYPE</column>     
+                            <column width="150" type="ro" align="center" color="white" sort="str">NAME</column>     
+                            <column width="100" type="ro" align="center" color="white" sort="str">WAGE</column>    
+                            <column width="150" type="ro" align="center" color="white" sort="str">WAGE STATUS</column>    
+                            <column width="150" type="ro" align="center" color="white" sort="str">PAYMENT DATE</column>    
+                            <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>           
+                            <beforeInit> 
+                                <call command="setImagePath"> 
+                                    <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                                </call>             
+                            </beforeInit> 
+                            <afterInit>  
+                                <call command="attachHeader">
+                                    <param>#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_filter,#text_filter</param>                      
+                                </call> 
+                            </afterInit>     
+                            </head> 
+
+                            <c:set var="ID" value="${0}"/>
+                            <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+                                <row id="${ID+1}">
+                                    <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                                        </c:forEach>
+                                </row>     
+                                <c:set var="ID" value="${ID+1}"/>   
+                            </c:forEach>
+                        </rows>
+                    </c:if>
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreORDER_MOBILITY')}">
+                        <rows>
+                            <head>            
+                            <column width="80" type="ro" align="center" color="white" sort="str">ID</column>       
+                            <column width="100" type="ro" align="center" color="white" sort="str">BILL NO</column>   
+                            <column width="100" type="ro" align="center" color="white" sort="str">DATE</column>     
+                            <column width="270" type="ro" align="center" color="white" sort="str">MAIN STATUS</column>     
+                            <column width="200" type="ro" align="center" color="white" sort="str">SUB STATUS</column>     
+                            <column width="230" type="ro" align="center" color="white" sort="str">CURRENT LOCATION</column>    
+                            <column width="300" type="ro" align="center" color="white" sort="str">NOTE</column>                              
+                            <beforeInit> 
+                                <call command="setImagePath"> 
+                                    <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
+                                </call>             
+                            </beforeInit> 
+                            <afterInit>  
+                                <call command="attachHeader">
+                                    <param>#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_filter,#text_filter</param>                      
+                                </call> 
+                            </afterInit>     
+                            </head> 
+
+                            <c:set var="ID" value="${0}"/>
+                            <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+                                <row id="${ID+1}">
+                                    <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
+                                        </c:forEach>
+                                </row>     
+                                <c:set var="ID" value="${ID+1}"/>   
+                            </c:forEach>
+                        </rows>
+                    </c:if>
+                    <c:if test="${OBJECT_MAP.get('Type').equals('DataExplorePAYMENT_TRANSACTIONS')}">
+                        <rows>
+                            <head>            
+                            <column width="80" type="ro" align="center" color="white" sort="str">ID</column>       
+                            <column width="100" type="ro" align="center" color="white" sort="str">BILL NO</column>   
+                            <column width="250" type="ro" align="center" color="white" sort="str">TYPE</column>     
+                            <column width="150" type="ro" align="center" color="white" sort="int">AMOUNT</column>     
+                            <column width="200" type="ro" align="center" color="white" sort="str">DATE</column>     
 
                             <beforeInit> 
                                 <call command="setImagePath"> 
                                     <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
                                 </call>             
                             </beforeInit> 
-                            <afterInit>             
+                            <afterInit>  
+                                <call command="attachHeader">
+                                    <param>#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_filter,#text_filter</param>                      
+                                </call> 
                             </afterInit>     
                             </head> 
-                            <c:set var="ID" value="${0}"/>    
-                            <c:set var="DATE" value=""/>
-                            <c:forEach items="${OBJECT_MAP.get('DATA')}" var="LIST_OF_ALL_BII_OBJECT">  
-                                <c:if test="${!DATE.equals(LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')) || DATE.equals('')}">   
-                                    <row id="${ID*1000}" style="font-weight: bold;background-color:#06b;color:white;font-size: 20px;text-align: left;">            
-                                        <cell colspan='11'><![CDATA[ ${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}]]> - ${LIST_OF_ALL_BII_OBJECT.get('WEEKDAY')}</cell> 
-                                    </row>  
-                                </c:if>
-                                <c:set var="DATE" value="${LIST_OF_ALL_BII_OBJECT.get('ASSIGNMENT_DATE')}"/>   
-                                <c:choose>
-                                    <c:when test="${!LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                                        <row id="${ID+1}" style='font-weight: bold; background-color:#ffa35e;'>    
-                                        </c:when>
-                                        <c:when test="${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS').equals('READY_TO_DELIVER')}">
-                                            <row id="${ID+1}" style='font-weight: bold; background-color: palegreen;'>    
-                                            </c:when>
-                                            <c:otherwise>
-                                                <row id="${ID+1}">    
-                                                </c:otherwise>
-                                            </c:choose>  
-                                            <cell>${ID+1}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('BILL_NO')}</cell>                     
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('MAIN_STATUS')}</cell> 
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('LOCATION')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_AMOUNT')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('WAGE_STATUS')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('ITEMS')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('QUANTITY')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('ORDER_TYPE')}</cell>        
-                                            <cell>${LIST_OF_ALL_BII_OBJECT.get('PIECE_VENDOR')}</cell>
-                                        </row>
-                                        <c:set var="ID" value="${ID+1}"/>   
-                                    </c:forEach>
-                                    </rows>
-                                </c:if>
 
-
-                                <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreORDERS')}">
-                                    <rows>
-                                        <head>            
-                                        <column width="40" type="ro" align="center" color="white" sort="str">ID</column>       
-                                        <column width="140" type="ro" align="center" color="white" sort="str">SHOP NAME</column>   
-                                        <column width="80" type="ro" align="center" color="white" sort="str">BILL NO</column>     
-                                        <column width="100" type="ro" align="center" color="white" sort="str">ORDER</column>     
-                                        <column width="100" type="ro" align="center" color="white" sort="str">DELIVERY</column>    
-                                        <column width="180" type="ro" align="center" color="white" sort="str">CUSTOMER NAME</column>    
-                                        <column width="140" type="ro" align="center" color="white" sort="str">CONTACT</column>    
-                                        <column width="100" type="ro" align="center" color="white" sort="str">VENDOR</column>    
-                                        <column width="130" type="ro" align="center" color="white" sort="str">ORDER TYPE</column>    
-                                        <column width="180" type="ro" align="center" color="white" sort="str">PRODUCT TYPE</column>    
-                                        <column width="70" type="ro" align="center" color="white" sort="str">QUANTITY</column>    
-                                        <column width="80" type="ro" align="center" color="white" sort="str">PRICE</column>
-                                        <column width="70" type="ro" align="center" color="white" sort="str">DISCOUNT</column>
-                                        <column width="150" type="ro" align="center" color="white" sort="str">MEASURE</column>
-                                        <column width="200" type="ro" align="center" color="white" sort="str">CURRENT STATUS</column>
-                                        <column width="100" type="ch" align="center" color="white" sort="str">CUSTOM RATE</column>
-                                        <column width="60" type="ro" align="center" color="white" sort="str">M_RATE</column>
-                                        <column width="60" type="ro" align="center" color="white" sort="str">T_RATE</column>
-                                        <column width="180" type="ro" align="center" color="white" sort="str">NOTE</column>
-                                        <beforeInit> 
-                                            <call command="setImagePath"> 
-                                                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
-                                            </call>             
-                                        </beforeInit> 
-                                        <afterInit>  
-                                            <call command="attachHeader">
-                                                <param>#text_search,#select_filter,#text_search,#select_filter,#select_filter,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#select_filter,#text_search,#text_search,#select_filter,#select_filter,#select_filter,#text_search,#text_search,#text_search</param>                      
-                                            </call> 
-                                        </afterInit>     
-                                        </head> 
-
-                                        <c:set var="ID" value="${0}"/>
-                                        <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
-                                            <row id="${ID+1}">
-                                                <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                                                    <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-                                                    </c:forEach>
-                                            </row>     
-                                            <c:set var="ID" value="${ID+1}"/>   
+                            <c:set var="ID" value="${0}"/>
+                            <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
+                                <row id="${ID+1}">
+                                    <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
+                                        <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
                                         </c:forEach>
-                                    </rows>
-                                </c:if>
-                                <c:if test="${OBJECT_MAP.get('Type').equals('DataExploreAUDIT')}">
-                                    <rows>
-                                        <head>            
-                                        <column width="100" type="ro" align="center" color="white" sort="str">ID</column>       
-                                        <column width="200" type="ro" align="center" color="white" sort="str">AUDIT TYPE</column>   
-                                        <column width="200" type="ro" align="center" color="white" sort="str">MODULE</column>     
-                                        <column width="100" type="ro" align="center" color="white" sort="str"> DATE</column>     
-                                        <column width="100" type="ro" align="center" color="white" sort="str"> TIME</column>     
-                                        <column width="150" type="ro" align="center" color="white" sort="str">USER</column>    
-                                        <column width="100" type="ro" align="center" color="white" sort="str">REFER KEY</column>    
-                                        <column width="200" type="ro" align="center" color="white" sort="str">HISTORY</column>    
-                                        <column width="150" type="ro" align="center" color="white" sort="str">NOTE</column>           
-                                        <beforeInit> 
-                                            <call command="setImagePath"> 
-                                                <param>resources/Javascripts/Dhtmlx/codebase/imgs/</param> 
-                                            </call>             
-                                        </beforeInit> 
-                                        <afterInit>  
-                                            <call command="attachHeader">
-                                                <param>#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#select_filter,#text_filter,#text_filter</param>                      
-                                            </call> 
-                                        </afterInit>     
-                                        </head> 
-
-                                        <c:set var="ID" value="${0}"/>
-                                        <c:forEach items="${OBJECT_MAP.get('ALL_ROWS_LIST')}" var="DATA_OBJECT">
-                                            <row id="${ID+1}">
-                                                <c:forEach items="${OBJECT_MAP.get('COLUMN_NAME_LIST')}" var="COLUMN_NAME">
-                                                    <cell>${DATA_OBJECT.get(COLUMN_NAME)}</cell>
-                                                    </c:forEach>
-                                            </row>     
-                                            <c:set var="ID" value="${ID+1}"/>   
-                                        </c:forEach>
-                                    </rows>
-                                </c:if>
+                                </row>     
+                                <c:set var="ID" value="${ID+1}"/>   
+                            </c:forEach>
+                        </rows>
+                    </c:if>

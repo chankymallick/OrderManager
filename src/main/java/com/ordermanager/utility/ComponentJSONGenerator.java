@@ -213,6 +213,10 @@ public class ComponentJSONGenerator {
     public ModelAndView assignmentStatusChange() {
         return new ModelAndView("LoadJSON", "FormType", "assignmentStatusChange_QueryForm");
     }
+    @RequestMapping("/getDataExplorerForm")
+    public ModelAndView dataExplorer() {
+        return new ModelAndView("LoadJSON", "FormType", "DATA_EXPLORER");
+    }
 
     @RequestMapping("/updateNewOrder_Form")
     public ModelAndView updateOrderForm(@RequestParam("ParamJson") JSONObject paramJson) {

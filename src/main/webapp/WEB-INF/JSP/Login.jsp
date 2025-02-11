@@ -52,7 +52,7 @@
 <body>
     <div id="headerTab">       
     <h1 class="sname">
-       Mallick Dresses Order Manager
+      Order Manager 1.0
     </h1>
     </div>  
     <!--    <form action="j_spring_security_check" class="login" method="POST">

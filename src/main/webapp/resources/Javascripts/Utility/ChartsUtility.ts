@@ -25,30 +25,20 @@ module com.ordermanager.utility {
                         id: "a1",
                         text: "Order Dashboard &nbsp;",
                         active: true
-                    },
-                    {
-                        id: "a2",
-                        text: "Sales Dashboard &nbsp;",
-                        active: false
-                    },
-                    {
-                        id: "a3",
-                        text: "Admin Dashboard &nbsp;",
-                        active: false
                     }
                 ]
             });
             this.ChartLayout = this.TabbarObject.cells("a1").attachLayout({
-                pattern: "5I",
+                pattern: "4U",
                 cells: [
-                    { id: "a", text: "a", header: false, height: 30 },
-                    { id: "b", text: "Order Status <a href='#' onClick='enlargeCharts(2)'>Large</a>", header: true, height: 240 },
-                    { id: "c", text: "Order Location <a href='#' onClick='enlargeCharts(1)'>Large</a>", header: true },
-                    { id: "d", text: "", header: false },
-                    { id: "e", text: "e", header: false }
+                  
+                    { id: "a", text: "Order Status <a href='#' onClick='enlargeCharts(2)'>Large</a>", header: true, height: 240 },
+                    { id: "b", text: "Order Location <a href='#' onClick='enlargeCharts(1)'>Large</a>", header: true },
+                    { id: "c", text: "In Process <a href='#' onClick='enlargeCharts(3)'>Large</a>", header: true },
+                    { id: "d", text: "e", header: false }
                 ]
             });
-            this.ChartSublayout = this.ChartLayout.cells("e").attachLayout({
+            this.ChartSublayout = this.ChartLayout.cells("d").attachLayout({
                 pattern: "2U",
                 cells: [
                     { id: "a", text: "a", header: false },
@@ -60,18 +50,18 @@ module com.ordermanager.utility {
             this.ChatParams = { 'DAYS': '100' };
             this.getOrderStatusChart("SMALL");
             this.getOrderLocationChart("SMALL");
+            this.getOrderUnderProcessing("SMALL");
             //this.getOrderPieChart();
             this.getBarChart();
             this.taskList();
         }
-        public getOrderStatusChart(size) {
-            var data = [{ "color": "orange", "CURRENT_STATUS": "IN_PROCESS", "ID": "1", "STOCK": "23" }, { "color": "red", "CURRENT_STATUS": "NEW_ORDER", "ID": "2", "STOCK": "73" }, { "color": "green", "CURRENT_STATUS": "READY_TO_DELIVER", "ID": "3", "STOCK": "22" }];
+        public getOrderStatusChart(size) {           
             var Container;
             var CircleMargin;
             var width;
             var legendTextSize = "12px";
             if (size === "SMALL") {
-                Container = this.ChartLayout.cells("b");
+                Container = this.ChartLayout.cells("a");
                 CircleMargin = 230;
                 width = 70;
             }
@@ -114,7 +104,7 @@ module com.ordermanager.utility {
             var width;
             var legendTextSize = "12px";
             if (size === "SMALL") {
-                Container = this.ChartLayout.cells("c");
+                Container = this.ChartLayout.cells("b");
                 CircleMargin = 230;
                 width = 70;
             }
@@ -152,6 +142,53 @@ module com.ordermanager.utility {
             myPieChart.load("getChartData?chartName=locationStatus&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
             myPieChart.attachEvent("onItemclick", (id, ev, trg) => {
                 this.OrderListViewer("ORDER_LOCATION", myPieChart.get(id).CURRENT_LOCATION);
+            });
+        }
+
+        public getOrderUnderProcessing(size) {
+            var Container;
+            var CircleMargin;
+            var width;
+            var legendTextSize = "12px";
+            if (size === "SMALL") {
+                Container = this.ChartLayout.cells("c");
+                CircleMargin = 230;
+                width = 70;
+            }
+            else {
+                Container = com.ordermanager.utilty.MainUtility.getModelWindow("Order Under Process", 800, 550);
+                CircleMargin = 435;
+                width = 100;
+                legendTextSize = "16px";
+            }
+
+            var config = {
+                view: "donut",
+                value: "#TOTAL#",
+
+                x: CircleMargin,
+                color: "#COLOR#",
+                tooltip: "<b>#EMPLOYEE_NAME#:#TOTAL#</b>",
+                legend: {
+                    width: width,
+                    align: "center",
+                    valign: "middle",
+                    template: "<b style='font-size:" + legendTextSize + ";'>#EMPLOYEE_NAME#</b>"
+                },
+                gradient: 1,
+                shadow: true,
+                pieInnerText: "<b>#TOTAL#</b>",
+                marker: {
+                    type: "round",
+                    width: 15
+                }
+            }
+
+
+            var myPieChart = Container.attachChart(config);
+            myPieChart.load("getChartData?chartName=ordersUnderProcessing&chartParams=" + encodeURI(JSON.stringify(this.ChatParams)), "json");
+            myPieChart.attachEvent("onItemclick", (id, ev, trg) => {
+                this.OrderListViewer("ORDER_IN_PROCESS", myPieChart.get(id).EMPLOYEE_NAME);
             });
         }
         public getOrderPieChart() {

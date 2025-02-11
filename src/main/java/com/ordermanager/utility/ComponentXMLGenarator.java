@@ -109,9 +109,9 @@ public class ComponentXMLGenarator {
     @RequestMapping("/getDataExplorer")
     public ModelAndView getDataExplorer(@RequestParam("modulename") String Module, @RequestParam("keyname") String KeyName) {
         Map<String, Object> mvc = new HashMap<String, Object>();
-        List temp=null;
+        List temp = null;
         if (Module.equalsIgnoreCase("AUDIT")) {
-               temp = OrderDAO.getGridDataForAudit();
+            temp = OrderDAO.getGridDataForAudit();
         } else {
             temp = OrderDAO.getGridData(Module, KeyName);
         }
@@ -184,7 +184,11 @@ public class ComponentXMLGenarator {
         List temp = OrderDAO.getGridDataForChartOrderList(Type, param);
         mvc.put("ALL_ROWS_LIST", temp.get(0));
         mvc.put("COLUMN_NAME_LIST", temp.get(1));
-        mvc.put("Type", "CHART_ORDER_LIST");
+        if (Type.equalsIgnoreCase("ORDER_IN_PROCESS")) {
+            mvc.put("Type", "CHART_ORDER_LIST_IN_PROCESS_EMPLOYEE_DETAILS");
+        } else {
+            mvc.put("Type", "CHART_ORDER_LIST");
+        }
         return new ModelAndView("LoadXMLComponent", "OBJECT_MAP", mvc);
     }
 

@@ -5,6 +5,8 @@ import com.ordermanager.messanger.sendSMS;
 import com.ordermanager.utility.ConstantContainer;
 import com.ordermanager.utility.DAOHelper;
 import com.ordermanager.utility.PropertyFileReader;
+import static com.ordermanager.utility.PropertyFileReader.queryReader;
+import static com.ordermanager.utility.PropertyFileReader.readSQLQueryFromFile;
 import com.ordermanager.utility.ResponseJSONHandler;
 import com.ordermanager.utility.UtilityDAO;
 import java.sql.Connection;
@@ -52,7 +54,7 @@ public class OrderDAO extends DAOHelper {
     }
 
     public Map<String, Object> getItemSelectionList(String ITEM_TYPE) {
-        String DISTINCT_ITEM_SUB_TYPE = "SELECT DISTINCT ITEM_SUB_TYPE FROM ITEMS WHERE ACTIVE=1 AND ITEM_TYPE='EXTRA' AND  PARENT_ITEM= ? ORDER BY ITEM_SUB_TYPE ASC";
+        String DISTINCT_ITEM_SUB_TYPE = queryReader("itemselection");
         String SQL = "SELECT ITEM_SUB_TYPE,ITEM_NAME FROM ITEMS WHERE ACTIVE=1 AND ITEM_TYPE='EXTRA' AND  PARENT_ITEM= ? AND ITEM_SUB_TYPE=?";
         ResultSet distinctRst = null;
         ResultSet rst = null;
@@ -532,6 +534,7 @@ public class OrderDAO extends DAOHelper {
         String SQL = "SELECT TOP 50 BILL_NO,ORDER_DATE,DELIVERY_DATE,'NEW ORDER' AS ORDER_STATUS,PIECE_VENDOR,PRICE,ORDER_TYPE, PRODUCT_TYPE FROM ORDERS ORDER BY ORDER_UID DESC";
         return this.getJSONDataForGrid(SQL);
     }
+
     public List<Object> getGridDataForAudit() {
         String SQL = "SELECT AUDIT_UID,AUDIT_TYPE, AUDIT_MODULE, AUDIT_DATETIME, CONVERT(VARCHAR(8),AUDIT_DATETIME,108) AS TIME, AUDITED_BY , AUDIT_KEY, AUDIT_HISTORY , NOTE FROM AUDIT ORDER BY AUDIT_UID DESC";
         return this.getJSONDataForGrid(SQL);
@@ -606,6 +609,11 @@ public class OrderDAO extends DAOHelper {
         }
         if (Type.equals("FUTURE_ORDER")) {
             String TempSQL = "SELECT OD.BILL_NO,OD.PRICE,OD.QUANTITY,OD.ORDER_DATE,OD.DELIVERY_DATE,OD.CURRENT_STATUS,DBO.getCurrentLocation(OD.BILL_NO) AS CURRENT_LOCATION,OD.ORDER_TYPE,OD.NOTE  FROM ORDERS OD WHERE DELIVERY_DATE IS NOT NULL AND ORDER_TYPE <> 'CANCELLED' AND DELIVERY_DATE > = DateAdd(DAY, DATEDIFF(DAY, 0, ?), 0) AND DELIVERY_DATE < DateAdd(DAY, DATEDIFF(DAY,0, ?), 1) AND (CURRENT_STATUS <> 'READY_TO_DELIVER' AND CURRENT_STATUS <> 'DELIVERY_COMPLETED')";
+            SQL = TempSQL.replace("?", "'" + param + "'");
+        }
+        
+        if (Type.equals("ORDER_IN_PROCESS")) {  
+            String TempSQL ="SELECT ORDER_ASSIGNMENTS.BILL_NO, ORDER_ASSIGNMENTS.WAGE_STATUS,ORDER_ASSIGNMENTS.ASSIGNMENT_DATE, ORDERS.DELIVERY_DATE,ORDERS.QUANTITY,ORDERS.CURRENT_STATUS, ORDER_ASSIGNMENTS.ASSIGNMENT_TYPE, ORDER_ASSIGNMENTS.PAYMENT_DATE  FROM ORDER_ASSIGNMENTS INNER JOIN ORDERS ON ORDER_ASSIGNMENTS.BILL_NO = ORDERS.BILL_NO WHERE ORDERS.CURRENT_STATUS = 'IN_PROCESS' AND ORDERS.ORDER_TYPE <> 'PIECE_SALE' AND ORDERS.CURRENT_STATUS <> 'CANCELLED'  AND ORDER_ASSIGNMENTS.ASSIGNMENT_TYPE NOT LIKE '%TO_CANCEL%'  AND ORDER_ASSIGNMENTS.EMPLOYEE_NAME = ?";
             SQL = TempSQL.replace("?", "'" + param + "'");
         }
 
@@ -2266,6 +2274,35 @@ public class OrderDAO extends DAOHelper {
                     obj.put("color", "white");
                 }
                 dataArray.put(obj);
+            }
+
+        } catch (Exception e) {
+        } finally {
+            rst.close();
+            pst.close();
+            con.close();
+        }
+        return dataArray.toString();
+    }
+
+    public String getChartDataOrdersUnderProcessing(JSONObject chartParams) throws Exception {
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rst = null;
+        JSONArray dataArray = new JSONArray();
+        try {
+            String Days = chartParams.getString("DAYS");
+            con = getJDBCConnection();
+            pst = con.prepareStatement("SELECT ORDER_ASSIGNMENTS.EMPLOYEE_NAME, SUM(ORDERS.QUANTITY) AS TOTAL FROM ORDER_ASSIGNMENTS INNER JOIN ORDERS ON ORDER_ASSIGNMENTS.BILL_NO = ORDERS.BILL_NO WHERE ORDERS.CURRENT_STATUS = 'IN_PROCESS'  AND ORDERS.ORDER_TYPE <> 'PIECE_SALE' AND ORDERS.CURRENT_STATUS <> 'CANCELLED' GROUP BY ORDER_ASSIGNMENTS.EMPLOYEE_NAME");
+            rst = pst.executeQuery();
+            int num = 0;
+            while (rst.next()) {
+                JSONObject obj = new JSONObject();
+                obj.put("EMPLOYEE_NAME", rst.getString("EMPLOYEE_NAME"));
+                obj.put("TOTAL", rst.getString("TOTAL"));
+                obj.put("COLOR", UtilityDAO.getColor(num));
+                dataArray.put(obj);
+                num = num + 1;
             }
 
         } catch (Exception e) {
